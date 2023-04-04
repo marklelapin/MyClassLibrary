@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyClassLibrary.Interfaces
+namespace MyClassLibrary.LocalServerMethods
 {
-    internal interface ILocalServerDataAccess
+    public interface ILocalServerDataAccess : ILocalDataAccess, IServerDataAccess
     {
     }
 }

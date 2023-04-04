@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace MyClassLibrary.Methods
+namespace MyClassLibrary.LocalServerMethods
 {
 
     /// <summary>
@@ -27,11 +27,13 @@ namespace MyClassLibrary.Methods
 
         public string UpdatedBy { get; set; } = string.Empty;
 
-        public bool IsActive { get;  set; }
+        public bool IsActive { get; set; }
+
+        ILocalServerDataAccess _localServerDataAccess;
 
         public void SaveToLocalAndServer<T>(List<T> objects)
         {
-            throw new NotImplementedException();
+           throw new NotImplementedException();
         }
 
         public void SaveLocalChangesToMainAndServer<T>(List<T> objects)
@@ -44,10 +46,11 @@ namespace MyClassLibrary.Methods
 
         }
 
-        public void DeleteDirectoryOption<T>(Guid id, DateTime updatedLocally) {
-            
+        public void DeleteDirectoryOption<T>(Guid id, DateTime updatedLocally)
+        {
+
         }
-    
+
         public List<T> GetHistory<T>(Guid id)
         {
             throw new NotImplementedException();
@@ -58,12 +61,13 @@ namespace MyClassLibrary.Methods
             throw new NotImplementedException();
         }
 
-        private List<T> GetConflicts<T>(List<T> objects) {
-        
+        private List<T> GetConflicts<T>(List<T> objects)
+        {
+
             throw new NotImplementedException();
         }
 
-        public LocalServerIdentity (Guid? id = null,bool isActive = true)
+        public LocalServerIdentity(Guid? id = null, bool isActive = true)
         {
             Id = id ?? new Guid();
             if (id == null)
