@@ -10,20 +10,19 @@ using System.Runtime.CompilerServices;
 
 namespace TheWhaddonShowClassLibrary.DataAccess
 {
-    public class SQLConnector : IServerDataAccess
+    public class ServerSQLConnector : IServerDataAccess
     {
-       //TODO = REMOVE AS SOON AS POSSIBLE
-        private string _connectionString = "Data Source = (localdb)\\MSSQLLocalDB;Initial Catalog = TheWhaddonShowTestDB; Integrated Security = True; Connect Timeout = 30; Encrypt=False;Trust Server Certificate=False;Application Intent = ReadWrite; Multi Subnet Failover=False"
-        
-        
-        
-        
+
+        public string ConnectionString { get; set; }
+
+        public ServerSQLConnector(string connectionString) 
+        {
+            ConnectionString = connectionString;
+        }
+             
         /// <summary>
-        /// Saves Objects Data that inherit from LocalServerIdentity into Server Storage. Pass back UpdatedOnServer dat to objects.
+        /// Saves Objects Data that inherit from LocalServerIdentity into Server Storage. Pass back UpdatedOnServer date to objects.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objects"></param>
-        /// <exception cref="NotImplementedException"></exception>
         public void SaveToServer<T>(List<T> objects) where T : LocalServerIdentity
         
         {
@@ -35,7 +34,7 @@ namespace TheWhaddonShowClassLibrary.DataAccess
             parameters.Add("@ObjectType", typeof(T).Name, DbType.String,ParameterDirection.Input);
             parameters.Add("@UpdatedOnServer", null, DbType.DateTime, ParameterDirection.Output);
 
-            using (IDbConnection connection = new SqlConnection(_connectionString))
+            using (IDbConnection connection = new SqlConnection(ConnectionString))
             {
                 connection.Execute("spSaveToServer", parameters, commandType: CommandType.StoredProcedure);
             };
@@ -44,14 +43,15 @@ namespace TheWhaddonShowClassLibrary.DataAccess
             {
                 obj.UpdatedOnServer = parameters.Get<DateTime>("@UpdatedOnServer");
             }
-
-
         }
+
+
+
+
+
         /// <summary>
         /// Finds all objects on the Server where the UpdatedOnServer date is later than lastSyncDate
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="lastSyncDate">The last time a successfult sync was carried out</param>
         public List<T> LoadChangesFromServer<T>(DateTime lastSyncDate) where T : LocalServerIdentity
         {   
             List<T> output;
@@ -62,7 +62,7 @@ namespace TheWhaddonShowClassLibrary.DataAccess
             parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
             parameters.Add("@JsonOutput","", DbType.String, ParameterDirection.Output);
 
-            using (IDbConnection connection = new SqlConnection(_connectionString))
+            using (IDbConnection connection = new SqlConnection(ConnectionString))
             {
                 connection.Execute("spLoadChangesFromServer", parameters, commandType: CommandType.StoredProcedure);
             }
@@ -72,11 +72,11 @@ namespace TheWhaddonShowClassLibrary.DataAccess
             return output;
         }
 
+
+
         /// <summary>
         /// Saves a local storage path to the server against the user and device if not using local browser storage.
         /// </summary>
-        /// <param name="path"></param>
-        /// <exception cref="NotImplementedException"></exception>
         public void saveLocalStoragePathToServer(string path) 
         {
             throw new NotImplementedException();

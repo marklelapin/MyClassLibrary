@@ -29,16 +29,18 @@ namespace MyClassLibrary.LocalServerMethods
 
         public bool IsActive { get; set; }
 
-        ILocalServerDataAccess _localServerDataAccess;
+        IServerDataAccess _serverDataAccess;
+
+        ILocalDataAccess _localDataAccess;
 
         public void SaveToLocalAndServer<T>(List<T> objects)
         {
            throw new NotImplementedException();
         }
 
-        public void SaveLocalChangesToMainAndServer<T>(List<T> objects)
+        public void SaveLocalChangesToMainAndServer<T>(List<T> objects) where T : LocalServerIdentity
         {
-            throw new NotImplementedException();
+            List<T> changesFromServer = _serverDataAccess.LoadChangesFromServer<T>(); //TODO - Add in get last synced date from local database
         }
 
         public void Sync<T>()
