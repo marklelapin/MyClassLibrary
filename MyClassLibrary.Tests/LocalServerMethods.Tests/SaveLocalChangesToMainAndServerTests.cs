@@ -9,7 +9,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
     internal class SaveLocalChangesToMainAndServerTests
     {
 
-        //1. run with all combinations of connector using connections string from appsettings.json file (ie for Connection STring model)
+        //1. run with all combinations of connector using connections string from appsettings.json file (ie for Connection String model)
         
         //2. Get this working for local sql connector and server sql connector first before doing anything else
         

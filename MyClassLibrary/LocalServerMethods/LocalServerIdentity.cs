@@ -40,7 +40,7 @@ namespace MyClassLibrary.LocalServerMethods
 
         public void SaveLocalChangesToMainAndServer<T>(List<T> objects) where T : LocalServerIdentity
         {
-            List<T> changesFromServer = _serverDataAccess.LoadChangesFromServer<T>(); //TODO - Add in get last synced date from local database
+            throw new NotImplementedException();
         }
 
         public void Sync<T>()

@@ -1,41 +1,119 @@
-﻿using System;
+﻿using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
+using System.Data.SqlClient;
+using System.Text.Json;
 
 namespace MyClassLibrary.LocalServerMethods
 {
+
+
+
     public class LocalSQLConnector : ILocalDataAccess
     {
-        public void DeleteLocalChanges<T>(List<T> objects)
+
+
+        public string ConnectionString { get; set; }
+
+        public LocalSQLConnector(string connectionString)
         {
-            throw new NotImplementedException();
+            ConnectionString = connectionString;
         }
 
-        public void GetLocalSyncSuccessfullDate()
+
+        public DateTime GetLocalLastSyncDate<T>()
         {
-            throw new NotImplementedException();
+            DateTime output;
+            
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@ObjectType", typeof(T).Name, DbType.String,ParameterDirection.Input);
+            parameters.Add("@LastSyncDate", null, DbType.DateTime, ParameterDirection.Output);
+
+            using (IDbConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Execute("spGetLocalLastSyncDate", parameters, commandType: CommandType.StoredProcedure);
+            }
+
+            output = parameters.Get<DateTime>("@LastSyncDate");
+
+            return output;
+
         }
 
-        public List<T> LoadFromLocalMain<T>(List<Guid>? ids = null)
+
+        public void SetLocalLastSyncDate<T>(DateTime lastSyncDate)
         {
-            throw new NotImplementedException();
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
+            parameters.Add("@LastSyncDate", lastSyncDate, DbType.DateTime, ParameterDirection.Input);
+
+            using (IDbConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Execute("spSetLocalLastSyncDate",parameters, commandType: CommandType.StoredProcedure);
+            }
         }
 
-        public void SaveToLocalChanges<T>(List<T> objects) where T : LocalServerIdentity
+        public void SaveToLocal<T>(List<T> objects) where T : LocalServerIdentity
         {
-            throw new NotImplementedException();
+            var parameters = new DynamicParameters();
+
+            var opt = new JsonSerializerOptions() { WriteIndented = true };
+            parameters.Add("@ObjectType",typeof(T).Name,DbType.String,ParameterDirection.Input);
+            parameters.Add("@Objects",JsonSerializer.Serialize<List<T>>(objects,opt),DbType.String, ParameterDirection.Input);
         }
 
-        public void SaveToLocalMain<T>(List<T> objects)
+        public List<T>? GetFromLocal<T>(List<Guid>? ids = null, bool IsActive = true) where T : LocalServerIdentity
         {
-            throw new NotImplementedException();
+            List<T>? output;
+            
+            var parameters = new DynamicParameters();
+
+            string idsCSV = String.Empty;
+
+            if (ids != null)
+            {
+                idsCSV = String.Join(",", ids.Select(x=>x.ToString()));
+            }
+
+            parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
+            parameters.Add("@ObjectIds", idsCSV, DbType.String, ParameterDirection.Input);
+            parameters.Add("@IsActive", IsActive,DbType.Boolean, ParameterDirection.Input);
+            parameters.Add("@Output",null,DbType.String, ParameterDirection.Input);
+
+            using (IDbConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Execute("spGetFromLocal", parameters, commandType: CommandType.StoredProcedure);
+            }
+
+            output = JsonSerializer.Deserialize<List<T>>(parameters.Get<string>("@Output"));
+
+             return output;
         }
 
-        public void SetLocalSyncSuccessfullDate()
+        public List<T>? GetChangesFromLocal<T>() where T : LocalServerIdentity
         {
-            throw new NotImplementedException();
+            List<T>? output;
+
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@ObjectType", typeof(T).Name,DbType.String, ParameterDirection.Input);
+            parameters.Add("@Output",null,DbType.String, ParameterDirection.Input);
+
+            using (IDbConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Execute("spGetChangesFromLocal",parameters,commandType: CommandType.StoredProcedure);
+            }
+
+            output = JsonSerializer.Deserialize<List<T>>(parameters.Get<string>("@Output"));
+
+            return output;
+
         }
     }
 }

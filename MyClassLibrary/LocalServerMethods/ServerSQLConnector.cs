@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Text.Json.Nodes;
 using System.Text.Json;
 using System.Runtime.CompilerServices;
+using System.Reflection.Metadata.Ecma335;
 
 namespace TheWhaddonShowClassLibrary.DataAccess
 {
@@ -19,7 +20,25 @@ namespace TheWhaddonShowClassLibrary.DataAccess
         {
             ConnectionString = connectionString;
         }
-             
+         
+
+
+        /// <summary>
+        /// Saves a local storage path to the server against the user and device if not using local browser storage.
+        /// </summary>
+          public void SaveLocalStoragePathToServer(string path)
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@LocalStoragePath", path, DbType.String, ParameterDirection.Input);
+
+                using (IDbConnection connection = new SqlConnection(ConnectionString))
+                    {
+                        connection.Execute("spSaveLocalStoragePathToServer", parameters, commandType: CommandType.StoredProcedure);
+                    };
+            }    
+
+
+
         /// <summary>
         /// Saves Objects Data that inherit from LocalServerIdentity into Server Storage. Pass back UpdatedOnServer date to objects.
         /// </summary>
@@ -28,7 +47,6 @@ namespace TheWhaddonShowClassLibrary.DataAccess
         {
             var parameters = new DynamicParameters();
 
-            
             var opt = new JsonSerializerOptions() { WriteIndented = true };
             parameters.Add("@Objects", JsonSerializer.Serialize<List<T>>(objects, opt),DbType.String,ParameterDirection.Input);
             parameters.Add("@ObjectType", typeof(T).Name, DbType.String,ParameterDirection.Input);
@@ -45,14 +63,10 @@ namespace TheWhaddonShowClassLibrary.DataAccess
             }
         }
 
-
-
-
-
         /// <summary>
         /// Finds all objects on the Server where the UpdatedOnServer date is later than lastSyncDate
         /// </summary>
-        public List<T> LoadChangesFromServer<T>(DateTime lastSyncDate) where T : LocalServerIdentity
+        public List<T> GetChangesFromServer<T>( DateTime lastSyncDate) where T : LocalServerIdentity
         {   
             List<T> output;
 
@@ -60,27 +74,50 @@ namespace TheWhaddonShowClassLibrary.DataAccess
 
             parameters.Add("@LastSyncDate",lastSyncDate,DbType.DateTime,ParameterDirection.Input);
             parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
-            parameters.Add("@JsonOutput","", DbType.String, ParameterDirection.Output);
+            parameters.Add("@Output","", DbType.String, ParameterDirection.Output);
 
             using (IDbConnection connection = new SqlConnection(ConnectionString))
             {
                 connection.Execute("spLoadChangesFromServer", parameters, commandType: CommandType.StoredProcedure);
             }
 
-           output =  JsonSerializer.Deserialize<List<T>>(parameters.Get<string>("@JsonOutput")) ?? new List<T>();
+           output =  JsonSerializer.Deserialize<List<T>>(parameters.Get<string>("@Output")) ?? new List<T>();
 
             return output;
         }
 
 
-
-        /// <summary>
-        /// Saves a local storage path to the server against the user and device if not using local browser storage.
-        /// </summary>
-        public void saveLocalStoragePathToServer(string path) 
+        public List<T> GetFromServer<T>( List<Guid>? ids = null, bool IsActive = true) where T : LocalServerIdentity
         {
-            throw new NotImplementedException();
+            List<T> output;
+
+            string idsCSV = string.Empty;
+
+            if (ids != null) {
+                idsCSV = String.Join(",",ids.Select(x => x.ToString()));
+            }
+
+            var parameters = new DynamicParameters();
+            
+            parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
+            parameters.Add("@ObjectIds",idsCSV,DbType.String, ParameterDirection.Input);
+            parameters.Add("@IsActive",IsActive, DbType.Boolean, ParameterDirection.Input);
+            parameters.Add("@Output",null,DbType.String, ParameterDirection.Output);
+
+            using (IDbConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Execute("spGetFromServer",parameters,commandType: CommandType.StoredProcedure);  
+            }
+
+            output = JsonSerializer.Deserialize<List<T>>(parameters.Get<string>("@Output")) ?? new List<T>();
+
+            return output;
+
         }
 
+
+
+   
+       
     }
 }
