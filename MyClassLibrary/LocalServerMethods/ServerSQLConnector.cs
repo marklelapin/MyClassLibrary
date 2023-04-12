@@ -1,5 +1,4 @@
 ﻿
-using MyClassLibrary.LocalServerMethods;
 using System.Data;
 using System.Data.SqlClient;
 using Dapper;
@@ -9,7 +8,7 @@ using System.Text.Json;
 using System.Runtime.CompilerServices;
 using System.Reflection.Metadata.Ecma335;
 
-namespace TheWhaddonShowClassLibrary.DataAccess
+namespace MyClassLibrary.LocalServerMethods
 {
     public class ServerSQLConnector : IServerDataAccess
     {
@@ -47,9 +46,11 @@ namespace TheWhaddonShowClassLibrary.DataAccess
         {
             var parameters = new DynamicParameters();
 
-            var opt = new JsonSerializerOptions() { WriteIndented = true };
-            parameters.Add("@Objects", JsonSerializer.Serialize<List<T>>(objects, opt),DbType.String,ParameterDirection.Input);
-            parameters.Add("@ObjectType", typeof(T).Name, DbType.String,ParameterDirection.Input);
+            //var opt = new JsonSerializerOptions() { WriteIndented = true };
+            string jsonObjects = JsonSerializer.Serialize<List<T>>(objects);
+
+            parameters.Add("@Objects", jsonObjects, DbType.AnsiString,ParameterDirection.Input);
+            parameters.Add("@ObjectType", typeof(T).Name, DbType.AnsiString,ParameterDirection.Input);
             parameters.Add("@UpdatedOnServer", null, DbType.DateTime, ParameterDirection.Output);
 
             using (IDbConnection connection = new SqlConnection(ConnectionString))
@@ -73,8 +74,8 @@ namespace TheWhaddonShowClassLibrary.DataAccess
             var parameters = new DynamicParameters();
 
             parameters.Add("@LastSyncDate",lastSyncDate,DbType.DateTime,ParameterDirection.Input);
-            parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
-            parameters.Add("@Output","", DbType.String, ParameterDirection.Output);
+            parameters.Add("@ObjectType", typeof(T).Name, DbType.AnsiString, ParameterDirection.Input);
+            parameters.Add("@Output","", DbType.AnsiString, ParameterDirection.Output);
 
             using (IDbConnection connection = new SqlConnection(ConnectionString))
             {
@@ -87,7 +88,7 @@ namespace TheWhaddonShowClassLibrary.DataAccess
         }
 
 
-        public List<T> GetFromServer<T>( List<Guid>? ids = null, bool IsActive = true) where T : LocalServerIdentity
+        public List<T> GetFromServer<T>(List<Guid>? ids = null, bool IsActive = true) where T : LocalServerIdentity
         {
             List<T> output;
 
@@ -102,15 +103,16 @@ namespace TheWhaddonShowClassLibrary.DataAccess
             parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
             parameters.Add("@ObjectIds",idsCSV,DbType.String, ParameterDirection.Input);
             parameters.Add("@IsActive",IsActive, DbType.Boolean, ParameterDirection.Input);
-            parameters.Add("@Output",null,DbType.String, ParameterDirection.Output);
+            parameters.Add("@Output","",DbType.String, ParameterDirection.Output);
 
             using (IDbConnection connection = new SqlConnection(ConnectionString))
             {
                 connection.Execute("spGetFromServer",parameters,commandType: CommandType.StoredProcedure);  
             }
-
-            output = JsonSerializer.Deserialize<List<T>>(parameters.Get<string>("@Output")) ?? new List<T>();
-
+            string spOutput = parameters.Get<string>("@Output");
+            output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>();
+            
+            string jsonOutput = JsonSerializer.Serialize<List<T>>(output);
             return output;
 
         }

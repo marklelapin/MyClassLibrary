@@ -68,9 +68,9 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@Objects",JsonSerializer.Serialize<List<T>>(objects,opt),DbType.String, ParameterDirection.Input);
         }
 
-        public List<T>? GetFromLocal<T>(List<Guid>? ids = null, bool IsActive = true) where T : LocalServerIdentity
+        public List<T> GetFromLocal<T>(List<Guid>? ids = null, bool IsActive = true) where T : LocalServerIdentity
         {
-            List<T>? output;
+            List<T> output;
             
             var parameters = new DynamicParameters();
 
@@ -91,14 +91,14 @@ namespace MyClassLibrary.LocalServerMethods
                 connection.Execute("spGetFromLocal", parameters, commandType: CommandType.StoredProcedure);
             }
 
-            output = JsonSerializer.Deserialize<List<T>>(parameters.Get<string>("@Output"));
+            output = JsonSerializer.Deserialize<List<T>>(parameters.Get<string>("@Output")) ?? new List<T>();
 
              return output;
         }
 
-        public List<T>? GetChangesFromLocal<T>() where T : LocalServerIdentity
+        public List<T> GetChangesFromLocal<T>() where T : LocalServerIdentity
         {
-            List<T>? output;
+            List<T> output;
 
             var parameters = new DynamicParameters();
 
@@ -110,7 +110,7 @@ namespace MyClassLibrary.LocalServerMethods
                 connection.Execute("spGetChangesFromLocal",parameters,commandType: CommandType.StoredProcedure);
             }
 
-            output = JsonSerializer.Deserialize<List<T>>(parameters.Get<string>("@Output"));
+            output = JsonSerializer.Deserialize<List<T>>(parameters.Get<string>("@Output")) ?? new List<T>();
 
             return output;
 
