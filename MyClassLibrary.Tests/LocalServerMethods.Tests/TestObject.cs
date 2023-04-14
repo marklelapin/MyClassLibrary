@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 {
-    internal class TestObject : LocalServerIdentity
+    public class TestObject : LocalServerIdentity
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
@@ -15,10 +15,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         public DateTime? FavouriteDate { get; set; }
 
         public List<string>? FavouriteFoods { get; set; }
-
+    
         public TestObject() { }
-
-
 
         public TestObject(string firstName, string lastName, DateTime favouriteDate, List<string> favouriteFoods)
         {
@@ -27,7 +25,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             FavouriteDate = favouriteDate;
             FavouriteFoods = favouriteFoods;
         }
-        public TestObject(Guid id,DateTime created,string createdBy,DateTime updatedOnServer,bool isActive, string firstName, string lastName, DateTime favouriteDate, List<string> favouriteFoods)
+        public TestObject(Guid id,DateTime created,string createdBy,DateTime? updatedOnServer,bool isActive, string firstName, string lastName, DateTime favouriteDate, List<string> favouriteFoods)
         {
             Id = id;
             Created = created;
