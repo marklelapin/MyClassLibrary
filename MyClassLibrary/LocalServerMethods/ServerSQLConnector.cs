@@ -51,7 +51,7 @@ namespace MyClassLibrary.LocalServerMethods
 
             parameters.Add("@Objects", jsonObjects, DbType.AnsiString,ParameterDirection.Input);
             parameters.Add("@ObjectType", typeof(T).Name, DbType.AnsiString,ParameterDirection.Input);
-            parameters.Add("@UpdatedOnServer", null, DbType.DateTime, ParameterDirection.Output);
+            parameters.Add("@UpdatedOnServer", null, DbType.DateTime2, ParameterDirection.Output);
 
             using (IDbConnection connection = new SqlConnection(ConnectionString))
             {
@@ -73,17 +73,25 @@ namespace MyClassLibrary.LocalServerMethods
 
             var parameters = new DynamicParameters();
 
-            parameters.Add("@LastSyncDate",lastSyncDate,DbType.DateTime,ParameterDirection.Input);
-            parameters.Add("@ObjectType", typeof(T).Name, DbType.AnsiString, ParameterDirection.Input);
-            parameters.Add("@Output","", DbType.AnsiString, ParameterDirection.Output);
+            parameters.Add("@LastSyncDate",lastSyncDate,DbType.DateTime2,ParameterDirection.Input);
+            parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
+            parameters.Add("@Output","", DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
             using (IDbConnection connection = new SqlConnection(ConnectionString))
             {
-                connection.Execute("spLoadChangesFromServer", parameters, commandType: CommandType.StoredProcedure);
+                connection.Execute("spGetChangesFromServer", parameters, commandType: CommandType.StoredProcedure);
             }
+            string spOutput = parameters.Get<string>("@Output");
+            
+            if (spOutput != null )
+            { 
+                output = JsonSerializer.Deserialize<List<T>>(spOutput);
+            } else
+            {
+                output = new List<T>();
+            };
 
-           output =  JsonSerializer.Deserialize<List<T>>(parameters.Get<string>("@Output")) ?? new List<T>();
-
+       
             return output;
         }
 
@@ -103,16 +111,23 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
             parameters.Add("@ObjectIds",idsCSV,DbType.String, ParameterDirection.Input);
             parameters.Add("@IsActive",IsActive, DbType.Boolean, ParameterDirection.Input);
-            parameters.Add("@Output","",DbType.String, ParameterDirection.Output);
+            parameters.Add("@Output","",DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
             using (IDbConnection connection = new SqlConnection(ConnectionString))
             {
                 connection.Execute("spGetFromServer",parameters,commandType: CommandType.StoredProcedure);  
             }
             string spOutput = parameters.Get<string>("@Output");
-            output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>();
-            
+
+            if (spOutput != null)
+            {
+                output = JsonSerializer.Deserialize<List<T>>(spOutput);
+            } else {
+                output = new List<T>(); 
+            }
+            //for testing:
             string jsonOutput = JsonSerializer.Serialize<List<T>>(output);
+
             return output;
 
         }

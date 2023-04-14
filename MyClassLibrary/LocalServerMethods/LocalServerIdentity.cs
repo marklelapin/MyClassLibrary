@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualBasic.FileIO;
+using MyClassLibrary.Interfaces;
 using MyExtensions.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace MyClassLibrary.LocalServerMethods
     /// Gives objects inherting from it an Id and LocalTempID and functionality to synchronise between local and server versions for working offline.
     /// </summary>
     /// 
-    public class LocalServerIdentity
+    public class LocalServerIdentity : IHasId<Guid>
     {
         public Guid Id { get; set; }
 
@@ -23,7 +24,7 @@ namespace MyClassLibrary.LocalServerMethods
 
         public DateTime Created { get; set; }
 
-        public DateTime UpdatedOnServer { get; set; }
+        public DateTime? UpdatedOnServer { get; set; }
 
         public string CreatedBy { get; set; } = string.Empty;
 
