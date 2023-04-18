@@ -1,22 +1,24 @@
-﻿using MyClassLibrary.Extensions;
+﻿using Microsoft.Extensions.Hosting;
+using MyClassLibrary.Extensions;
 using MyClassLibrary.LocalServerMethods;
 using MyExtensions;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using System.Runtime.CompilerServices;
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 {
     public class DataAccessServerTests
     {
-        private static readonly ConnectionStringDictionary connectionStringDictionary = new ConnectionStringDictionary();
-        
 
-        private IServerDataAccess _serverDataAccess = new ServerSQLConnector(connectionStringDictionary.ServerSQL);
+        DataService dataService = new DataService();
 
         private static readonly List<TestContent> SaveAndGetTestContent = new List<TestContent>().GenerateTestContents(3);
 
@@ -45,38 +47,37 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         [Theory, MemberData(nameof(SaveAndGetTestData))]
         public void SaveAndGetTest(List<TestObject> testObjects,List<Guid> ids,bool isActive,List<TestObject> expected)
         {
-            _serverDataAccess.SaveToServer(testObjects);
+            dataService.serverDataAccess.SaveToServer(testObjects);
            
-            List<TestObject> actual = _serverDataAccess.GetFromServer<TestObject>(ids,isActive);
+            List<TestObject> actual = dataService.serverDataAccess.GetFromServer<TestObject>(ids,isActive);
 
             Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
         }
 
         public static readonly List<TestContent> GetChangesTestContent = new List<TestContent>().GenerateTestContents(3);
            
-        //public static readonly object[][] GetChangesTestData =
-        //{
-        //    new object[] { GetChangesTestContent[0].TestObjects,+1000,new List<TestObject>()}
-        //   ,new object[] { GetChangesTestContent[1].TestObjects,0,new List<TestObject>()}
-        //   ,new object[] { GetChangesTestContent[2].TestObjects,-1000,GetChangesTestContent[2].TestObjects}
-        //};
+        public static readonly object[][] GetChangesTestData =
+        {
+            new object[] { GetChangesTestContent[0].TestObjects,+1,new List<TestObject>()}
+           ,new object[] { GetChangesTestContent[1].TestObjects,0,new List<TestObject>()}
+           ,new object[] { GetChangesTestContent[2].TestObjects,-1,GetChangesTestContent[2].TestObjects}
+        };
 
-        //[Theory, MemberData(nameof(GetChangesTestData))]
-        //async public void GetChangesTest(List<TestObject> testObjects,int lastSyncDateAdjustment, List<TestObject> expected)
-        //{
-        //    _serverDataAccess.SaveToServer<TestObject>(testObjects);
+        [Theory, MemberData(nameof(GetChangesTestData))]
+        async public void GetChangesTest(List<TestObject> testObjects,int lastSyncDateAdjustment, List<TestObject> expected)
+        {
+            await Task.Delay(2000); //waits for 2 second to ensure that the last sync date produced will be more than the 1 second potential test gap.
+            
+            dataService.serverDataAccess.SaveToServer<TestObject>(testObjects);
 
-        //    DateTime lastSyncDate = testObjects[0].UpdatedOnServer.AddMilliseconds(lastSyncDateAdjustment);
+            DateTime lastSyncDate = testObjects[0].UpdatedOnServer ?? new DateTime(1900,1,1);
 
-        //    List<TestObject> actual = _serverDataAccess.GetChangesFromServer<TestObject>(lastSyncDate);
+            List<TestObject> actual = dataService.serverDataAccess.GetChangesFromServer<TestObject>(lastSyncDate.AddSeconds(lastSyncDateAdjustment));
 
-        //    expected.SortById<TestObject>();
-        //    actual.SortById<TestObject>();
-        //    Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
-
-        //    await Task.Delay(2000); //waits for 1 second so that there is a 
-
-        //}
+            expected.Sort((x , y)=>x.Id.CompareTo(y.Id));
+            actual.Sort((x, y) => x.Id.CompareTo(y.Id));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
+        }
 
 
 

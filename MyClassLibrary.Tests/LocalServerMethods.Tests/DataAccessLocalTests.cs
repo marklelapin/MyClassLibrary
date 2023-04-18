@@ -12,9 +12,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
     public class DataAccessLocalTests
     {
 
-        private static readonly ConnectionStringDictionary connectionStringDictionary = new ConnectionStringDictionary();
-
-        private ILocalDataAccess _localDataAccess = new LocalSQLConnector(connectionStringDictionary.LocalSQL);
+        DataService dataService = new DataService();
 
 
 
@@ -46,12 +44,12 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         [Theory, MemberData(nameof(SaveAndGetTestData))]
         public void SaveAndGetTest(List<TestObject> testObjects,List<Guid> testIds,bool isActive,List<TestObject> expected)
         {
-            _localDataAccess.SaveToLocal(testObjects);
+            dataService.localDataAccess.SaveToLocal(testObjects);
 
-           List<TestObject> actual =  _localDataAccess.GetFromLocal<TestObject>(testIds,isActive);
+           List<TestObject> actual =  dataService.localDataAccess.GetFromLocal<TestObject>(testIds,isActive);
 
-            actual.SortById();
-            expected.SortById();
+            actual.Sort((x,y)=>x.Id.CompareTo(y.Id));
+            expected.Sort((x, y) => x.Id.CompareTo(y.Id));
 
             Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
         }
@@ -61,20 +59,41 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         [Fact]
          public void GetChangesFromLocalTest() //also tests functionality of passing null into GetFromLocal
         {
+         
             TestContent testContent = new List<TestContent>().GenerateTestContents(1)[0];
 
-            _localDataAccess.SaveToLocal(testContent.TestObjects);
+            dataService.localDataAccess.SaveToLocal(testContent.TestObjects);
 
-            List<TestObject> allTestObjects = _localDataAccess.GetFromLocal<TestObject>(null,false);
+            List<TestObject> allTestObjects = dataService.localDataAccess.GetFromLocal<TestObject>(null,false);
 
             List<TestObject> expected = allTestObjects.Where(x=>x.UpdatedOnServer == null).ToList();
 
-            List<TestObject> actual = _localDataAccess.GetChangesFromLocal<TestObject>();
+            List<TestObject> actual = dataService.localDataAccess.GetChangesFromLocal<TestObject>();
 
-            actual.SortById();
-            expected.SortById();
+            actual.Sort((x, y) => x.Id.CompareTo(y.Id));
+            expected.Sort((x, y) => x.Id.CompareTo(y.Id));
 
             Assert.Equal(JsonSerializer.Serialize(expected),JsonSerializer.Serialize(actual));
         }
+
+        [Fact]
+        public void SaveAndGetLocalLastSyncDate()
+        {
+            DateTime expected = DateTime.Now;
+            dataService.localDataAccess.SaveLocalLastSyncDate<TestObject>(expected);
+
+            DateTime actual = dataService.localDataAccess.GetLocalLastSyncDate<TestObject>();
+
+            Assert.Equal(expected, actual);
+        }
+
+
+
+        async static private void InsertDelay(int milliSeconds)
+        {
+            await Task.Delay(milliSeconds);
+        }
+
+
     }
 }

@@ -9,11 +9,12 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 {
     internal static class TestExtensions
     {
-        internal static List<TestContent> GenerateTestContents(this List<TestContent> testContents, int quantity)
+        internal static List<TestContent> GenerateTestContents(this List<TestContent> testContents, int quantity,string? contentType = null,List<Guid>? overrideIds = null,DateTime? created = null)
         {
+                     
             for (int i = 0; i < quantity; i++)
             {
-                testContents.Add(new TestContent());
+                testContents.Add(new TestContent(contentType,overrideIds,created));
 
                 CreationDelay(200);
             };
