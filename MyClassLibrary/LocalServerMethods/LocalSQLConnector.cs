@@ -32,7 +32,7 @@ namespace MyClassLibrary.LocalServerMethods
             var parameters = new DynamicParameters();
 
             parameters.Add("@ObjectType", typeof(T).Name, DbType.String,ParameterDirection.Input);
-            parameters.Add("@LastSyncDate", null, DbType.DateTime, ParameterDirection.Output);
+            parameters.Add("@LastSyncDate", null, DbType.DateTime2, ParameterDirection.Output);
 
             using (IDbConnection connection = new SqlConnection(ConnectionString))
             {
@@ -46,16 +46,16 @@ namespace MyClassLibrary.LocalServerMethods
         }
 
 
-        public void SetLocalLastSyncDate<T>(DateTime lastSyncDate)
+        public void SaveLocalLastSyncDate<T>(DateTime lastSyncDate)
         {
             var parameters = new DynamicParameters();
 
             parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
-            parameters.Add("@LastSyncDate", lastSyncDate, DbType.DateTime, ParameterDirection.Input);
+            parameters.Add("@LastSyncDate", lastSyncDate, DbType.DateTime2, ParameterDirection.Input);
 
             using (IDbConnection connection = new SqlConnection(ConnectionString))
             {
-                connection.Execute("spSetLocalLastSyncDate",parameters, commandType: CommandType.StoredProcedure);
+                connection.Execute("spSaveLocalLastSyncDate",parameters, commandType: CommandType.StoredProcedure);
             }
         }
 
@@ -104,7 +104,7 @@ namespace MyClassLibrary.LocalServerMethods
         }
 
         public List<T> GetChangesFromLocal<T>() where T : LocalServerIdentity
-        {
+        {            
             List<T> output;
 
             var parameters = new DynamicParameters();
@@ -122,5 +122,7 @@ namespace MyClassLibrary.LocalServerMethods
             return output;
 
         }
+
+     
     }
 }

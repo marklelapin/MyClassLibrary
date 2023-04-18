@@ -9,12 +9,6 @@ namespace MyClassLibrary.LocalServerMethods
     public interface IServerDataAccess
     {
 
-         /// <summary>
-        /// Saves a local storage path to the server against the user and device if not using local browser storage.
-        /// </summary>
-        public void SaveLocalStoragePathToServer(string path);
-        
-
         /// <summary>
         /// Returns the data stored on server for the list of Guids provided.
         /// </summary>
@@ -24,7 +18,7 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Finds all objects on the Server where the UpdatedOnServer date is later than LastSyncDate
         /// </summary>
-        public List<T> GetChangesFromServer<T>(DateTime LastSyncDate) where T : LocalServerIdentity;
+        public (List<T> changesFromServer ,DateTime lastUpdatedOnServer) GetChangesFromServer<T>(DateTime LastSyncDate) where T : LocalServerIdentity;
 
 
         /// <summary>

@@ -23,22 +23,6 @@ namespace MyClassLibrary.LocalServerMethods
 
 
         /// <summary>
-        /// Saves a local storage path to the server against the user and device if not using local browser storage.
-        /// </summary>
-          public void SaveLocalStoragePathToServer(string path)
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@LocalStoragePath", path, DbType.String, ParameterDirection.Input);
-
-                using (IDbConnection connection = new SqlConnection(ConnectionString))
-                    {
-                        connection.Execute("spSaveLocalStoragePathToServer", parameters, commandType: CommandType.StoredProcedure);
-                    };
-            }    
-
-
-
-        /// <summary>
         /// Saves Objects Data that inherit from LocalServerIdentity into Server Storage. Pass back UpdatedOnServer date to objects.
         /// </summary>
         public void SaveToServer<T>(List<T> objects) where T : LocalServerIdentity
@@ -67,9 +51,9 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Finds all objects on the Server where the UpdatedOnServer date is later than lastSyncDate
         /// </summary>
-        public List<T> GetChangesFromServer<T>( DateTime lastSyncDate) where T : LocalServerIdentity
+        public (List<T> changesFromServer,DateTime lastUpdatedOnServer) GetChangesFromServer<T>( DateTime lastSyncDate) where T : LocalServerIdentity
         {   
-            List<T> output;
+            List<T> output = new List<T>();
 
             var parameters = new DynamicParameters();
 
@@ -82,17 +66,16 @@ namespace MyClassLibrary.LocalServerMethods
                 connection.Execute("spGetChangesFromServer", parameters, commandType: CommandType.StoredProcedure);
             }
             string spOutput = parameters.Get<string>("@Output");
-            
-            if (spOutput != null )
-            { 
-                output = JsonSerializer.Deserialize<List<T>>(spOutput);
-            } else
-            {
-                output = new List<T>();
-            };
 
+            if (spOutput != null)
+            {
+                output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>();
+            }
+
+            DateTime lastUpdatedOutput = (output ?? new List<T>()).Max(x => x.UpdatedOnServer) ?? DateTime.MinValue;
+            
        
-            return output;
+            return (changesFromServer: output,lastUpdatedOnServerDate: lastUpdatedOutput);
         }
 
 

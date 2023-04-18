@@ -30,43 +30,21 @@ namespace MyClassLibrary.LocalServerMethods
 
         public bool IsActive { get; set; }
 
-        IServerDataAccess _serverDataAccess;
 
-        ILocalDataAccess _localDataAccess;
+        
 
-        public void SaveToLocalAndServer<T>(List<T> objects)
-        {
-           throw new NotImplementedException();
-        }
-
-        public void SaveLocalChangesToMainAndServer<T>(List<T> objects) where T : LocalServerIdentity
+        public List<T> History<T>(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public void Sync<T>()
-        {
-
-        }
-
-        public void DeleteDirectoryOption<T>(Guid id, DateTime updatedLocally)
-        {
-
-        }
-
-        public List<T> GetHistory<T>(Guid id)
+        public T Latest<T>(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public List<T> GetLatestUpdate<T>(List<Guid> Ids)
+        public void Sync<T>(List<T> objects) where T : LocalServerIdentity
         {
-            throw new NotImplementedException();
-        }
-
-        private List<T> GetConflicts<T>(List<T> objects)
-        {
-
             throw new NotImplementedException();
         }
 
@@ -77,7 +55,8 @@ namespace MyClassLibrary.LocalServerMethods
             {
                 IsActive = isActive;
             }
+            Created = DateTime.UtcNow;
+            //CreatedBy TODO: add CreatedBy to LocalServerIdentity constructor
         }
-
     }
 }
