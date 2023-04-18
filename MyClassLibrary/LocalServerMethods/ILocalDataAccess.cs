@@ -19,7 +19,7 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Save the Last Successufl Sync Date to Local Storage
         /// </summary>
-        public void SetLocalLastSyncDate<T>(DateTime lastSyncDate);
+        public void SaveLocalLastSyncDate<T>(DateTime lastSyncDate);
 
         /// <summary>
         /// Loads Objects inhereting from LocalServerIdentity from Local Storage given a list of Ids.
