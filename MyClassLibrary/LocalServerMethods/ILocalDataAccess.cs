@@ -24,7 +24,7 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Loads Objects inhereting from LocalServerIdentity from Local Storage given a list of Ids.
         /// </summary>
-        public List<T> GetFromLocal<T>(List<Guid>? ids = null,bool IsActive = true) where T : LocalServerIdentity;
+        public List<T> GetFromLocal<T>(List<Guid>? ids = null) where T : LocalServerIdentity;
 
 
         /// <summary>
@@ -36,7 +36,12 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Saves Objects inhereting from LocalServerIdentity to Local Storage
         /// </summary>
-        public void SaveToLocal<T>(List<T> objects) where T : LocalServerIdentity;/// TODO if this works then add to all other methods
- 
+        public void SaveToLocal<T>(List<T> objects) where T : LocalServerIdentity;
+
+        /// <summary>
+        /// Sets the UpdatedOnServerDate property for objects inhereting from LocalServerIdentity to LocalStorage
+        /// </summary>
+        public void SaveUpdatedOnServerDate<T>( List<T> objects,DateTime UpdatedOnServer) where T : LocalServerIdentity;
+
     }
 }

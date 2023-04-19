@@ -12,7 +12,7 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Returns the data stored on server for the list of Guids provided.
         /// </summary>
-        public List<T> GetFromServer<T>(List<Guid>? ids = null,bool IsActive = true) where T : LocalServerIdentity;
+        public List<T> GetFromServer<T>(List<Guid>? ids = null) where T : LocalServerIdentity;
 
 
         /// <summary>

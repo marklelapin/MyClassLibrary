@@ -23,30 +23,27 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             new object[] {
                             SaveAndGetTestContents[0].TestObjects
                             ,SaveAndGetTestContents[0].TestIds()
-                            ,true
-                            ,SaveAndGetTestContents[0].ActiveTestObjects()
+                            ,SaveAndGetTestContents[0].TestObjects
                            },
             new object[]
                         {
                             SaveAndGetTestContents[1].TestObjects
                             ,SaveAndGetTestContents[1].TestIds()
-                            ,false
                             ,SaveAndGetTestContents[1].TestObjects
                            },
             new object[]
                         {
                             SaveAndGetTestContents[2].TestObjects
                             ,new List<Guid> {SaveAndGetTestContents[2].TestIds()[2]}
-                            ,true
                             ,SaveAndGetTestContents[2].TestObjects.Where(x => x.Id == SaveAndGetTestContents[2].TestIds()[2]).ToList()
                            }
         };
         [Theory, MemberData(nameof(SaveAndGetTestData))]
-        public void SaveAndGetTest(List<TestObject> testObjects,List<Guid> testIds,bool isActive,List<TestObject> expected)
+        public void SaveAndGetTest(List<TestObject> testObjects,List<Guid> testIds,List<TestObject> expected)
         {
             dataService.localDataAccess.SaveToLocal(testObjects);
 
-           List<TestObject> actual =  dataService.localDataAccess.GetFromLocal<TestObject>(testIds,isActive);
+           List<TestObject> actual =  dataService.localDataAccess.GetFromLocal<TestObject>(testIds);
 
             actual.Sort((x,y)=>x.Id.CompareTo(y.Id));
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
@@ -64,7 +61,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             dataService.localDataAccess.SaveToLocal(testContent.TestObjects);
 
-            List<TestObject> allTestObjects = dataService.localDataAccess.GetFromLocal<TestObject>(null,false);
+            List<TestObject> allTestObjects = dataService.localDataAccess.GetFromLocal<TestObject>(null);
 
             List<TestObject> expected = allTestObjects.Where(x=>x.UpdatedOnServer == null).ToList();
 
@@ -86,6 +83,34 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             Assert.Equal(expected, actual);
         }
+
+
+
+
+
+
+
+        [Fact]
+        public void SaveUpdatedOnServerTest()
+        {
+            DateTime updatedOnServer = DateTime.Now;
+
+            List<TestContent> testContents = new List<TestContent>().GenerateTestContents(1);
+
+            dataService.localDataAccess.SaveToLocal(testContents[0].TestObjects);
+
+            dataService.localDataAccess.SaveUpdatedOnServerDate(testContents[0].TestObjects,updatedOnServer);
+
+            List<TestObject> actualUpdated = dataService.localDataAccess.GetFromLocal<TestObject>(testContents[0].TestIds());
+
+            List<TestObject> actualNotUpdated = dataService.localDataAccess.GetFromLocal<TestObject>().Where(x => !actualUpdated.Any(y=>y.Id==x.Id)).ToList();
+
+            Assert.True(actualNotUpdated.Where(x=>x.UpdatedOnServer == updatedOnServer).Count() == 0,"No Other Objects Have UpdatedOnServerDate");
+            Assert.True(actualUpdated.Where(x => x.UpdatedOnServer == updatedOnServer).Count() == testContents[0].TestObjects.Count());
+        }
+
+
+
 
 
 

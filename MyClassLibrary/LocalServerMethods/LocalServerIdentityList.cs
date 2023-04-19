@@ -26,12 +26,7 @@ namespace MyClassLibrary.LocalServerMethods
                 _serverDataAccess = serverDataAccess ?? new ServerSQLConnector("Error");
                 _localDataAccess = localDataAccess ?? new LocalSQLConnector("Error");  
             
-                if (serverDataAccess == null && localDataAccess == null)
-                        {
-                            throw new ArgumentNullException("LocalDataAccess and ServerDataAccess must be set up as services.");
-                        }
-
-                 Objects = objects ?? new List<T>(); 
+               Objects = objects ?? new List<T>(); 
         }
   
 
@@ -200,11 +195,11 @@ namespace MyClassLibrary.LocalServerMethods
             List<T>? output = new List<T>();
             
             try {
-                if (_localDataAccess != null) { output = _localDataAccess.GetFromLocal<T>(ids,false); }
+                if (_localDataAccess != null) { output = _localDataAccess.GetFromLocal<T>(ids); }
                 }
             catch (Exception)
                 {
-                if (_serverDataAccess != null) { output = _serverDataAccess.GetFromServer<T>(ids,false); }
+                if (_serverDataAccess != null) { output = _serverDataAccess.GetFromServer<T>(ids); }
                 }
 
             Objects = output;

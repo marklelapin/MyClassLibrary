@@ -28,28 +28,25 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             new object[] {
                             SaveAndGetTestContent[0].TestObjects
                             ,SaveAndGetTestContent[0].TestIds()
-                            ,true
-                            ,SaveAndGetTestContent[0].ActiveTestObjects()
+                            ,SaveAndGetTestContent[0].TestObjects
                           },
             new object[] {
                             SaveAndGetTestContent[1].TestObjects
                             ,SaveAndGetTestContent[1].TestIds()
-                            ,false
                             ,SaveAndGetTestContent[1].TestObjects
                           },
             new object[] {
                             SaveAndGetTestContent[2].TestObjects
                             ,new List<Guid>() { SaveAndGetTestContent[2].TestIds()[2] }
-                            ,true
                             ,SaveAndGetTestContent[2].TestObjects.Where(x=>x.Id == SaveAndGetTestContent[2].TestIds()[2]).ToList()
                           },
         };
         [Theory, MemberData(nameof(SaveAndGetTestData))]
-        public void SaveAndGetTest(List<TestObject> testObjects,List<Guid> ids,bool isActive,List<TestObject> expected)
+        public void SaveAndGetTest(List<TestObject> testObjects,List<Guid> ids,List<TestObject> expected)
         {
             dataService.serverDataAccess.SaveToServer(testObjects);
            
-            List<TestObject> actual = dataService.serverDataAccess.GetFromServer<TestObject>(ids,isActive);
+            List<TestObject> actual = dataService.serverDataAccess.GetFromServer<TestObject>(ids);
 
             Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
         }
@@ -72,12 +69,12 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             DateTime lastSyncDate = testObjects[0].UpdatedOnServer ?? new DateTime(1900,1,1);
 
-            List<TestObject> actual = dataService.serverDataAccess.GetChangesFromServer<TestObject>(lastSyncDate.AddSeconds(lastSyncDateAdjustment));
+            (List<TestObject> actualChangesFromServer,DateTime actualLastUpdatedOnServer) = dataService.serverDataAccess.GetChangesFromServer<TestObject>(lastSyncDate.AddSeconds(lastSyncDateAdjustment));
 
             expected.Sort((x , y)=>x.Id.CompareTo(y.Id));
-            actual.Sort((x, y) => x.Id.CompareTo(y.Id));
-            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
-        }
+            actualChangesFromServer.Sort((x, y) => x.Id.CompareTo(y.Id));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actualChangesFromServer));
+      }
 
 
 

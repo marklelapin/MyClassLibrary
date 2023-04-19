@@ -79,7 +79,7 @@ namespace MyClassLibrary.LocalServerMethods
         }
 
 
-        public List<T> GetFromServer<T>(List<Guid>? ids = null, bool IsActive = true) where T : LocalServerIdentity
+        public List<T> GetFromServer<T>(List<Guid>? ids = null) where T : LocalServerIdentity
         {
             List<T> output;
 
@@ -93,7 +93,6 @@ namespace MyClassLibrary.LocalServerMethods
             
             parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
             parameters.Add("@ObjectIds",idsCSV,DbType.String, ParameterDirection.Input);
-            parameters.Add("@IsActive",IsActive, DbType.Boolean, ParameterDirection.Input);
             parameters.Add("@Output","",DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
             using (IDbConnection connection = new SqlConnection(ConnectionString))

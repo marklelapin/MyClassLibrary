@@ -13,7 +13,7 @@ namespace MyClassLibrary.LocalServerMethods
 
 
 
-    public class LocalSQLConnector : ILocalDataAccess
+    public class LocalSQLConnector : ILocalDataAccess 
     {
 
 
@@ -62,7 +62,7 @@ namespace MyClassLibrary.LocalServerMethods
         public void SaveToLocal<T>(List<T> objects) where T : LocalServerIdentity
         {
             var parameters = new DynamicParameters();
-            string jsonObjects = JsonSerializer.Serialize<List<T>>(objects);
+            string jsonObjects = JsonSerializer.Serialize(objects);
             parameters.Add("@ObjectType",typeof(T).Name,DbType.String,ParameterDirection.Input);
             parameters.Add("@Objects",jsonObjects,DbType.String, ParameterDirection.Input);
 
@@ -73,7 +73,7 @@ namespace MyClassLibrary.LocalServerMethods
 
         }
 
-        public List<T> GetFromLocal<T>(List<Guid>? ids = null, bool IsActive = true) where T : LocalServerIdentity
+        public List<T> GetFromLocal<T>(List<Guid>? ids = null) where T : LocalServerIdentity
         {
             List<T> output;
             
@@ -88,7 +88,6 @@ namespace MyClassLibrary.LocalServerMethods
 
             parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
             parameters.Add("@ObjectIds", idsCSV, DbType.String, ParameterDirection.Input);
-            parameters.Add("@IsActive", IsActive,DbType.Boolean, ParameterDirection.Input);
             parameters.Add("@Output",null,DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
             using (IDbConnection connection = new SqlConnection(ConnectionString))
@@ -123,6 +122,17 @@ namespace MyClassLibrary.LocalServerMethods
 
         }
 
-     
+        public void SaveUpdatedOnServerDate<T>(List<T> objects, DateTime updatedOnServer) where T : LocalServerIdentity
+        {
+            var parameters = new DynamicParameters();
+            string jsonObjects = JsonSerializer.Serialize(objects);
+            parameters.Add("@Objects",jsonObjects,DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdatedOnServer", updatedOnServer, DbType.DateTime2, ParameterDirection.Input);
+
+            using (IDbConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Execute("spSaveUpdatedOnServerToLocal",parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
     }
 }
