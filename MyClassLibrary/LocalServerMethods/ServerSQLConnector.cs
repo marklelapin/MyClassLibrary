@@ -23,9 +23,9 @@ namespace MyClassLibrary.LocalServerMethods
 
 
         /// <summary>
-        /// Saves Objects Data that inherit from LocalServerIdentity into Server Storage. Pass back UpdatedOnServer date to objects.
+        /// Saves Objects Data that inherit from LocalServerIdentity into Server Storage. Pass back UpdatedOnServer date as return value but also updates List of Objects.
         /// </summary>
-        public void SaveToServer<T>(List<T> objects) where T : LocalServerIdentity
+        public DateTime SaveToServer<T>(List<T> objects) where T : LocalServerIdentity
         
         {
             var parameters = new DynamicParameters();
@@ -42,10 +42,14 @@ namespace MyClassLibrary.LocalServerMethods
                 connection.Execute("spSaveToServer", parameters, commandType: CommandType.StoredProcedure);
             };
 
-            foreach (LocalServerIdentity obj in objects)
+            DateTime output = parameters.Get<DateTime>("@UpdatedOnServer");
+
+            foreach(T obj in objects)
             {
-                obj.UpdatedOnServer = parameters.Get<DateTime>("@UpdatedOnServer");
+                obj.UpdatedOnServer = output;
             }
+
+            return output;
         }
 
         /// <summary>
@@ -114,9 +118,9 @@ namespace MyClassLibrary.LocalServerMethods
 
         }
 
-
-
-   
-       
+        public void SaveConflictIds<T>(Dictionary<Guid, Guid>? conflictIds = null) where T : LocalServerIdentity
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -134,5 +134,10 @@ namespace MyClassLibrary.LocalServerMethods
                 connection.Execute("spSaveUpdatedOnServerToLocal",parameters, commandType: CommandType.StoredProcedure);
             }
         }
+
+        public void SaveConflictIds<T>(Dictionary<Guid, Guid>? conflictIds = null) where T : LocalServerIdentity
+        {
+            throw new NotImplementedException();
+        }
     }
 }

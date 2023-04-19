@@ -156,6 +156,7 @@ namespace MyClassLibrary.LocalServerMethods
             List<T> changesFromServer = new List<T>();
             DateTime lastUpdatedOnServer = DateTime.MinValue;
             List<T> changesFromLocal = new List<T>();
+            DateTime newUpdatedOnServer = DateTime.MinValue;
 
             try
             {
@@ -177,11 +178,32 @@ namespace MyClassLibrary.LocalServerMethods
             {
                changesFromLocal =  _localDataAccess.GetChangesFromLocal<T>();
             }
-            catch { return false; }
+            catch { throw New Exception 
+                    
+                    return false; }
 
             try
             {
-                _serverDataAccess.SaveToServer(changesFromLocal);
+                newUpdatedOnServer = _serverDataAccess.SaveToServer(changesFromLocal);
+            }
+            catch { return false; }
+
+            List<Guid> conflictIds = FindConflictedIds(changesFromServer, changesFromLocal);
+
+            try
+            {
+
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                if (newUpdatedOnServer != DateTime.MinValue)
+                {
+                    _localDataAccess.SaveUpdatedOnServerDate(changesFromLocal, newUpdatedOnServer);
+                };
             }
             catch { return false; }
 
@@ -209,7 +231,25 @@ namespace MyClassLibrary.LocalServerMethods
         {
             GetObjects(new List<Guid> { id });
         }
-            
+           
+
+        public List<Guid> FindConflictedIds(List<T> changesFromServer,List<T> changesFromLocal)
+        {
+            List<Guid> output = new List<Guid>();
+
+            output.AddRange(changesFromServer.Where(x => x.ConflictID != null).Select(x => x.Id).ToList());
+
+            var joinedList = (
+                              from s in changesFromServer
+                              join l in changesFromLocal
+                              on s.Id equals l.Id
+                              select s.Id
+                              );
+
+            output.AddRange(joinedList);
+
+            return output;
+        }
     }
 }
 

@@ -20,7 +20,7 @@ namespace MyClassLibrary.LocalServerMethods
     {
         public Guid Id { get; set; }
 
-        public Guid ConflictID { get; set; }
+        public Guid? ConflictID { get; set; }
 
         public DateTime Created { get; set; }
 

@@ -43,5 +43,9 @@ namespace MyClassLibrary.LocalServerMethods
         /// </summary>
         public void SaveUpdatedOnServerDate<T>( List<T> objects,DateTime UpdatedOnServer) where T : LocalServerIdentity;
 
+        /// <summary>
+        /// Adds the corresponding Conflict Id (value) to all objects inhereting from local server identity with Id = (key)
+        /// </summary>
+        public void SaveConflictIds<T>(Dictionary<Guid,Guid>? conflictIds = null) where T : LocalServerIdentity;
     }
 }

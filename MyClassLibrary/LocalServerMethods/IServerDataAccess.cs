@@ -24,12 +24,15 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Saves Objects Data that inherit from LocalServerIdentity into Server Storage. Pass back UpdatedOnServer dat to objects.
         /// </summary>
-        public void SaveToServer<T>(List<T> objects) where T : LocalServerIdentity;
+        public DateTime SaveToServer<T>(List<T> objects) where T : LocalServerIdentity;
 
-        
+        /// <summary>
+        /// Adds the corresponding Conflict Id (value) to all objects inhereting from local server identity with Id = (key)
+        /// </summary>
+        public void SaveConflictIds<T>(Dictionary<Guid, Guid>? conflictIds = null) where T : LocalServerIdentity;
 
-       
-  
-    
+
+
+
     }
 }
