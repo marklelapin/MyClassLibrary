@@ -31,7 +31,10 @@ namespace MyClassLibrary.LocalServerMethods
         /// </summary>
         public void SaveConflictIds<T>(Dictionary<Guid, Guid>? conflictIds = null) where T : LocalServerIdentity;
 
-
+        /// <summary>
+        /// Permanently deletes the objects inheriting from LocalServerIdentiy passed in from server storage.
+        /// </summary>
+        public void DeleteFromServer<T>(List<T> objects) where T : LocalServerIdentity;
 
 
     }

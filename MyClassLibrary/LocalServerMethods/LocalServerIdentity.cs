@@ -30,33 +30,34 @@ namespace MyClassLibrary.LocalServerMethods
 
         public bool IsActive { get; set; }
 
-
-        
-
-        public List<T> History<T>(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public T Latest<T>(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Sync<T>(List<T> objects) where T : LocalServerIdentity
-        {
-            throw new NotImplementedException();
-        }
-
-        public LocalServerIdentity(Guid? id = null, bool isActive = true)
-        {
-            Id = id ?? new Guid();
-            if (id == null)
+       public LocalServerIdentity(Guid? id = null)
             {
-                IsActive = isActive;
+                
+            Id = id ?? new Guid();
+            
+                IsActive = true;
+                Created = DateTime.UtcNow;
+                //CreatedBy TODO: add CreatedBy to LocalServerIdentity constructor
             }
-            Created = DateTime.UtcNow;
-            //CreatedBy TODO: add CreatedBy to LocalServerIdentity constructor
+
+        public List<T> GetHistory<T>() where T : LocalServerIdentity
+        {
+            LocalServerIdentityList<T> output = new LocalServerIdentityList<T>();
+                
+            output.PopulateObjects(Id);
+            output.SortByIdAndCreated();
+
+            return output.Objects;
         }
+
+
+        public void Save<T>(List<T> objects) where T : LocalServerIdentity
+        {
+            LocalServerIdentityList<T> List = new LocalServerIdentityList<T>(objects);
+
+            List.Save();
+        }
+
+     
     }
 }

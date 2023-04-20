@@ -60,29 +60,27 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         }
 
 
-        public static readonly List<TestContent> TrySyncTestContents = new List<TestContent>().GenerateTestContents(14);
-
-        public static readonly List<TestContent> TrySyncExpectedResults = new List<TestContent>().GenerateTestContents(7);
+        public static readonly List<TestContent> TrySyncTestContents = new List<TestContent>().GenerateTestContents(14,"SyncTesting");
 
         public static readonly object[][] TrySyncTestData =
         {
-            new object[] {TrySyncTestContents[0].TestObjects,TrySyncTestContents[7].TestObjects,true,true,TrySyncExpectedResults[0].TestObjects,true},
-            new object[] {TrySyncTestContents[1].TestObjects,TrySyncTestContents[8].TestObjects,true,true,TrySyncExpectedResults[1].TestObjects,true},
-            new object[] {TrySyncTestContents[2].TestObjects,TrySyncTestContents[9].TestObjects,true,true,TrySyncExpectedResults[2].TestObjects,true},
-            new object[] {TrySyncTestContents[3].TestObjects,TrySyncTestContents[10].TestObjects,true,true,TrySyncExpectedResults[3].TestObjects,true},
-            new object[] {TrySyncTestContents[4].TestObjects,TrySyncTestContents[11].TestObjects,false,true,TrySyncExpectedResults[4].TestObjects,false},
-            new object[] {TrySyncTestContents[5].TestObjects,TrySyncTestContents[12].TestObjects,true,false,TrySyncExpectedResults[5].TestObjects,false},
-            new object[] {TrySyncTestContents[6].TestObjects,TrySyncTestContents[13].TestObjects,false,false,TrySyncExpectedResults[6].TestObjects,false}
+            new object[] {TrySyncTestContents[0].TestObjects,TrySyncTestContents[7].TestObjects,true,true,true},
+            new object[] {TrySyncTestContents[1].TestObjects,TrySyncTestContents[8].TestObjects,true,true,true},
+            new object[] {TrySyncTestContents[2].TestObjects,TrySyncTestContents[9].TestObjects,true,true,true},
+            new object[] {TrySyncTestContents[3].TestObjects,TrySyncTestContents[10].TestObjects,true,true,true},
+            new object[] {TrySyncTestContents[4].TestObjects,TrySyncTestContents[11].TestObjects,false,true,false},
+            new object[] {TrySyncTestContents[5].TestObjects,TrySyncTestContents[12].TestObjects,true,false,false},
+            new object[] {TrySyncTestContents[6].TestObjects,TrySyncTestContents[13].TestObjects,false,false,false}
         };
 
 
         [Theory, MemberData(nameof(TrySyncTestData))]
-        public void TrySyncTest(List<TestObject> serverObjects,List<TestObject> localObjects,bool serverStatus,bool localStatus,List<TestObject> expectedTestObjects,bool expectedWasSuccessful)
+        public void TrySyncTest(List<TestObject> serverObjects,List<TestObject> localObjects,bool serverStatus,bool localStatus,bool expectedWasSuccessfull)
         {
 
             DateTime localLastSyncDate = DateTime.Now;
 
-            CreateDelay(2000);
+           CreateDelay(1000);//This delay allows for that for discrepancies between time on server and local
             
             dataService.localDataAccess.SaveLocalLastSyncDate<TestObject>(localLastSyncDate);
                       
@@ -102,13 +100,46 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             
             LocalServerIdentityList<TestObject> testList = new LocalServerIdentityList<TestObject>(null,trySyncServerDataAccess,trySyncLocalDataAccess);
 
-            bool actualBool = testList.TrySync();
+            bool actualWasSuccessfull = testList.TrySync();
 
-            dataService.localDataAccess.GetFromLocal<TestObject>(combinedIds);
+            List<TestObject> actualServerResult = dataService.serverDataAccess.GetFromServer<TestObject>(combinedIds);
 
-            dataService.localDataAccess.GetFromLocal<TestObject>(combinedIds);
+            List<TestObject> actualLocalResult = dataService.localDataAccess.GetFromLocal<TestObject>(combinedIds);
 
-            Assert.True(actualBool,"Return value of TrySync for Was Successful");
+            List<TestObject> expectedServerResult = serverObjects;
+
+            List<TestObject> expectedLocalResult = localObjects;
+
+            if (expectedWasSuccessfull)
+            {
+                expectedServerResult.AddRange(localObjects.Where(x => x.UpdatedOnServer == null));
+                expectedLocalResult.AddRange(serverObjects.Where(x=>x.UpdatedOnServer > localLastSyncDate));      
+            } 
+
+            Assert.True(expectedWasSuccessfull==actualWasSuccessfull,$"TrySync Was Successfull Test: expected={expectedWasSuccessfull}, actual={actualWasSuccessfull}.");
+
+
+            actualServerResult.Sort((x,y)=> $"{x.Id.ToString()}.{x.Created}".CompareTo($"{y.Id.ToString()}.{y.Created}"));
+            actualLocalResult.Sort((x, y) => $"{x.Id.ToString()}.{x.Created}".CompareTo($"{y.Id.ToString()}.{y.Created}")); 
+            expectedServerResult.Sort((x, y) => $"{x.Id.ToString()}.{x.Created}".CompareTo($"{y.Id.ToString()}.{y.Created}"));
+            expectedLocalResult.Sort((x, y) => $"{x.Id.ToString()}.{x.Created}".CompareTo($"{y.Id.ToString()}.{y.Created}"));
+
+            //Not perfect but inserts actual result for UpdatedOnServer into expected result as difficult to get this within test.
+            //The final test comparing if server data = local data provides an additional test that this figure is correct.
+            for (int i = 0;i<expectedLocalResult.Count();i++)
+            {
+                if (expectedLocalResult[i].UpdatedOnServer == null && expectedWasSuccessfull == true)
+                {
+                    expectedLocalResult[i].UpdatedOnServer = actualLocalResult[i].UpdatedOnServer;
+                }
+            }
+
+
+            Assert.Equal(JsonSerializer.Serialize(expectedServerResult), JsonSerializer.Serialize(actualServerResult));
+
+            Assert.Equal(JsonSerializer.Serialize(expectedLocalResult), JsonSerializer.Serialize(actualLocalResult));
+
+            if (expectedWasSuccessfull) { Assert.Equal(JsonSerializer.Serialize(actualLocalResult), JsonSerializer.Serialize(actualServerResult));}
 
         }
 
@@ -191,11 +222,32 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         }
 
 
+
+
+        [Fact]
+        public void FindConflictsTest ()
+        {
+            throw new NotImplementedException();
+        }
+
+        
+
+
+
+        [Fact]
+        public void SaveConflictIds()
+        {
+            throw new NotImplementedException ();
+        }
+
+
         async void CreateDelay(int milliseconds)
         {
             await Task.Delay(milliseconds);
         }
 
+        
+       
 
     }
 }

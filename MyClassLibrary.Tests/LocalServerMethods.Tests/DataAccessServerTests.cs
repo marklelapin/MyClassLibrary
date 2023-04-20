@@ -65,9 +65,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         {
             await Task.Delay(2000); //waits for 2 second to ensure that the last sync date produced will be more than the 1 second potential test gap.
             
-            dataService.serverDataAccess.SaveToServer<TestObject>(testObjects);
-
-            DateTime lastSyncDate = testObjects[0].UpdatedOnServer ?? new DateTime(1900,1,1);
+            DateTime lastSyncDate = dataService.serverDataAccess.SaveToServer(testObjects);
 
             (List<TestObject> actualChangesFromServer,DateTime actualLastUpdatedOnServer) = dataService.serverDataAccess.GetChangesFromServer<TestObject>(lastSyncDate.AddSeconds(lastSyncDateAdjustment));
 
@@ -79,6 +77,11 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
 
 
+        [Fact]
+        public void SaveConflictIDToServerTest()
+        {
+            throw new NotImplementedException();
+        }
 
 
 
