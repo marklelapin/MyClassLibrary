@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 {
-    public class TestObject : LocalServerIdentity
+    public class TestObject : LocalServerIdentityUpdate
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }

@@ -25,7 +25,7 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Saves Objects Data that inherit from LocalServerIdentity into Server Storage. Pass back UpdatedOnServer date as return value but also updates List of Objects.
         /// </summary>
-        public DateTime SaveToServer<T>(List<T> objects) where T : LocalServerIdentity
+        public DateTime SaveToServer<T>(List<T> objects) where T : LocalServerIdentityUpdate
         
         {
             var parameters = new DynamicParameters();
@@ -37,10 +37,8 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@ObjectType", typeof(T).Name, DbType.AnsiString,ParameterDirection.Input);
             parameters.Add("@UpdatedOnServer", null, DbType.DateTime2, ParameterDirection.Output);
 
-            using (IDbConnection connection = new SqlConnection(ConnectionString))
-            {
-                connection.Execute("spSaveToServer", parameters, commandType: CommandType.StoredProcedure);
-            };
+            ExecuteStoredProcedure("spSaveToServer", parameters);
+            
 
             DateTime output = parameters.Get<DateTime>("@UpdatedOnServer");
 
@@ -55,7 +53,7 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Finds all objects on the Server where the UpdatedOnServer date is later than lastSyncDate
         /// </summary>
-        public (List<T> changesFromServer,DateTime lastUpdatedOnServer) GetChangesFromServer<T>( DateTime lastSyncDate) where T : LocalServerIdentity
+        public (List<T> changesFromServer,DateTime lastUpdatedOnServer) GetChangesFromServer<T>( DateTime lastSyncDate) where T : LocalServerIdentityUpdate
         {   
             List<T> output = new List<T>();
 
@@ -65,25 +63,23 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
             parameters.Add("@Output","", DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
-            using (IDbConnection connection = new SqlConnection(ConnectionString))
-            {
-                connection.Execute("spGetChangesFromServer", parameters, commandType: CommandType.StoredProcedure);
-            }
+            ExecuteStoredProcedure("spGetChangesFromServer", parameters);
+            
             string spOutput = parameters.Get<string>("@Output");
 
             if (spOutput != null)
             {
                 output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>();
             }
-
+            
             DateTime lastUpdatedOutput = (output ?? new List<T>()).Max(x => x.UpdatedOnServer) ?? DateTime.MinValue;
             
        
-            return (changesFromServer: output,lastUpdatedOnServerDate: lastUpdatedOutput);
+            return (changesFromServer: output, lastUpdatedOnServer: lastUpdatedOutput);
         }
 
 
-        public List<T> GetFromServer<T>(List<Guid>? ids = null) where T : LocalServerIdentity
+        public List<T> GetFromServer<T>(List<Guid>? ids = null) where T : LocalServerIdentityUpdate
         {
             List<T> output;
 
@@ -99,28 +95,54 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@ObjectIds",idsCSV,DbType.String, ParameterDirection.Input);
             parameters.Add("@Output","",DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
-            using (IDbConnection connection = new SqlConnection(ConnectionString))
-            {
-                connection.Execute("spGetFromServer",parameters,commandType: CommandType.StoredProcedure);  
-            }
+            ExecuteStoredProcedure("spGetFromServer",parameters);  
+            
             string spOutput = parameters.Get<string>("@Output");
 
             if (spOutput != null)
             {
-                output = JsonSerializer.Deserialize<List<T>>(spOutput);
+                output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>();
             } else {
                 output = new List<T>(); 
             }
-            //for testing:
+            //for testing
+            
             string jsonOutput = JsonSerializer.Serialize<List<T>>(output);
 
             return output;
 
         }
 
-        public void SaveConflictIds<T>(Dictionary<Guid, Guid>? conflictIds = null) where T : LocalServerIdentity
+        public void SaveConflictIdsToServer<T>(List<Conflict> conflicts) where T : LocalServerIdentityUpdate
         {
-            throw new NotImplementedException();
+            string jsonConflicts = JsonSerializer.Serialize(conflicts);
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@Conflicts",jsonConflicts, DbType.String, ParameterDirection.Input);
+            parameters.Add("@ObjectType",typeof(T).Name,DbType.String, ParameterDirection.Input);
+
+            ExecuteStoredProcedure("spSaveConflictIdsToServer", parameters);
         }
+
+        public void DeleteFromServer<T>(List<T> objects) where T : LocalServerIdentityUpdate
+        {
+            string jsonObjects = JsonSerializer.Serialize(objects);
+            var parameters = new DynamicParameters();
+            parameters.Add("@Objects",jsonObjects, DbType.String, ParameterDirection.Input);
+            parameters.Add("ObjectType", typeof(T).Name, DbType.String,ParameterDirection.Input);
+
+            ExecuteStoredProcedure("spDeleteFromServer",parameters);
+        }
+
+
+        private void ExecuteStoredProcedure(string storedProcedure, DynamicParameters parameters)
+        {
+            using (IDbConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Execute(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+
     }
 }

@@ -1,63 +1,65 @@
-﻿using Microsoft.VisualBasic.FileIO;
+﻿
+
 using MyClassLibrary.Interfaces;
-using MyExtensions.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using MyClassLibrary.LocalServerMethods;
+using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
+using System.Dynamic;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using System.Security.AccessControl;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
 
 namespace MyClassLibrary.LocalServerMethods
 {
-
-    /// <summary>
-    /// Gives objects inherting from it an Id and LocalTempID and functionality to synchronise between local and server versions for working offline.
-    /// </summary>
-    /// 
-    public class LocalServerIdentity : IHasId<Guid>
+    public class LocalServerIdentity<T> where T : LocalServerIdentityUpdate
     {
-        public Guid Id { get; set; }
+        /// <summary>
+        /// The Identity of the LocalServerIdentity
+        /// </summary>
+        public Guid Id { get; private set; }
 
-        public Guid? ConflictID { get; set; }
+        /// <summary>
+        /// A List of all Updates relating to Id
+        /// </summary>
+        public  List<T> Updates { get; private set; }
 
-        public DateTime Created { get; set; }
+        /// <summary>
+        /// The enging containing all LocalServerIdentity processes.
+        /// </summary>
+        private ILocalServerEngine<T> _localServerEngine;
 
-        public DateTime? UpdatedOnServer { get; set; }
 
-        public string CreatedBy { get; set; } = string.Empty;
+        public LocalServerIdentity(Guid? id = null,ILocalServerEngine<T>? localServerEngine = null)
+        {
+            _localServerEngine = localServerEngine ?? new LocalServerEngine<T>();
 
-        public bool IsActive { get; set; }
-
-       public LocalServerIdentity(Guid? id = null)
+            if (id == null)
             {
-                
-            Id = id ?? new Guid();
-            
-                IsActive = true;
-                Created = DateTime.UtcNow;
-                //CreatedBy TODO: add CreatedBy to LocalServerIdentity constructor
+                Id = Guid.NewGuid();
+                Updates = new List<T>();
+            } else
+            {
+                Id = (Guid)id;
+               Updates = _localServerEngine.GetAllUpdates(Id);
+                _localServerEngine.SortByCreated(Updates);
             }
-
-        public List<T> GetHistory<T>() where T : LocalServerIdentity
-        {
-            LocalServerIdentityList<T> output = new LocalServerIdentityList<T>();
-                
-            output.PopulateObjects(Id);
-            output.SortByIdAndCreated();
-
-            return output.Objects;
         }
 
-
-        public void Save<T>(List<T> objects) where T : LocalServerIdentity
+        /// <summary>
+        /// Returns the latest update relating to Id. Can return multiple updates if conflicts exist.
+        /// </summary>
+        public List<T> Latest()
         {
-            LocalServerIdentityList<T> List = new LocalServerIdentityList<T>(objects);
-
-            List.Save();
+            return _localServerEngine.FilterLatest(Updates);
         }
-
-     
-    }
+        
+        public void SaveUpdate(T update)
+        {
+            _localServerEngine.Save(update);
+        }
 }
+            
+}
+

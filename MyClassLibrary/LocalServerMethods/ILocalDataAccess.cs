@@ -24,33 +24,33 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Loads Objects inhereting from LocalServerIdentity from Local Storage given a list of Ids.
         /// </summary>
-        public List<T> GetFromLocal<T>(List<Guid>? ids = null) where T : LocalServerIdentity;
+        public List<T> GetFromLocal<T>(List<Guid>? ids = null) where T : LocalServerIdentityUpdate;
 
 
         /// <summary>
         /// Loads Objects inhereting from LocalServerIdentity from Local Storage with no UpdatedOnServer date.
         /// </summary>
-        public List<T> GetChangesFromLocal<T>() where T : LocalServerIdentity;  
+        public List<T> GetChangesFromLocal<T>() where T : LocalServerIdentityUpdate;  
 
 
         /// <summary>
         /// Saves Objects inhereting from LocalServerIdentity to Local Storage
         /// </summary>
-        public void SaveToLocal<T>(List<T> objects) where T : LocalServerIdentity;
+        public void SaveToLocal<T>(List<T> objects) where T : LocalServerIdentityUpdate;
 
         /// <summary>
         /// Sets the UpdatedOnServerDate property for objects inhereting from LocalServerIdentity to LocalStorage
         /// </summary>
-        public void SaveUpdatedOnServerDate<T>( List<T> objects,DateTime UpdatedOnServer) where T : LocalServerIdentity;
+        public void SaveUpdatedOnServerToLocal<T>( List<T> objects,DateTime UpdatedOnServer) where T : LocalServerIdentityUpdate;
 
         /// <summary>
         /// Adds the corresponding Conflict Id (value) to all objects inhereting from LocalServerIdentity with Id = (key)
         /// </summary>
-        public void SaveConflictIds<T>(Dictionary<Guid,Guid>? conflictIds = null) where T : LocalServerIdentity;
+        public void SaveConflictIdsToLocal<T>(List<Conflict> conflicts) where T : LocalServerIdentityUpdate;
 
         /// <summary>
         /// Permanently deletes the objects inheriting from LocalServerIdentiy passed in from local storage.
         /// </summary>
-        public void DeleteFromLocal<T>(List<T> objects) where T : LocalServerIdentity;
+        public void DeleteFromLocal<T>(List<T> objects) where T : LocalServerIdentityUpdate;
     }
 }
