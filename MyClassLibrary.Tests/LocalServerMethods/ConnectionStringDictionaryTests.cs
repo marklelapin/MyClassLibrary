@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyClassLibrary.Tests.LocalServerMethods.Tests
+namespace MyClassLibrary.Tests.LocalServerMethods
 {
     public class ConnectionStringDictionaryTests
     {

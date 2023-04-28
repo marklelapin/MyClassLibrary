@@ -1,4 +1,5 @@
 ﻿using MyClassLibrary.LocalServerMethods;
+using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
 using NuGet.Frameworks;
 using System;
 using System.Collections.Generic;
@@ -7,14 +8,28 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace MyClassLibrary.Tests.LocalServerMethods.Tests
+namespace MyClassLibrary.Tests.LocalServerMethods
+
 {
-    public class DataAccessLocalTests
+    public class LocalDataAccessTests
     {
+        private static IServiceConfiguration _serviceConfiguration;
 
-        DataService dataService = new DataService();
+        private static IServiceConfiguration ServiceConfiguration
+        {
+            get { return _serviceConfiguration; }
+            set { _serviceConfiguration = value; }
+        }
 
 
+        public LocalDataAccessTests(IServiceConfiguration? serviceConfiguration = null)
+        {
+            _serviceConfiguration = serviceConfiguration ?? new Tests.LocalServerMethods.ServiceConfiguration();
+        }
+
+
+        private static ILocalDataAccess _localDataAccess = ServiceConfiguration.LocalDataAccess
+        private static ITestContent _testContent = ServiceConfiguration.TestContent;
 
         private static readonly List<TestContent> SaveAndGetTestContents = new List<TestContent>().GenerateTestContents(3);
 

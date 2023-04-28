@@ -6,26 +6,26 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using MyClassLibrary.Extensions;
-namespace MyClassLibrary.Tests.LocalServerMethods.Tests
+namespace MyClassLibrary.Tests.LocalServerMethods
 {
-    public class TestContent
+    public class TestContentToDelete
     {
-        public List<TestObject> TestObjects { get; set; } = new List<TestObject>();
-        public DateTime CreatedDate { get; private set; } 
+        //public List<TestObject> TestObjects { get; set; } = new List<TestObject>();
+        //public DateTime CreatedDate { get; private set; } 
 
-        private List<Guid> GeneratDraftIds(int quantity)
-        {
-            return Guid.NewGuid().GenerateList(quantity);
-        }
+        //private List<Guid> GeneratDraftIds(int quantity)
+        //{
+        //    return Guid.NewGuid().GenerateList(quantity);
+        //}
 
-        public List<Guid> TestIds() {
-            return TestObjects.Select(x => x.Id).Distinct().ToList();
-        }
+        //public List<Guid> TestIds() {
+        //    return TestObjects.Select(x => x.Id).Distinct().ToList();
+        //}
 
-        public List<TestObject> ActiveTestObjects()
-        {
-            return TestObjects.Where(x=>x.IsActive == true).ToList();
-        }
+        //public List<TestObject> ActiveTestObjects()
+        //{
+        //    return TestObjects.Where(x=>x.IsActive == true).ToList();
+        //}
 
         public TestContent(string? testSetupType = null,List<Guid>? OverrideIds = null,DateTime? createdDate = null)   
         {

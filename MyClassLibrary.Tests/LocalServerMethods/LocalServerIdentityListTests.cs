@@ -12,11 +12,11 @@ using MyClassLibrary.LocalServerMethods;
 using NuGet.Frameworks;
 using Xunit.Sdk;
 
-namespace MyClassLibrary.Tests.LocalServerMethods.Tests
+namespace MyClassLibrary.Tests.LocalServerMethods
 {
     public class LocalServerIdentityListTests
     {
-        DataService dataService = new DataService();
+        ServiceConfiguration dataService = new ServiceConfiguration();
 
         public static readonly List<TestContent> SaveAndGetTestContents = new List<TestContent>().GenerateTestContents(3);
 
