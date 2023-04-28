@@ -16,7 +16,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods
 {
     public class LocalServerIdentityListTests
     {
-        ServiceConfiguration dataService = new ServiceConfiguration();
+        DefaultServiceConfiguration dataService = new DefaultServiceConfiguration();
 
         public static readonly List<TestContent> SaveAndGetTestContents = new List<TestContent>().GenerateTestContents(3);
 

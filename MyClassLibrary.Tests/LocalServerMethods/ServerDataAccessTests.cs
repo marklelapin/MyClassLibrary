@@ -19,7 +19,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods
     public class ServerDataAccessTests 
     {
 
-        ServiceConfiguration dataService = new ServiceConfiguration();
+        DefaultServiceConfiguration dataService = new DefaultServiceConfiguration();
 
 
 

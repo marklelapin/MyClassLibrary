@@ -10,9 +10,9 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Interfaces
     public interface IServerDataAccessTests<T> where T : LocalServerIdentityUpdate
     {
         public void SaveTest(List<T> testUpdates);
-        public void SaveAndGetTest(List<T> testUpdates, List<T> expected);
+        public void SaveAndGetTest(List<T> testUpdates, List<Guid> getIds, List<T> expected);
         public void GetChangesTest(List<T> testUpdates, int lastSyncDateAdjustment, List<T> expected);
-        public void SaveConflictIdTest(List<T> testUpdate, List<Conflict> conflicts);
+        public void SaveConflictIdTest(List<T> testUpdate, List<Conflict> conflicts, List<Conflict> expected);
         public void DeleteTest(List<T> testUpdatesTpDelete);
     }
 }

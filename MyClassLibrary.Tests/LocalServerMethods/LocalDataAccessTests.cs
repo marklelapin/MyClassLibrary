@@ -24,7 +24,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods
 
         public LocalDataAccessTests(IServiceConfiguration? serviceConfiguration = null)
         {
-            _serviceConfiguration = serviceConfiguration ?? new Tests.LocalServerMethods.ServiceConfiguration();
+            _serviceConfiguration = serviceConfiguration ?? new Tests.LocalServerMethods.DefaultServiceConfiguration();
         }
 
 

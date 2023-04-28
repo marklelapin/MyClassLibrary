@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Xunit.Sdk;
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Services
 {
@@ -21,12 +22,16 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
             get { return _serviceConfiguration; }
             set { _serviceConfiguration = value; }
         }
+        public LocalDataAccessTestsService(IServiceConfiguration? serviceConfiguration = null)
+        {
+            _serviceConfiguration = serviceConfiguration ?? throw new ArgumentNullException("No Services Configuration passed through for Testing.");
+        }
+  
+
 
         private static ILocalDataAccess localDataAccess = ServiceConfiguration.LocalDataAccess();
 
         private static ITestContent<T> testContent = ServiceConfiguration.TestContent<T>();
-
-
 
         public static readonly object[][] SaveTestUpdates = { new object[] { testContent.Generate(1, "Default")[0] } };
         [Theory, MemberData(nameof(SaveTestUpdates))]
