@@ -100,7 +100,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
 
             DateTime lastSyncDate = _serverDataAccess.SaveToServer(updates);
 
-            (List<TestUpdate> actualChangesFromServer, DateTime actualLastUpdatedOnServer) = _serverDataAccess.GetChangesFromServer<TestUpdate>(lastSyncDate.AddSeconds(lastSyncDateAdjustment));
+            (List<T> actualChangesFromServer, DateTime actualLastUpdatedOnServer) = _serverDataAccess.GetChangesFromServer<T>(lastSyncDate.AddSeconds(lastSyncDateAdjustment));
 
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
             actualChangesFromServer.Sort((x, y) => x.Id.CompareTo(y.Id));
