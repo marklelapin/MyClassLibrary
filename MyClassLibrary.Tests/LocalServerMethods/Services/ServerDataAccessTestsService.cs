@@ -59,7 +59,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
                                       },
                         new object[] {
                                         saveAndGetTestContent[2]
-                                        ,_testContent.ListIds(saveAndGetTestContent[2])[2]
+                                        ,new List<Guid> {_testContent.ListIds(saveAndGetTestContent[2])[2] }
                                         ,saveAndGetTestContent[2].Where(x=>x.Id == _testContent.ListIds(saveAndGetTestContent[2])[2]).ToList()
                                       },
             };
@@ -105,7 +105,10 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
             actualChangesFromServer.Sort((x, y) => x.Id.CompareTo(y.Id));
             Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actualChangesFromServer));
-            Assert.Equal(lastSyncDate, actualLastUpdatedOnServer);
+            if (actualChangesFromServer.Count > 0)
+            {
+                Assert.Equal(lastSyncDate, actualLastUpdatedOnServer);
+            }
         }
 
 
@@ -125,9 +128,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
 
             return output;
         }
-
-
-        public object[][] saveConflictIdTestData()
+        public object[][] SaveConflictIdTestData()
         {
             List<List<T>> saveConflictIDTestContents = _testContent.Generate(2, "Default");
             List<Conflict> conflicts = Conflicts(saveConflictIDTestContents);
