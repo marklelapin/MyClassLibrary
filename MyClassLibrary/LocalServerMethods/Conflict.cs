@@ -10,15 +10,15 @@ namespace MyClassLibrary.LocalServerMethods
     {
         public Guid? ConflictId { get; set; }
 
-        public Guid ObjectId { get; set; }
+        public Guid UpdateId { get; set; }
 
-        public DateTime ObjectCreated { get; set; }
+        public DateTime UpdateCreated { get; set; }
 
 
         public Conflict(Guid objectId,DateTime objectCreated,Guid? conflictID = null)
         {
-            this.ObjectId = objectId;
-            this.ObjectCreated = objectCreated;
+            this.UpdateId = objectId;
+            this.UpdateCreated = objectCreated;
             if (conflictID != null )
             {
                 ConflictId = conflictID;

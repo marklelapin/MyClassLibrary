@@ -253,14 +253,14 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
                          };
 
 
-            expected.Sort((x, y) => x.ObjectCreated.CompareTo(y.ObjectCreated));
+            expected.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
 
             List<Conflict> actual = _localServerEngine.FindConflicts(changesFromServer, changesFromLocal);
-            actual.Sort((x, y) => x.ObjectCreated.CompareTo(y.ObjectCreated));
+            actual.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
 
-            List<Conflict> actualMinusConflictID = actual.Select(x => new Conflict(x.ObjectId, x.ObjectCreated)).ToList();
+            List<Conflict> actualMinusConflictID = actual.Select(x => new Conflict(x.UpdateId, x.UpdateCreated)).ToList();
 
-            List<string> actualIdAndConflictID = actual.Select(x => x.ObjectId.ToString() + x.ConflictId.ToString()).ToList();
+            List<string> actualIdAndConflictID = actual.Select(x => x.UpdateId.ToString() + x.ConflictId.ToString()).ToList();
 
             //expected to should match actual (without conflictID generated within function)
             Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actualMinusConflictID));

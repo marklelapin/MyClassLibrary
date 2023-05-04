@@ -167,20 +167,20 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
                                                     .Select(x => new Conflict(x.Id, x.Created, x.ConflictId))
                                                     .ToList();
 
-            actual.Sort((x, y) => x.ObjectCreated.CompareTo(y.ObjectCreated));
-            expected.Sort((x, y) => x.ObjectCreated.CompareTo(y.ObjectCreated));
+            actual.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
+            expected.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
 
             Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
         }
 
 
 
-        public object[][] DeleteTestData() { return new object[][] { new object[] { _testContent.Generate(1, "Default")[0] } };}
-        //[Theory, MemberData(nameof(DeleteTestContent))]
-        public void DeleteTest(List<T> testUpdatesToDelete)
-        {
-            throw new NotImplementedException(testUpdatesToDelete.ToString());
-        }
+        //public object[][] DeleteTestData() { return new object[][] { new object[] { _testContent.Generate(1, "Default")[0] } };}
+        ////[Theory, MemberData(nameof(DeleteTestContent))]
+        //public void DeleteTest(List<T> testUpdatesToDelete)
+        //{
+        //    throw new NotImplementedException(testUpdatesToDelete.ToString());
+        //}
 
 
         async private void InsertDelay(int milliSeconds)

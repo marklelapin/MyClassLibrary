@@ -8,19 +8,19 @@ using System.Threading.Tasks;
 
 namespace MyClassLibrary.Tests.LocalServerMethods
 {
-    internal class ConnectionStringDictionary
+    public class ConnectionStringDictionary
     {
         private IConfiguration? Config { get; set; }
         
 
 
-        internal string LocalSQL { get; private set; }
+        public string LocalSQL { get; private set; }
 
-        internal string ServerSQL { get; private set; }
+        public string ServerSQL { get; private set; }
 
-        internal string TestConnectionString { get; private set; }
+        public string TestConnectionString { get; private set; }
 
-        internal ConnectionStringDictionary()
+        public ConnectionStringDictionary()
         {
             var builder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())

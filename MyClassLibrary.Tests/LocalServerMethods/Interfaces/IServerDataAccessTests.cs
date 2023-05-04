@@ -25,8 +25,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Interfaces
         public void SaveConflictIdTest(List<T> testUpdate, List<Conflict> conflicts, List<Conflict> expected);
 
 
-
-        public object[][] DeleteTestData();
-        public void DeleteTest(List<T> testUpdatesTpDelete);
+        //TODO - ADD in Delete to these interfaces
+        //public object[][] DeleteTestData();
+        //public void DeleteTest(List<T> testUpdatesTpDelete);
     }
 }

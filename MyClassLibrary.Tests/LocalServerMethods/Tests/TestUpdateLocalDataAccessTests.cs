@@ -62,12 +62,12 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             _localDataAccessTests.SaveConflictIdTest(testUpdates, conflicts, expected);
         }
 
-
-        public static object[][] DeleteTestData = _localDataAccessTests.DeleteTestData();
-        [Theory, MemberData(nameof(DeleteTestData))]
-        public void DeleteTest(List<TestUpdate> testUpdatesToDelete)
-        {
-            _localDataAccessTests.DeleteTest(testUpdatesToDelete);
-        }
+        //TODO add in delete method
+        //public static object[][] DeleteTestData = _localDataAccessTests.DeleteTestData();
+        //[Theory, MemberData(nameof(DeleteTestData))]
+        //public void DeleteTest(List<TestUpdate> testUpdatesToDelete)
+        //{
+        //    _localDataAccessTests.DeleteTest(testUpdatesToDelete);
+        //}
     }
 }

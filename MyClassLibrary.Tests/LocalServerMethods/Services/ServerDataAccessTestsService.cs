@@ -96,7 +96,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         //[Theory, MemberData(nameof(GetChangesTestData))]
         async public void GetChangesTest(List<T> updates, int lastSyncDateAdjustment, List<T> expected)
         {
-            await Task.Delay(2000); //waits for 2 second to ensure that the last sync date produced will be more than the 1 second potential test gap.
+            await Task.Delay(4000); //waits for 2 second to ensure that the last sync date produced will be more than the 1 second potential test gap.
 
             DateTime lastSyncDate = _serverDataAccess.SaveToServer(updates);
 
@@ -152,19 +152,19 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
                                                     .Select(x => new Conflict(x.Id, x.Created, x.ConflictId))
                                                     .ToList();
 
-            actual.Sort((x, y) => x.ObjectCreated.CompareTo(y.ObjectCreated));
-            expected.Sort((x, y) => x.ObjectCreated.CompareTo(y.ObjectCreated));
+            actual.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
+            expected.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
 
             Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
 
         }
 
 
-        public object[][] DeleteTestData() { return new object[][] { new object[] { _testContent.Generate(1, "Default")[0] } }; }
-        //[Theory, MemberData(nameof(DeleteTestData))]
-        public void DeleteTest(List<T> testUpdatesToDelete)
-        {
-            throw new NotImplementedException(testUpdatesToDelete.ToString());
-        }
+        //public object[][] DeleteTestData() { return new object[][] { new object[] { _testContent.Generate(1, "Default")[0] } }; }
+        ////[Theory, MemberData(nameof(DeleteTestData))]
+        //public void DeleteTest(List<T> testUpdatesToDelete)
+        //{
+        //    throw new NotImplementedException(testUpdatesToDelete.ToString());
+        //}
     }
 }

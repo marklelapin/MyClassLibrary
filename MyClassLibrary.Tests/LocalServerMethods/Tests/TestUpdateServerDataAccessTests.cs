@@ -50,13 +50,13 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         
 
 
-
-        public static readonly object[][] DeleteTestData = _serverDataAccessTests.DeleteTestData();
-        [Theory,MemberData(nameof(DeleteTestData))]
-        public void DeleteTest(List<TestUpdate> testUpdatesToDelete)
-        {
-           _serverDataAccessTests.DeleteTest(testUpdatesToDelete);
-        }
+        //TODO add in Delete Test when funcionality is setup
+        //public static readonly object[][] DeleteTestData = _serverDataAccessTests.DeleteTestData();
+        //[Theory,MemberData(nameof(DeleteTestData))]
+        //public void DeleteTest(List<TestUpdate> testUpdatesToDelete)
+        //{
+        //   _serverDataAccessTests.DeleteTest(testUpdatesToDelete);
+        //}
 
        
 

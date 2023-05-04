@@ -77,14 +77,14 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Interfaces
         /// </summary>
 
 
-
-        /// <summary>
-        /// Gets the data for DeleteTest
-        /// </summary>
-        public object[][] DeleteTestData();
-        /// <summary>
-        /// Saves testUpdates then tries to delete them entirely.
-        /// </summary>
-        public void DeleteTest(List<T> testUpdatesToDelete);
+        //TODO - ADD in Delete to these interfaces
+        ///// <summary>
+        ///// Gets the data for DeleteTest
+        ///// </summary>
+        //public object[][] DeleteTestData();
+        ///// <summary>
+        ///// Saves testUpdates then tries to delete them entirely.
+        ///// </summary>
+        //public void DeleteTest(List<T> testUpdatesToDelete);
     }
 }
