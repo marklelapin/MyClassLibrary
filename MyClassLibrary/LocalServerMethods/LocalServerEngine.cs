@@ -205,7 +205,11 @@ namespace MyClassLibrary.LocalServerMethods
         {
             try
             {
-                _serverDataAccess.SaveToServer(updates);
+               DateTime updatedOnServer = _serverDataAccess.SaveToServer(updates);
+               foreach(T t in updates)
+                {
+                    t.UpdatedOnServer = updatedOnServer;
+                }
                 return true;
             }
             catch
@@ -260,7 +264,7 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Saves the ConflictID associates with it to each object with matching Id on both server and local.
         /// </summary>
-        private bool SaveConflictIds(List<Conflict> conflicts)
+        public bool SaveConflictIds(List<Conflict> conflicts)
         {
             try
             {

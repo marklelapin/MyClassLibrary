@@ -16,6 +16,7 @@
         void SortById(List<T> updates);
         void SortByIdAndCreated(List<T> updates);
         bool TrySync();
+        bool SaveConflictIds(List<Conflict> conflicts);
 
 
     }

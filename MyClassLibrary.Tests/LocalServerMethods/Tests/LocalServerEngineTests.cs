@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.AccessControl;
 using System.Text;
-using System.Text.Json;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using MyClassLibrary.Extensions;
@@ -18,12 +18,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 {
     public class LocalServerEngineTests
     {
-       private static IServiceConfiguration _serviceConfiguration;
-
-       public LocalServerEngineTests(IServiceConfiguration serviceConfiguration)
-        {
-            _serviceConfiguration = serviceConfiguration;
-        }
+       private static IServiceConfiguration _serviceConfiguration = new TestServiceConfiguration();
 
         private static readonly ILocalDataAccess _localDataAccess = _serviceConfiguration.LocalDataAccess();
 
@@ -64,7 +59,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
             actual.Sort((x, y) => x.Id.CompareTo(y.Id));
 
-            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
+            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
         }
 
 
@@ -140,11 +135,11 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             }
 
 
-            Assert.Equal(JsonSerializer.Serialize(expectedServerResult), JsonSerializer.Serialize(actualServerResult));
+            Assert.Equal(JsonConvert.SerializeObject(expectedServerResult), JsonConvert.SerializeObject(actualServerResult));
 
-            Assert.Equal(JsonSerializer.Serialize(expectedLocalResult), JsonSerializer.Serialize(actualLocalResult));
+            Assert.Equal(JsonConvert.SerializeObject(expectedLocalResult), JsonConvert.SerializeObject(actualLocalResult));
 
-            if (expectedWasSuccessfull) { Assert.Equal(JsonSerializer.Serialize(actualLocalResult), JsonSerializer.Serialize(actualServerResult)); }
+            if (expectedWasSuccessfull) { Assert.Equal(JsonConvert.SerializeObject(actualLocalResult), JsonConvert.SerializeObject(actualServerResult)); }
 
         }
 
@@ -166,7 +161,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             _localServerEngine.SortById(actual);
 
-            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
+            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
 
         }
 
@@ -187,7 +182,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             _localServerEngine.SortByCreated(actual);
 
-            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
+            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
 
         }
 
@@ -207,7 +202,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             _localServerEngine.SortByIdAndCreated(actual);
             
-            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
+            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
 
         }
 
@@ -268,7 +263,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             List<string> actualIdAndConflictID = actual.Select(x => x.ObjectId.ToString() + x.ConflictId.ToString()).ToList();
 
             //expected to should match actual (without conflictID generated within function)
-            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actualMinusConflictID));
+            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actualMinusConflictID));
 
             //the conflictIds generated within function should be distinct for each id.
             // Assert.True(actualIdAndConflictID.Count() == 3, "Error with ConflictIDs generated in function.");         
@@ -281,7 +276,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         [Fact]
         public void SaveConflictIdsTest()
         {
-            List<List<TestUpdate>> testContents = _testContent.Generate(3,"Default");
+            List<List<TestUpdate>> testContents = _testContent.Generate(1,"Default");
 
             _serverDataAccess.SaveToServer(testContents[0]);
             _localDataAccess.SaveToLocal(testContents[0]);
@@ -300,7 +295,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             expected.Select(x => (x.Id, x.Created, x.ConflictId)).ToList();
 
 
-
+            _localServerEngine.SaveConflictIds(conflicts);
 
 
             List<TestUpdate> actualServer = _serverDataAccess.GetFromServer<TestUpdate>(_testContent.ListIds(testContents[0]));
@@ -311,8 +306,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             actualLocal.Sort((x, y) => x.Id.CompareTo(y.Id));
             actualLocal.Select(x => (x.Id, x.Created, x.ConflictId)).ToList();
 
-            Assert.Equal(expected, actualServer);
-            Assert.Equal(expected, actualLocal);
+            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actualServer));
+            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actualLocal));
 
         }
 
