@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace MyClassLibrary.LocalServerMethods
 {
@@ -31,7 +31,7 @@ namespace MyClassLibrary.LocalServerMethods
             
             var parameters = new DynamicParameters();
 
-            parameters.Add("@ObjectType", typeof(T).Name, DbType.String,ParameterDirection.Input);
+            parameters.Add("@UpdateType", typeof(T).Name, DbType.String,ParameterDirection.Input);
             parameters.Add("@LastSyncDate", null, DbType.DateTime2, ParameterDirection.Output);
 
             ExecuteStoredProcedure("spGetLocalLastSyncDate", parameters);
@@ -48,19 +48,19 @@ namespace MyClassLibrary.LocalServerMethods
         {
             var parameters = new DynamicParameters();
 
-            parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateType", typeof(T).Name, DbType.String, ParameterDirection.Input);
             parameters.Add("@LastSyncDate", lastSyncDate, DbType.DateTime2, ParameterDirection.Input);
 
            ExecuteStoredProcedure("spSaveLocalLastSyncDate",parameters);
             
         }
 
-        public void SaveToLocal<T>(List<T> objects) where T : LocalServerIdentityUpdate
+        public void SaveToLocal<T>(List<T> updates) where T : LocalServerIdentityUpdate
         {
             var parameters = new DynamicParameters();
-            string jsonObjects = JsonSerializer.Serialize(objects);
-            parameters.Add("@ObjectType",typeof(T).Name,DbType.String,ParameterDirection.Input);
-            parameters.Add("@Objects",jsonObjects,DbType.String, ParameterDirection.Input);
+            string jsonUpdates = JsonConvert.SerializeObject(updates);
+            parameters.Add("@UpdateType",typeof(T).Name,DbType.String,ParameterDirection.Input);
+            parameters.Add("@Updates",jsonUpdates,DbType.String, ParameterDirection.Input);
 
             ExecuteStoredProcedure("spSaveToLocal",parameters);
 
@@ -79,15 +79,15 @@ namespace MyClassLibrary.LocalServerMethods
                 idsCSV = String.Join(",", ids.Select(x => x.ToString()));
             }
 
-            parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
-            parameters.Add("@ObjectIds", idsCSV, DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateType", typeof(T).Name, DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateIds", idsCSV, DbType.String, ParameterDirection.Input);
             parameters.Add("@Output",null,DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
             ExecuteStoredProcedure("spGetFromLocal", parameters);
 
             string spOutput = parameters.Get<string>("@Output") ?? "[]";
 
-            output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>() ;
+            output = JsonConvert.DeserializeObject<List<T>>(spOutput) ?? new List<T>() ;
            
             return output;
         }
@@ -98,13 +98,21 @@ namespace MyClassLibrary.LocalServerMethods
 
             var parameters = new DynamicParameters();
 
-            parameters.Add("@ObjectType", typeof(T).Name,DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateType", typeof(T).Name,DbType.String, ParameterDirection.Input);
             parameters.Add("@Output",null,DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
             ExecuteStoredProcedure("spGetChangesFromLocal",parameters);
-            
-            output = JsonSerializer.Deserialize<List<T>>(parameters.Get<string>("@Output")) ?? new List<T>();
 
+            string spOutput = parameters.Get<string>("@Output");
+
+            if (spOutput != null)
+            {
+                output = JsonConvert.DeserializeObject<List<T>>(spOutput) ?? new List<T>();
+            } else
+            {
+               output =  new List<T>() ; 
+            }
+                   
             return output;
 
         }
@@ -112,8 +120,8 @@ namespace MyClassLibrary.LocalServerMethods
         public void SaveUpdatedOnServerToLocal<T>(List<T> objects, DateTime updatedOnServer) where T : LocalServerIdentityUpdate
         {
             var parameters = new DynamicParameters();
-            string jsonObjects = JsonSerializer.Serialize(objects);
-            parameters.Add("@Objects",jsonObjects,DbType.String, ParameterDirection.Input);
+            string jsonObjects = JsonConvert.SerializeObject(objects);
+            parameters.Add("@Updates",jsonObjects,DbType.String, ParameterDirection.Input);
             parameters.Add("@UpdatedOnServer", updatedOnServer, DbType.DateTime2, ParameterDirection.Input);
 
             ExecuteStoredProcedure("spSaveUpdatedOnServerToLocal", parameters);
@@ -121,20 +129,20 @@ namespace MyClassLibrary.LocalServerMethods
 
         public void SaveConflictIdsToLocal<T>(List<Conflict> conflicts) where T : LocalServerIdentityUpdate
         {
-            string jsonConflicts = JsonSerializer.Serialize(conflicts);
+            string jsonConflicts = JsonConvert.SerializeObject(conflicts);
             var parameters = new DynamicParameters();
             parameters.Add("@Conflicts",jsonConflicts,DbType.String, ParameterDirection.Input);
-            parameters.Add("@ObjectType",typeof(T).Name,DbType.String,ParameterDirection.Input);
+            parameters.Add("@UpdateType",typeof(T).Name,DbType.String,ParameterDirection.Input);
 
             ExecuteStoredProcedure("spSaveConflictIdsToLocal", parameters);
         }
 
         public void DeleteFromLocal<T>(List<T> objects) where T : LocalServerIdentityUpdate
         {
-            string jsonObjects = JsonSerializer.Serialize(objects);
+            string jsonObjects = JsonConvert.SerializeObject(objects);
             var parameters = new DynamicParameters();
-            parameters.Add("@Objects",jsonObjects,DbType.String, ParameterDirection.Input);
-            parameters.Add("ObjectType", typeof(T).Name);
+            parameters.Add("@Updates",jsonObjects,DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateType", typeof(T).Name);
 
             ExecuteStoredProcedure("spDeleteFromLocal", parameters);
         }

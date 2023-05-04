@@ -19,5 +19,9 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Interfaces
         public IServerDataAccessTests<T> ServerDataAccessTests<T>() where T : LocalServerIdentityUpdate;
 
         public ITestContent<T> TestContent<T>() where T : LocalServerIdentityUpdate;
+
+        public ILocalServerEngine<T> LocalServerEngine<T>  (ILocalDataAccess localDataAccess,IServerDataAccess serverDataAccess) where T : LocalServerIdentityUpdate;
+
+
     }
 }

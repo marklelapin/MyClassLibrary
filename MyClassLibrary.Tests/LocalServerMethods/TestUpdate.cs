@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
+using Newtonsoft.Json;
 
 namespace MyClassLibrary.Tests.LocalServerMethods
 {
-    public class TestObject : LocalServerIdentityUpdate
+    public class TestUpdate : LocalServerIdentityUpdate
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
@@ -16,16 +18,18 @@ namespace MyClassLibrary.Tests.LocalServerMethods
 
         public List<string>? FavouriteFoods { get; set; }
     
-        public TestObject() { }
+        public TestUpdate(Guid id) : base(id) { }
 
-        public TestObject(string firstName, string lastName, DateTime favouriteDate, List<string> favouriteFoods)
+        public TestUpdate(Guid id,string firstName, string lastName, DateTime favouriteDate, List<string> favouriteFoods) : base(id)
         {
             FirstName = firstName;
             LastName = lastName;
             FavouriteDate = favouriteDate;
             FavouriteFoods = favouriteFoods;
         }
-        public TestObject(Guid id,DateTime created,string createdBy,DateTime? updatedOnServer,bool isActive, string firstName, string lastName, DateTime favouriteDate, List<string> favouriteFoods)
+
+        [JsonConstructor]
+        public TestUpdate(Guid id,DateTime created,string createdBy,DateTime? updatedOnServer,bool isActive, string firstName, string lastName, DateTime favouriteDate, List<string> favouriteFoods) : base(id)
         {
             Id = id;
             Created = created;

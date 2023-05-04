@@ -14,137 +14,139 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.CompilerServices;
 using Xunit.Sdk;
 using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
+using Newtonsoft.Json;
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Services
 
 {
     public class ServerDataAccessTestsService<T> : IServerDataAccessTests<T> where T : LocalServerIdentityUpdate
     {
+        private ITestContent<T> _testContent;
+        private IServiceConfiguration _serviceConfiguration;
+        private readonly IServerDataAccess _serverDataAccess;
 
-        private static IServiceConfiguration _serviceConfiguration;
-
-        public static IServiceConfiguration ServiceConfiguration
+        public ServerDataAccessTestsService(IServiceConfiguration serviceConfiguration)
         {
-            get { return _serviceConfiguration; }
-            set { _serviceConfiguration = value; }
+            _serviceConfiguration = serviceConfiguration;
+            _serverDataAccess = _serviceConfiguration.ServerDataAccess();
+            _testContent = _serviceConfiguration.TestContent<T>();
         }
 
-        public ServerDataAccessTestsService(IServiceConfiguration? serviceConfiguration = null)
-        {
-            _serviceConfiguration = serviceConfiguration ?? throw new ArgumentNullException("No Services Configuration passed through for Testing.");
-        }
 
-        private static IServerDataAccess serverDataAccess = ServiceConfiguration.ServerDataAccess();
-
-        private static ITestContent<T> testContent = ServiceConfiguration.TestContent<T>();
-
-
-        public static readonly object[][] SaveTestUpdates = { new object[] { testContent.Generate(1, "Default")[0] } };
-        [Theory, MemberData(nameof(SaveTestUpdates))]
+        public object[][] SaveTestData() { return new object[][] { new object[] { _testContent.Generate(1, "Default")[0] } }; }
+        //[Theory, MemberData(nameof(SaveTestData))]
         public void SaveTest(List<T> testUpdates)
         {
-           serverDataAccess.SaveToServer<T>(testUpdates);
+            _serverDataAccess.SaveToServer<T>(testUpdates);
         }
 
 
 
-        private static readonly List<List<T>> SaveAndGetTestContent = testContent.Generate(3, "Default");
-
-        public static readonly object[][] SaveAndGetTestData =
+        public object[][] SaveAndGetTestData()
         {
-            new object[] {
-                            SaveAndGetTestContent[0]
-                            ,testContent.ListIds(SaveAndGetTestContent[0])
-                            ,SaveAndGetTestContent[0]
-                          },
-            new object[] {
-                            SaveAndGetTestContent[1]
-                            ,testContent.ListIds(SaveAndGetTestContent[1])
-                            ,SaveAndGetTestContent[1]
-                          },
-            new object[] {
-                            SaveAndGetTestContent[2]
-                            ,testContent.ListIds(SaveAndGetTestContent[2])[2]
-                            ,SaveAndGetTestContent[2].Where(x=>x.Id == testContent.ListIds(SaveAndGetTestContent[2])[2]).ToList()
-                          },
-        };
-        [Theory, MemberData(nameof(SaveAndGetTestData))]
+            List<List<T>> saveAndGetTestContent = _testContent.Generate(3, "Default");
+
+            return new object[][] {
+                        new object[] {
+                                        saveAndGetTestContent[0]
+                                        ,_testContent.ListIds(saveAndGetTestContent[0])
+                                        ,saveAndGetTestContent[0]
+                                      },
+                        new object[] {
+                                        saveAndGetTestContent[1]
+                                        ,_testContent.ListIds(saveAndGetTestContent[1])
+                                        ,saveAndGetTestContent[1]
+                                      },
+                        new object[] {
+                                        saveAndGetTestContent[2]
+                                        ,_testContent.ListIds(saveAndGetTestContent[2])[2]
+                                        ,saveAndGetTestContent[2].Where(x=>x.Id == _testContent.ListIds(saveAndGetTestContent[2])[2]).ToList()
+                                      },
+            };
+
+        }
+        //[Theory, MemberData(nameof(SaveAndGetTestData))]
         public void SaveAndGetTest(List<T> updates, List<Guid> getIds, List<T> expected)
         {
-            serverDataAccess.SaveToServer(updates);
+            _serverDataAccess.SaveToServer(updates);
 
-            List<T> actual = serverDataAccess.GetFromServer<T>(getIds);
+            List<T> actual = _serverDataAccess.GetFromServer<T>(getIds);
 
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
             actual.Sort((x, y) => x.Id.CompareTo(y.Id));
 
-            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
+            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
         }
 
 
 
 
-        public static readonly List<List<T>> GetChangesTestContent = testContent.Generate(3, "Default");
 
-        public static readonly object[][] GetChangesTestData =
+        public object[][] GetChangesTestData()
         {
-            new object[] { GetChangesTestContent[0],+1,new List<T>()}
-           ,new object[] { GetChangesTestContent[1],0,new List<T>()}
-           ,new object[] { GetChangesTestContent[2],-1,GetChangesTestContent[2]}
-        };
+            List<List<T>> GetChangesTestContent = _testContent.Generate(3, "Default");
 
-        [Theory, MemberData(nameof(GetChangesTestData))]
+            return new object[][]
+            {
+                new object[] { GetChangesTestContent[0],+1,new List<T>()}
+                ,new object[] { GetChangesTestContent[1],0,new List<T>()}
+                ,new object[] { GetChangesTestContent[2],-1,GetChangesTestContent[2]}
+            };
+        }
+        //[Theory, MemberData(nameof(GetChangesTestData))]
         async public void GetChangesTest(List<T> updates, int lastSyncDateAdjustment, List<T> expected)
         {
             await Task.Delay(2000); //waits for 2 second to ensure that the last sync date produced will be more than the 1 second potential test gap.
 
-            DateTime lastSyncDate = serverDataAccess.SaveToServer(updates);
+            DateTime lastSyncDate = _serverDataAccess.SaveToServer(updates);
 
-            (List<TestObject> actualChangesFromServer, DateTime actualLastUpdatedOnServer) = serverDataAccess.GetChangesFromServer<TestObject>(lastSyncDate.AddSeconds(lastSyncDateAdjustment));
+            (List<TestUpdate> actualChangesFromServer, DateTime actualLastUpdatedOnServer) = _serverDataAccess.GetChangesFromServer<TestUpdate>(lastSyncDate.AddSeconds(lastSyncDateAdjustment));
 
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
             actualChangesFromServer.Sort((x, y) => x.Id.CompareTo(y.Id));
-            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actualChangesFromServer));
+            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actualChangesFromServer));
             Assert.Equal(lastSyncDate, actualLastUpdatedOnServer);
         }
 
 
 
-        public static readonly List<List<T>> saveConflictIDTestContents = testContent.Generate(2, "Default");
 
-        public static List<Conflict> conflicts
+        private List<Conflict> Conflicts(List<List<T>> saveConflictIDTestContents)
         {
-            get
-            {
-                List<Conflict> output = new List<Conflict>();
-                List<T> conflictedObjects = new List<T>();
-                conflictedObjects.Add(saveConflictIDTestContents[0][1]);
-                conflictedObjects.Add(saveConflictIDTestContents[0][5]);
+            List<Conflict> output = new List<Conflict>();
 
-                conflicts.Add(new Conflict(conflictedObjects[0].Id, conflictedObjects[0].Created, Guid.NewGuid()));
-                conflicts.Add(new Conflict(conflictedObjects[1].Id, conflictedObjects[1].Created, Guid.NewGuid()));
+            List<T> conflictedObjects = new List<T>();
+            conflictedObjects.Add(saveConflictIDTestContents[0][1]);
+            conflictedObjects.Add(saveConflictIDTestContents[0][5]);
 
-                return output;
-            }
+
+            output.Add(new Conflict(conflictedObjects[0].Id, conflictedObjects[0].Created, Guid.NewGuid()));
+            output.Add(new Conflict(conflictedObjects[1].Id, conflictedObjects[1].Created, Guid.NewGuid()));
+
+            return output;
         }
 
 
-        public static readonly object[][] saveConflictIDTestDate =
+        public object[][] saveConflictIdTestData()
         {
+            List<List<T>> saveConflictIDTestContents = _testContent.Generate(2, "Default");
+            List<Conflict> conflicts = Conflicts(saveConflictIDTestContents);
+
+            return new object[][] {
             new object[]{saveConflictIDTestContents[0],conflicts,conflicts},
             new object[]{saveConflictIDTestContents[1],new List<Conflict>(),new List<Conflict>()}
-        };
-
-        [Theory, MemberData(nameof(saveConflictIDTestDate))]
+            };
+        }
+        //[Theory, MemberData(nameof(saveConflictIDTestData))]
         public void SaveConflictIdTest(List<T> updates, List<Conflict> conflicts,List<Conflict> expected)
         {
 
-            serverDataAccess.SaveToServer<T>(updates);
-            serverDataAccess.SaveConflictIdsToServer<T>(conflicts);
+            _serverDataAccess.SaveToServer<T>(updates);
+            _serverDataAccess.SaveConflictIdsToServer<T>(conflicts);
 
             List<Conflict> actual = new List<Conflict>();
 
-            actual = serverDataAccess.GetFromServer<T>(testContent.ListIds(updates))
+            actual = _serverDataAccess.GetFromServer<T>(_testContent.ListIds(updates))
                                                     .Where(x => x.ConflictId != null)
                                                     .Select(x => new Conflict(x.Id, x.Created, x.ConflictId))
                                                     .ToList();
@@ -152,16 +154,16 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
             actual.Sort((x, y) => x.ObjectCreated.CompareTo(y.ObjectCreated));
             expected.Sort((x, y) => x.ObjectCreated.CompareTo(y.ObjectCreated));
 
-            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
+            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
 
         }
 
 
-        public static readonly object[][] DeleteUpdates = { new object[] { testContent.Generate(1, "Default")[0] } };
-        [Theory, MemberData(nameof(DeleteUpdates))]
+        public object[][] DeleteTestData() { return new object[][] { new object[] { _testContent.Generate(1, "Default")[0] } }; }
+        //[Theory, MemberData(nameof(DeleteTestData))]
         public void DeleteTest(List<T> testUpdatesToDelete)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(testUpdatesToDelete.ToString());
         }
     }
 }

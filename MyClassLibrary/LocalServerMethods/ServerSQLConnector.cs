@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 using Dapper;
 using System.ComponentModel;
 using System.Text.Json.Nodes;
-using System.Text.Json;
+using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
 using System.Reflection.Metadata.Ecma335;
 
@@ -25,16 +25,16 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Saves Objects Data that inherit from LocalServerIdentity into Server Storage. Pass back UpdatedOnServer date as return value but also updates List of Objects.
         /// </summary>
-        public DateTime SaveToServer<T>(List<T> objects) where T : LocalServerIdentityUpdate
+        public DateTime SaveToServer<T>(List<T> updates) where T : LocalServerIdentityUpdate
         
         {
             var parameters = new DynamicParameters();
 
             //var opt = new JsonSerializerOptions() { WriteIndented = true };
-            string jsonObjects = JsonSerializer.Serialize<List<T>>(objects);
+            string jsonUpdates = JsonConvert.SerializeObject(updates);
 
-            parameters.Add("@Objects", jsonObjects, DbType.AnsiString,ParameterDirection.Input);
-            parameters.Add("@ObjectType", typeof(T).Name, DbType.AnsiString,ParameterDirection.Input);
+            parameters.Add("@Updates", jsonUpdates, DbType.AnsiString,ParameterDirection.Input);
+            parameters.Add("@UpdateType", typeof(T).Name, DbType.AnsiString,ParameterDirection.Input);
             parameters.Add("@UpdatedOnServer", null, DbType.DateTime2, ParameterDirection.Output);
 
             ExecuteStoredProcedure("spSaveToServer", parameters);
@@ -42,7 +42,7 @@ namespace MyClassLibrary.LocalServerMethods
 
             DateTime output = parameters.Get<DateTime>("@UpdatedOnServer");
 
-            foreach(T obj in objects)
+            foreach(T obj in updates)
             {
                 obj.UpdatedOnServer = output;
             }
@@ -60,7 +60,7 @@ namespace MyClassLibrary.LocalServerMethods
             var parameters = new DynamicParameters();
 
             parameters.Add("@LastSyncDate",lastSyncDate,DbType.DateTime2,ParameterDirection.Input);
-            parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateType", typeof(T).Name, DbType.String, ParameterDirection.Input);
             parameters.Add("@Output","", DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
             ExecuteStoredProcedure("spGetChangesFromServer", parameters);
@@ -69,7 +69,7 @@ namespace MyClassLibrary.LocalServerMethods
 
             if (spOutput != null)
             {
-                output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>();
+                output = JsonConvert.DeserializeObject<List<T>>(spOutput) ?? new List<T>();
             }
             
             DateTime lastUpdatedOutput = (output ?? new List<T>()).Max(x => x.UpdatedOnServer) ?? DateTime.MinValue;
@@ -91,8 +91,8 @@ namespace MyClassLibrary.LocalServerMethods
 
             var parameters = new DynamicParameters();
             
-            parameters.Add("@ObjectType", typeof(T).Name, DbType.String, ParameterDirection.Input);
-            parameters.Add("@ObjectIds",idsCSV,DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateType", typeof(T).Name, DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateIds",idsCSV,DbType.String, ParameterDirection.Input);
             parameters.Add("@Output","",DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
             ExecuteStoredProcedure("spGetFromServer",parameters);  
@@ -101,13 +101,13 @@ namespace MyClassLibrary.LocalServerMethods
 
             if (spOutput != null)
             {
-                output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>();
+                output = JsonConvert.DeserializeObject<List<T>>(spOutput) ?? new List<T>();
             } else {
                 output = new List<T>(); 
             }
             //for testing
             
-            string jsonOutput = JsonSerializer.Serialize<List<T>>(output);
+            string jsonOutput = JsonConvert.SerializeObject(output);
 
             return output;
 
@@ -115,21 +115,21 @@ namespace MyClassLibrary.LocalServerMethods
 
         public void SaveConflictIdsToServer<T>(List<Conflict> conflicts) where T : LocalServerIdentityUpdate
         {
-            string jsonConflicts = JsonSerializer.Serialize(conflicts);
+            string jsonConflicts = JsonConvert.SerializeObject(conflicts);
             var parameters = new DynamicParameters();
 
             parameters.Add("@Conflicts",jsonConflicts, DbType.String, ParameterDirection.Input);
-            parameters.Add("@ObjectType",typeof(T).Name,DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateType",typeof(T).Name,DbType.String, ParameterDirection.Input);
 
             ExecuteStoredProcedure("spSaveConflictIdsToServer", parameters);
         }
 
         public void DeleteFromServer<T>(List<T> objects) where T : LocalServerIdentityUpdate
         {
-            string jsonObjects = JsonSerializer.Serialize(objects);
+            string jsonObjects = JsonConvert.SerializeObject(objects);
             var parameters = new DynamicParameters();
-            parameters.Add("@Objects",jsonObjects, DbType.String, ParameterDirection.Input);
-            parameters.Add("ObjectType", typeof(T).Name, DbType.String,ParameterDirection.Input);
+            parameters.Add("@Updates",jsonObjects, DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateType", typeof(T).Name, DbType.String,ParameterDirection.Input);
 
             ExecuteStoredProcedure("spDeleteFromServer",parameters);
         }
