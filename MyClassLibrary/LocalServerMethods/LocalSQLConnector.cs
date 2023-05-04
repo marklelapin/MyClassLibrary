@@ -122,6 +122,7 @@ namespace MyClassLibrary.LocalServerMethods
             var parameters = new DynamicParameters();
             string jsonObjects = JsonConvert.SerializeObject(objects);
             parameters.Add("@Updates",jsonObjects,DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateType",typeof(T).Name,DbType.String,ParameterDirection.Input);
             parameters.Add("@UpdatedOnServer", updatedOnServer, DbType.DateTime2, ParameterDirection.Input);
 
             ExecuteStoredProcedure("spSaveUpdatedOnServerToLocal", parameters);
