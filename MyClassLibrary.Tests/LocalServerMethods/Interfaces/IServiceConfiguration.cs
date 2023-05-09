@@ -1,4 +1,5 @@
-﻿using MyClassLibrary.LocalServerMethods;
+﻿using Microsoft.Extensions.Configuration;
+using MyClassLibrary.LocalServerMethods;
 using MyClassLibrary.Tests.LocalServerMethods.Services;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Interfaces
 {
     public interface IServiceConfiguration
     {
+        public IConfiguration Config { get; }
+
         public ILocalDataAccess LocalDataAccess();
 
         public IServerDataAccess ServerDataAccess();

@@ -36,12 +36,12 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Saves Objects inhereting from LocalServerIdentity to Local Storage
         /// </summary>
-        public void SaveToLocal<T>(List<T> objects) where T : LocalServerIdentityUpdate;
+        public void SaveToLocal<T>(List<T> updates) where T : LocalServerIdentityUpdate;
 
         /// <summary>
         /// Sets the UpdatedOnServerDate property for objects inhereting from LocalServerIdentity to LocalStorage
         /// </summary>
-        public void SaveUpdatedOnServerToLocal<T>( List<T> objects,DateTime UpdatedOnServer) where T : LocalServerIdentityUpdate;
+        public void SaveUpdatedOnServerToLocal<T>( List<T> updates,DateTime UpdatedOnServer) where T : LocalServerIdentityUpdate;
 
         /// <summary>
         /// Adds the corresponding Conflict Id (value) to all objects inhereting from LocalServerIdentity with Id = (key)
@@ -51,6 +51,6 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Permanently deletes the objects inheriting from LocalServerIdentiy passed in from local storage.
         /// </summary>
-        public void DeleteFromLocal<T>(List<T> objects) where T : LocalServerIdentityUpdate;
+        public void DeleteFromLocal<T>(List<T> updates) where T : LocalServerIdentityUpdate;
     }
 }

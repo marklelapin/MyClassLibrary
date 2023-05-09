@@ -24,7 +24,7 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Saves Objects Data that inherit from LocalServerIdentity into Server Storage. Pass back UpdatedOnServer dat to objects.
         /// </summary>
-        public DateTime SaveToServer<T>(List<T> objects) where T : LocalServerIdentityUpdate;
+        public DateTime SaveToServer<T>(List<T> updates) where T : LocalServerIdentityUpdate;
 
         /// <summary>
         /// Adds the corresponding Conflict Id (value) to all objects inhereting from local server identity with Id = (key)
@@ -34,7 +34,7 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Permanently deletes the objects inheriting from LocalServerIdentiy passed in from server storage.
         /// </summary>
-        public void DeleteFromServer<T>(List<T> objects) where T : LocalServerIdentityUpdate;
+        public void DeleteFromServer<T>(List<T> updates) where T : LocalServerIdentityUpdate;
 
 
     }

@@ -7,19 +7,21 @@ using System.Text.Json.Nodes;
 using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
 using System.Reflection.Metadata.Ecma335;
+using MyClassLibrary.DataAccessMethods;
 
 namespace MyClassLibrary.LocalServerMethods
 {
     public class ServerSQLConnector : IServerDataAccess
     {
+        private readonly ISqlDataAccess _dataAccess;
+        private readonly string _connectionStringName;
 
-        public string ConnectionString { get; set; }
-
-        public ServerSQLConnector(string connectionString) 
+        public ServerSQLConnector(ISqlDataAccess dataAccess, string? overrideConnectionStringName = null) //override added for testing of sync with failed connection)
         {
-            ConnectionString = connectionString;
+            _dataAccess = dataAccess;
+            _connectionStringName = overrideConnectionStringName ?? "ServerSQL";
         }
-         
+
 
 
         /// <summary>
@@ -37,7 +39,7 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@UpdateType", typeof(T).Name, DbType.AnsiString,ParameterDirection.Input);
             parameters.Add("@UpdatedOnServer", null, DbType.DateTime2, ParameterDirection.Output);
 
-            ExecuteStoredProcedure("spSaveToServer", parameters);
+            _dataAccess.ExecuteStoredProcedure("spSaveToServer", parameters,_connectionStringName);
             
 
             DateTime output = parameters.Get<DateTime>("@UpdatedOnServer");
@@ -63,7 +65,7 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@UpdateType", typeof(T).Name, DbType.String, ParameterDirection.Input);
             parameters.Add("@Output","", DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
-            ExecuteStoredProcedure("spGetChangesFromServer", parameters);
+            _dataAccess.ExecuteStoredProcedure("spGetChangesFromServer", parameters,_connectionStringName);
             
             string spOutput = parameters.Get<string>("@Output");
 
@@ -95,7 +97,7 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@UpdateIds",idsCSV,DbType.String, ParameterDirection.Input);
             parameters.Add("@Output","",DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
-            ExecuteStoredProcedure("spGetFromServer",parameters);  
+            _dataAccess.ExecuteStoredProcedure("spGetFromServer",parameters,_connectionStringName);  
             
             string spOutput = parameters.Get<string>("@Output");
 
@@ -121,7 +123,7 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@Conflicts",jsonConflicts, DbType.String, ParameterDirection.Input);
             parameters.Add("@UpdateType",typeof(T).Name,DbType.String, ParameterDirection.Input);
 
-            ExecuteStoredProcedure("spSaveConflictIdsToServer", parameters);
+            _dataAccess.ExecuteStoredProcedure("spSaveConflictIdsToServer", parameters,_connectionStringName);
         }
 
         public void DeleteFromServer<T>(List<T> objects) where T : LocalServerIdentityUpdate
@@ -131,16 +133,7 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@Updates",jsonObjects, DbType.String, ParameterDirection.Input);
             parameters.Add("@UpdateType", typeof(T).Name, DbType.String,ParameterDirection.Input);
 
-            ExecuteStoredProcedure("spDeleteFromServer",parameters);
-        }
-
-
-        private void ExecuteStoredProcedure(string storedProcedure, DynamicParameters parameters)
-        {
-            using (IDbConnection connection = new SqlConnection(ConnectionString))
-            {
-                connection.Execute(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
-            }
+            _dataAccess.ExecuteStoredProcedure("spDeleteFromServer",parameters,_connectionStringName);
         }
 
 

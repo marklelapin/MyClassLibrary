@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 using Newtonsoft.Json;
+using MyClassLibrary.DataAccessMethods;
 
 namespace MyClassLibrary.LocalServerMethods
 {
@@ -16,12 +17,14 @@ namespace MyClassLibrary.LocalServerMethods
     public class LocalSQLConnector : ILocalDataAccess 
     {
 
+        private readonly ISqlDataAccess _dataAccess;
+        private readonly string _connectionStringName;
 
-        public string ConnectionString { get; set; }
-
-        public LocalSQLConnector(string connectionString)
+        public LocalSQLConnector(ISqlDataAccess dataAccess,string? overrideConnectionStringName = null) //override added for testing of sync with failed connection
         {
-            ConnectionString = connectionString;
+            _dataAccess = dataAccess;
+            _connectionStringName = overrideConnectionStringName ?? "LocalSQL";
+
         }
 
 
@@ -34,7 +37,7 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@UpdateType", typeof(T).Name, DbType.String,ParameterDirection.Input);
             parameters.Add("@LastSyncDate", null, DbType.DateTime2, ParameterDirection.Output);
 
-            ExecuteStoredProcedure("spGetLocalLastSyncDate", parameters);
+            _dataAccess.ExecuteStoredProcedure("spGetLocalLastSyncDate", parameters, _connectionStringName);
             
 
             output = parameters.Get<DateTime>("@LastSyncDate");
@@ -51,7 +54,7 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@UpdateType", typeof(T).Name, DbType.String, ParameterDirection.Input);
             parameters.Add("@LastSyncDate", lastSyncDate, DbType.DateTime2, ParameterDirection.Input);
 
-           ExecuteStoredProcedure("spSaveLocalLastSyncDate",parameters);
+           _dataAccess.ExecuteStoredProcedure("spSaveLocalLastSyncDate",parameters, _connectionStringName);
             
         }
 
@@ -62,7 +65,7 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@UpdateType",typeof(T).Name,DbType.String,ParameterDirection.Input);
             parameters.Add("@Updates",jsonUpdates,DbType.String, ParameterDirection.Input);
 
-            ExecuteStoredProcedure("spSaveToLocal",parameters);
+            _dataAccess.ExecuteStoredProcedure("spSaveToLocal",parameters, _connectionStringName);
 
         }
 
@@ -83,7 +86,7 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@UpdateIds", idsCSV, DbType.String, ParameterDirection.Input);
             parameters.Add("@Output",null,DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
-            ExecuteStoredProcedure("spGetFromLocal", parameters);
+            _dataAccess.ExecuteStoredProcedure("spGetFromLocal", parameters, _connectionStringName);
 
             string spOutput = parameters.Get<string>("@Output") ?? "[]";
 
@@ -101,7 +104,7 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@UpdateType", typeof(T).Name,DbType.String, ParameterDirection.Input);
             parameters.Add("@Output",null,DbType.String, ParameterDirection.Output,size:int.MaxValue);
 
-            ExecuteStoredProcedure("spGetChangesFromLocal",parameters);
+            _dataAccess.ExecuteStoredProcedure("spGetChangesFromLocal",parameters, _connectionStringName);
 
             string spOutput = parameters.Get<string>("@Output");
 
@@ -125,7 +128,7 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@UpdateType",typeof(T).Name,DbType.String,ParameterDirection.Input);
             parameters.Add("@UpdatedOnServer", updatedOnServer, DbType.DateTime2, ParameterDirection.Input);
 
-            ExecuteStoredProcedure("spSaveUpdatedOnServerToLocal", parameters);
+            _dataAccess.ExecuteStoredProcedure("spSaveUpdatedOnServerToLocal", parameters, _connectionStringName);
         }
 
         public void SaveConflictIdsToLocal<T>(List<Conflict> conflicts) where T : LocalServerIdentityUpdate
@@ -135,7 +138,7 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@Conflicts",jsonConflicts,DbType.String, ParameterDirection.Input);
             parameters.Add("@UpdateType",typeof(T).Name,DbType.String,ParameterDirection.Input);
 
-            ExecuteStoredProcedure("spSaveConflictIdsToLocal", parameters);
+            _dataAccess.ExecuteStoredProcedure("spSaveConflictIdsToLocal", parameters, _connectionStringName);
         }
 
         public void DeleteFromLocal<T>(List<T> objects) where T : LocalServerIdentityUpdate
@@ -145,16 +148,9 @@ namespace MyClassLibrary.LocalServerMethods
             parameters.Add("@Updates",jsonObjects,DbType.String, ParameterDirection.Input);
             parameters.Add("@UpdateType", typeof(T).Name);
 
-            ExecuteStoredProcedure("spDeleteFromLocal", parameters);
+            _dataAccess.ExecuteStoredProcedure("spDeleteFromLocal", parameters, _connectionStringName);
         }
 
-        private void ExecuteStoredProcedure(string storedProcedure,DynamicParameters parameters)
-        {
-            using (IDbConnection connection = new SqlConnection(ConnectionString))
-            {
-                connection.Execute(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
-            }
-        }
-
+       
     }
 }

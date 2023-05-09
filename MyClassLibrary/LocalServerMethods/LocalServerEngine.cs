@@ -27,12 +27,12 @@ namespace MyClassLibrary.LocalServerMethods
 
         /// <summary>
         /// Constructor for LocalServerIdentiy
-        /// In Production environment services will supply IServerDataAcces and ILocalDataAccess. These can be added in for testing through optional parameters.
+        /// In Production environment services will supply IServerDataAcces and ILocalDataAccess.
         /// </summary>
-        public LocalServerEngine(IServerDataAccess? serverDataAccess = null, ILocalDataAccess? localDataAccess = null)
+        public LocalServerEngine(IServerDataAccess serverDataAccess, ILocalDataAccess localDataAccess)
         {
-            _serverDataAccess = serverDataAccess ?? new ServerSQLConnector("No Connection");
-            _localDataAccess = localDataAccess ?? new LocalSQLConnector("No Connection");
+            _serverDataAccess = serverDataAccess;
+            _localDataAccess = localDataAccess;
         }
 
         //Public Methods

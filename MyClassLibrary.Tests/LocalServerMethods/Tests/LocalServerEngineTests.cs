@@ -13,6 +13,8 @@ using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
 using MyClassLibrary.Tests.LocalServerMethods.Services;
 using NuGet.Frameworks;
 using Xunit.Sdk;
+using Microsoft.Extensions.Configuration;
+using MyClassLibrary.DataAccessMethods;
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 {
@@ -85,8 +87,9 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             _localDataAccess.SaveLocalLastSyncDate<TestUpdate>(localLastSyncDate);
 
-            ILocalDataAccess  trySyncLocalDataAccess = localStatus ? _localDataAccess : new LocalSQLConnector("Error");
-            IServerDataAccess trySyncServerDataAccess = serverStatus ? _serverDataAccess : new ServerSQLConnector("Error");
+
+            ILocalDataAccess trySyncLocalDataAccess = localStatus ? _localDataAccess : new LocalSQLConnector(new SqlDataAccess(_serviceConfiguration.Config), "Error");
+            IServerDataAccess trySyncServerDataAccess = serverStatus ? _serverDataAccess : new ServerSQLConnector(new SqlDataAccess(_serviceConfiguration.Config),"Error");
 
             ILocalServerEngine<TestUpdate> _testEngine = _serviceConfiguration.LocalServerEngine<TestUpdate>(trySyncLocalDataAccess, trySyncServerDataAccess);
 

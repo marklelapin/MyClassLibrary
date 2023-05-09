@@ -30,10 +30,9 @@ namespace MyClassLibrary.LocalServerMethods
         /// </summary>
         private ILocalServerEngine<T> _localServerEngine;
 
-
-        public LocalServerIdentity(Guid? id = null,ILocalServerEngine<T>? localServerEngine = null)
+        public LocalServerIdentity(LocalServerEngine<T> localServerEngine,Guid? id = null)
         {
-            _localServerEngine = localServerEngine ?? new LocalServerEngine<T>();
+            _localServerEngine = localServerEngine;
 
             if (id == null)
             {

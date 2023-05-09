@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
+using MyClassLibrary.DataAccessMethods;
 using MyClassLibrary.LocalServerMethods;
+using MyClassLibrary.Tests.LocalServerMethods;
 using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -18,9 +21,20 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
 
         private ConnectionStringDictionary connectionStringDictionary = new ConnectionStringDictionary();
 
-        public ILocalDataAccess LocalDataAccess() { return new LocalSQLConnector(connectionStringDictionary.LocalSQL); }
+        public IConfiguration Config { get; private set; }
 
-        public IServerDataAccess ServerDataAccess() { return new ServerSQLConnector(connectionStringDictionary.ServerSQL); }
+        public TestServiceConfiguration()
+        {
+            var builder = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json")
+                    .AddUserSecrets<TestServiceConfiguration>();
+            Config = builder.Build();
+        }
+
+        public ILocalDataAccess LocalDataAccess() { return new LocalSQLConnector(new SqlDataAccess(Config)); }
+
+        public IServerDataAccess ServerDataAccess() { return new ServerSQLConnector(new SqlDataAccess(Config)); }
 
         public ILocalDataAccessTests<T> LocalDataAccessTests<T>() where T : LocalServerIdentityUpdate { return new LocalDataAccessTestsService<T>(this); }
 
