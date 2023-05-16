@@ -2,7 +2,7 @@
 using MyClassLibrary.Extensions;
 using MyClassLibrary.LocalServerMethods;
 using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,9 +59,9 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
 
         private List<T> ConvertToListT<S>(List<S> listToConvert)
         {
-            string json =   JsonConvert.SerializeObject(listToConvert);
+            string json =   JsonSerializer.Serialize(listToConvert);
 
-            List<T> output = JsonConvert.DeserializeObject<List<T>>(json);
+            List<T> output = JsonSerializer.Deserialize<List<T>>(json);
 
             return output; //JsonSerializer.Deserialize<List<T>>(JsonSerializer.Serialize<List<S>>(listToConvert)) ?? new List<T>();
         }

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
-using Newtonsoft.Json;
+using System.Text.Json;
 using MyClassLibrary.DataAccessMethods;
 
 namespace MyClassLibrary.LocalServerMethods
@@ -61,7 +61,7 @@ namespace MyClassLibrary.LocalServerMethods
         public void SaveToLocal<T>(List<T> updates) where T : LocalServerIdentityUpdate
         {
             var parameters = new DynamicParameters();
-            string jsonUpdates = JsonConvert.SerializeObject(updates);
+            string jsonUpdates = JsonSerializer.Serialize(updates);
             parameters.Add("@UpdateType",typeof(T).Name,DbType.String,ParameterDirection.Input);
             parameters.Add("@Updates",jsonUpdates,DbType.String, ParameterDirection.Input);
 
@@ -90,7 +90,7 @@ namespace MyClassLibrary.LocalServerMethods
 
             string spOutput = parameters.Get<string>("@Output") ?? "[]";
 
-            output = JsonConvert.DeserializeObject<List<T>>(spOutput) ?? new List<T>() ;
+            output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>() ;
            
             return output;
         }
@@ -110,7 +110,7 @@ namespace MyClassLibrary.LocalServerMethods
 
             if (spOutput != null)
             {
-                output = JsonConvert.DeserializeObject<List<T>>(spOutput) ?? new List<T>();
+                output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>();
             } else
             {
                output =  new List<T>() ; 
@@ -123,7 +123,7 @@ namespace MyClassLibrary.LocalServerMethods
         public void SaveUpdatedOnServerToLocal<T>(List<T> objects, DateTime updatedOnServer) where T : LocalServerIdentityUpdate
         {
             var parameters = new DynamicParameters();
-            string jsonObjects = JsonConvert.SerializeObject(objects);
+            string jsonObjects = JsonSerializer.Serialize(objects);
             parameters.Add("@Updates",jsonObjects,DbType.String, ParameterDirection.Input);
             parameters.Add("@UpdateType",typeof(T).Name,DbType.String,ParameterDirection.Input);
             parameters.Add("@UpdatedOnServer", updatedOnServer, DbType.DateTime2, ParameterDirection.Input);
@@ -133,7 +133,7 @@ namespace MyClassLibrary.LocalServerMethods
 
         public void SaveConflictIdsToLocal<T>(List<Conflict> conflicts) where T : LocalServerIdentityUpdate
         {
-            string jsonConflicts = JsonConvert.SerializeObject(conflicts);
+            string jsonConflicts = JsonSerializer.Serialize(conflicts);
             var parameters = new DynamicParameters();
             parameters.Add("@Conflicts",jsonConflicts,DbType.String, ParameterDirection.Input);
             parameters.Add("@UpdateType",typeof(T).Name,DbType.String,ParameterDirection.Input);
@@ -143,7 +143,7 @@ namespace MyClassLibrary.LocalServerMethods
 
         public void DeleteFromLocal<T>(List<T> objects) where T : LocalServerIdentityUpdate
         {
-            string jsonObjects = JsonConvert.SerializeObject(objects);
+            string jsonObjects = JsonSerializer.Serialize(objects);
             var parameters = new DynamicParameters();
             parameters.Add("@Updates",jsonObjects,DbType.String, ParameterDirection.Input);
             parameters.Add("@UpdateType", typeof(T).Name);

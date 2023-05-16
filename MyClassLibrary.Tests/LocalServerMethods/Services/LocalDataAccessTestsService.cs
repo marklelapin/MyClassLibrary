@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit.Sdk;
 
@@ -34,6 +34,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
             _localDataAccess.SaveToLocal(updates);
             Assert.True(true);
         }
+
 
 
 
@@ -71,7 +72,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
             actual.Sort((x, y) => x.Id.CompareTo(y.Id));
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
 
-            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
         }
 
 
@@ -91,7 +92,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
             actual.Sort((x, y) => x.Id.CompareTo(y.Id));
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
 
-            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
         }
 
 
@@ -170,7 +171,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
             actual.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
             expected.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
 
-            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
         }
 
 

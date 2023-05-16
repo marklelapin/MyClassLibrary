@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MyClassLibrary.Tests.LocalServerMethods
 {
@@ -29,7 +29,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods
         }
 
         [JsonConstructor]
-        public TestUpdate(Guid id,DateTime created,string createdBy,DateTime? updatedOnServer,bool isActive, string firstName, string lastName, DateTime favouriteDate, List<string> favouriteFoods) : base(id)
+        public TestUpdate(Guid id,DateTime created,string createdBy,DateTime? updatedOnServer,bool isActive, string? firstName, string? lastName, DateTime? favouriteDate, List<string> favouriteFoods) : base(id)
         {
             Id = id;
             Created = created;

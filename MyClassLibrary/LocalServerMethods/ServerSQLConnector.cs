@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 using Dapper;
 using System.ComponentModel;
 using System.Text.Json.Nodes;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System.Runtime.CompilerServices;
 using System.Reflection.Metadata.Ecma335;
 using MyClassLibrary.DataAccessMethods;
@@ -33,7 +33,7 @@ namespace MyClassLibrary.LocalServerMethods
             var parameters = new DynamicParameters();
 
             //var opt = new JsonSerializerOptions() { WriteIndented = true };
-            string jsonUpdates = JsonConvert.SerializeObject(updates);
+            string jsonUpdates = JsonSerializer.Serialize(updates);
 
             parameters.Add("@Updates", jsonUpdates, DbType.AnsiString,ParameterDirection.Input);
             parameters.Add("@UpdateType", typeof(T).Name, DbType.AnsiString,ParameterDirection.Input);
@@ -71,7 +71,7 @@ namespace MyClassLibrary.LocalServerMethods
 
             if (spOutput != null)
             {
-                output = JsonConvert.DeserializeObject<List<T>>(spOutput) ?? new List<T>();
+                output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>();
             }
             
             DateTime lastUpdatedOutput = (output ?? new List<T>()).Max(x => x.UpdatedOnServer) ?? DateTime.MinValue;
@@ -103,13 +103,13 @@ namespace MyClassLibrary.LocalServerMethods
 
             if (spOutput != null)
             {
-                output = JsonConvert.DeserializeObject<List<T>>(spOutput) ?? new List<T>();
+                output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>();
             } else {
                 output = new List<T>(); 
             }
             //for testing
             
-            string jsonOutput = JsonConvert.SerializeObject(output);
+            string jsonOutput = JsonSerializer.Serialize(output);
 
             return output;
 
@@ -117,7 +117,7 @@ namespace MyClassLibrary.LocalServerMethods
 
         public void SaveConflictIdsToServer<T>(List<Conflict> conflicts) where T : LocalServerIdentityUpdate
         {
-            string jsonConflicts = JsonConvert.SerializeObject(conflicts);
+            string jsonConflicts = JsonSerializer.Serialize(conflicts);
             var parameters = new DynamicParameters();
 
             parameters.Add("@Conflicts",jsonConflicts, DbType.String, ParameterDirection.Input);
@@ -128,7 +128,7 @@ namespace MyClassLibrary.LocalServerMethods
 
         public void DeleteFromServer<T>(List<T> objects) where T : LocalServerIdentityUpdate
         {
-            string jsonObjects = JsonConvert.SerializeObject(objects);
+            string jsonObjects = JsonSerializer.Serialize(objects);
             var parameters = new DynamicParameters();
             parameters.Add("@Updates",jsonObjects, DbType.String, ParameterDirection.Input);
             parameters.Add("@UpdateType", typeof(T).Name, DbType.String,ParameterDirection.Input);

@@ -12,7 +12,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Interfaces
     public interface IServiceConfiguration
     {
         public IConfiguration Config { get; }
-
+        
         public ILocalDataAccess LocalDataAccess();
 
         public IServerDataAccess ServerDataAccess();

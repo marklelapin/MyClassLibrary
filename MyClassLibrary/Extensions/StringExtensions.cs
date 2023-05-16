@@ -47,5 +47,22 @@ namespace MyExtensions
             if (stringBooleans.ContainsKey(str) ) return stringBooleans[str];
             return null;
         }
+
+        public static List<Guid> ToListGuid(this string str,string separator = ",")
+        {
+            List<Guid> output;
+            
+            try
+            {
+                output = str.Split(separator).Select(s => Guid.Parse(s)).ToList();
+            }
+            catch
+            {
+                throw new ArgumentException("Can't convert string to List<Guid> as the list contains Guids that aren't valid.");
+            }
+        
+            return output;
+        
+        }
     }
 }

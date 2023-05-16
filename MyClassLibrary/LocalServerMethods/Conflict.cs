@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace MyClassLibrary.LocalServerMethods
@@ -14,14 +15,14 @@ namespace MyClassLibrary.LocalServerMethods
 
         public DateTime UpdateCreated { get; set; }
 
-
-        public Conflict(Guid objectId,DateTime objectCreated,Guid? conflictID = null)
+        [JsonConstructor]
+        public Conflict(Guid updateId,DateTime updateCreated,Guid? conflictId = null)
         {
-            this.UpdateId = objectId;
-            this.UpdateCreated = objectCreated;
-            if (conflictID != null )
+            this.UpdateId = updateId;
+            this.UpdateCreated = updateCreated;
+            if (conflictId != null )
             {
-                ConflictId = conflictID;
+                ConflictId = conflictId;
             }
                 
         }

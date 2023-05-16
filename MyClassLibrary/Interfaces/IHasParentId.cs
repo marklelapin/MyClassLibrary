@@ -10,6 +10,6 @@ namespace MyClassLibrary.Interfaces
     {
         public T Id { get; set; }
 
-        public T ParentId { get; set; }
+        public T? ParentId { get; set; }
     }
 }

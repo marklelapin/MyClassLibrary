@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.CompilerServices;
 using Xunit.Sdk;
 using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Services
 
@@ -37,11 +37,23 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         //[Theory, MemberData(nameof(SaveTestData))]
         public void SaveTest(List<T> testUpdates)
         {
-            _serverDataAccess.SaveToServer<T>(testUpdates);
+           DateTime updatedOnServer = _serverDataAccess.SaveToServer<T>(testUpdates);
+
+           bool checkUpdatedOnServerDate = true;
+
+           foreach (var testUpdate in testUpdates) { 
+            
+                if (testUpdate.UpdatedOnServer != updatedOnServer) { checkUpdatedOnServerDate = false; };
+            
+            }
+
+           Assert.True(checkUpdatedOnServerDate);
+
         }
 
 
 
+      
         public object[][] SaveAndGetTestData()
         {
             List<List<T>> saveAndGetTestContent = _testContent.Generate(3, "Default");
@@ -75,7 +87,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
             actual.Sort((x, y) => x.Id.CompareTo(y.Id));
 
-            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
         }
 
 
@@ -96,7 +108,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         //[Theory, MemberData(nameof(GetChangesTestData))]
         async public void GetChangesTest(List<T> updates, int lastSyncDateAdjustment, List<T> expected)
         {
-            await Task.Delay(4000); //waits for 2 second to ensure that the last sync date produced will be more than the 1 second potential test gap.
+            await Task.Delay(4000); //waits for 4 second to ensure that the last sync date produced will be more than the 1 second potential test gap.
 
             DateTime lastSyncDate = _serverDataAccess.SaveToServer(updates);
 
@@ -104,7 +116,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
 
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
             actualChangesFromServer.Sort((x, y) => x.Id.CompareTo(y.Id));
-            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actualChangesFromServer));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actualChangesFromServer));
             if (actualChangesFromServer.Count > 0)
             {
                 Assert.Equal(lastSyncDate, actualLastUpdatedOnServer);
@@ -155,7 +167,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
             actual.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
             expected.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
 
-            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
 
         }
 

@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.AccessControl;
-using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using MyClassLibrary.Extensions;
@@ -61,7 +60,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
             actual.Sort((x, y) => x.Id.CompareTo(y.Id));
 
-            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
         }
 
 
@@ -138,11 +137,11 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             }
 
 
-            Assert.Equal(JsonConvert.SerializeObject(expectedServerResult), JsonConvert.SerializeObject(actualServerResult));
+            Assert.Equal(JsonSerializer.Serialize(expectedServerResult), JsonSerializer.Serialize(actualServerResult));
 
-            Assert.Equal(JsonConvert.SerializeObject(expectedLocalResult), JsonConvert.SerializeObject(actualLocalResult));
+            Assert.Equal(JsonSerializer.Serialize(expectedLocalResult), JsonSerializer.Serialize(actualLocalResult));
 
-            if (expectedWasSuccessfull) { Assert.Equal(JsonConvert.SerializeObject(actualLocalResult), JsonConvert.SerializeObject(actualServerResult)); }
+            if (expectedWasSuccessfull) { Assert.Equal(JsonSerializer.Serialize(actualLocalResult), JsonSerializer.Serialize(actualServerResult)); }
 
         }
 
@@ -164,7 +163,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             _localServerEngine.SortById(actual);
 
-            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
 
         }
 
@@ -185,7 +184,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             _localServerEngine.SortByCreated(actual);
 
-            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
 
         }
 
@@ -205,7 +204,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             _localServerEngine.SortByIdAndCreated(actual);
             
-            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actual));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
 
         }
 
@@ -266,7 +265,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             List<string> actualIdAndConflictID = actual.Select(x => x.UpdateId.ToString() + x.ConflictId.ToString()).ToList();
 
             //expected to should match actual (without conflictID generated within function)
-            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actualMinusConflictID));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actualMinusConflictID));
 
             //the conflictIds generated within function should be distinct for each id.
             // Assert.True(actualIdAndConflictID.Count() == 3, "Error with ConflictIDs generated in function.");         
@@ -309,8 +308,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             actualLocal.Sort((x, y) => x.Id.CompareTo(y.Id));
             actualLocal.Select(x => (x.Id, x.Created, x.ConflictId)).ToList();
 
-            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actualServer));
-            Assert.Equal(JsonConvert.SerializeObject(expected), JsonConvert.SerializeObject(actualLocal));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actualServer));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actualLocal));
 
         }
 

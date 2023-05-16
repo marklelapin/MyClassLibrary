@@ -8,8 +8,6 @@ namespace MyClassLibrary.DataAccessMethods
     public class SqlDataAccess : ISqlDataAccess
     {
         private readonly IConfiguration _config;
-        private readonly string? _overrideConnectionStringName;
-
         public SqlDataAccess(IConfiguration config)
         {
             _config = config;
