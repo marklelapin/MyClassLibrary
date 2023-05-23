@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyExtensions;
 using System.Text.Json;
+using System.Net;
+using MyClassLibrary.ErrorHandling;
+using Microsoft.Extensions.Logging;
 
 namespace MyClassLibrary.LocalServerMethods
 {
@@ -8,47 +11,110 @@ namespace MyClassLibrary.LocalServerMethods
     {
 
         private readonly IServerDataAccess _serverDataAccess;
+        private readonly ILogger<T> _logger;
 
-        public ServerAPIControllerService(IServerDataAccess serverDataAccess)
+        public ServerAPIControllerService(IServerDataAccess serverDataAccess,ILogger<T> logger)
         {
             _serverDataAccess = serverDataAccess;
+            _logger = logger;
         }
 
-        public string Get(string ids)
+        public (HttpStatusCode statusCode, string result) Get(string ids)
         {
-            List<Guid> guids = ids.ToListGuid();
+            try
+            {
+                List<Guid> guids = ids.ToListGuid();
 
-            List<T> partUpdates = _serverDataAccess.GetFromServer<T>(guids);
+                List<T> updates = _serverDataAccess.GetFromServer<T>(guids);
 
-            string output = JsonSerializer.Serialize(partUpdates);
+                if (updates.Count == 0)
+                {
+                    return (HttpStatusCode.NotFound, "[]");
+                }
 
-            return output;
+                string output = JsonSerializer.Serialize(updates);
+
+                return (HttpStatusCode.OK, output);
+            }
+            catch (Exception ex)
+            {
+                return APIErrorResponse(ex);
+            }
+
+
         }
 
-        public string GetChanges(DateTime lastSyncDate)
+        public (HttpStatusCode statusCode, string result) GetChanges(DateTime lastSyncDate)
         {
-            (List<T> updates, DateTime lastUpdatedOnServer) = _serverDataAccess.GetChangesFromServer<T>(lastSyncDate);
+            try
+            {
+                (List<T> updates, DateTime lastUpdatedOnServer) = _serverDataAccess.GetChangesFromServer<T>(lastSyncDate);
 
-            string output = JsonSerializer.Serialize(updates);
+                if (updates.Count == 0)
+                {
+                    return (HttpStatusCode.NotFound, "[]");
+                }
 
-            return output;
+                string output = JsonSerializer.Serialize(updates);
+
+                return (HttpStatusCode.OK, output);
+            }
+            catch (Exception ex)
+            {
+                return APIErrorResponse(ex);
+            }
+
         }
 
-        public DateTime PostUpdates(List<T> updates)
+
+        public (HttpStatusCode statusCode, string result) PostUpdates(List<T> updates)
         {
-            DateTime result;
+            try
+            {
+                DateTime result;
 
-            result = _serverDataAccess.SaveToServer(updates);
+                result = _serverDataAccess.SaveToServer(updates);
 
-            return result;
+                if (result == DateTime.MinValue)
+                {
+                    return (HttpStatusCode.BadRequest, "Post failed to save update to server - check values in request body.");
+                }
+
+                string resultJson = JsonSerializer.Serialize(result);
+
+                return (HttpStatusCode.OK, resultJson);
+                ;
+            }
+            catch (Exception ex)
+            {
+                return APIErrorResponse(ex);
+            }
 
         }
 
-        public void PostConflicts(List<Conflict> conflicts)
+        public (HttpStatusCode statusCode, string result) PostConflicts(List<Conflict> conflicts)
         {
-            _serverDataAccess.SaveConflictIdsToServer<T>(conflicts);
+            try
+            {
+                _serverDataAccess.SaveConflictIdsToServer<T>(conflicts);
+
+                return (HttpStatusCode.OK, "Conflict Successfully Posted.");
+            }
+            catch (Exception ex)
+            {
+                return APIErrorResponse(ex);
+            };
 
         }
+
+        private (HttpStatusCode statusCode, string result) APIErrorResponse(Exception ex)
+        {
+            ApiErrorResponse<T> error = new ApiErrorResponse<T>(ex,_logger);
+            return (error.StatusCode, error.Body);
+        }
+
+
+
 
         ////// DELETE api/Part/
         ////[HttpDelete("{updates}")]
@@ -59,5 +125,11 @@ namespace MyClassLibrary.LocalServerMethods
 
         ////    _serverDataAccess.DeleteFromServer(partUpdates);
         ////}
+
+
+
     }
+    
+
+
 }

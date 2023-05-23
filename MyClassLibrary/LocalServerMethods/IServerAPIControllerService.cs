@@ -1,10 +1,12 @@
-﻿namespace MyClassLibrary.LocalServerMethods
+﻿using System.Net;
+
+namespace MyClassLibrary.LocalServerMethods
 {
     public interface IServerAPIControllerService<T> where T : LocalServerIdentityUpdate
     {
-        string Get(string ids);
-        string GetChanges(DateTime lastSyncDate);
-        void PostConflicts(List<Conflict> conflicts);
-        DateTime PostUpdates(List<T> updates);
+        (HttpStatusCode statusCode,string result) Get(string ids);
+        (HttpStatusCode statusCode, string result) GetChanges(DateTime lastSyncDate);
+        (HttpStatusCode statusCode, string result) PostConflicts(List<Conflict> conflicts);
+        (HttpStatusCode statusCode, string result) PostUpdates(List<T> updates);
     }
 }

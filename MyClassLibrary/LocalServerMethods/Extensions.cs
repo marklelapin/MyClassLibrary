@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MyClassLibrary.ErrorHandling;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,7 @@ namespace MyClassLibrary.LocalServerMethods
 
             if (!output.Contains("Update"))
             {
-                throw new ArgumentException("The given LocalServerIdentityUpdate must follow the convention of class name in the form {type}Update.");
+                throw new IdentifiedException("The given LocalServerIdentityUpdate must follow the convention of class name in the form {type}Update.");
             }
             return output.Replace("Update", "");
         }

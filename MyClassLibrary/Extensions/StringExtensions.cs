@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using MyClassLibrary.ErrorHandling;
 
 namespace MyExtensions
 {
@@ -56,9 +52,9 @@ namespace MyExtensions
             {
                 output = str.Split(separator).Select(s => Guid.Parse(s)).ToList();
             }
-            catch
+            catch(Exception)
             {
-                throw new ArgumentException("Can't convert string to List<Guid> as the list contains Guids that aren't valid.");
+                throw new IdentifiedException("Can't convert string to List<Guid> as the list contains Guids that aren't valid.");
             }
         
             return output;

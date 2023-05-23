@@ -87,8 +87,9 @@ namespace MyClassLibrary.LocalServerMethods
 
             string idsCSV = string.Empty;
 
-            if (ids != null) {
-                idsCSV = String.Join(",",ids.Select(x => x.ToString()));
+            if (ids != null)
+            {
+                idsCSV = String.Join(",", ids.Select(x => x.ToString()));
             }
 
             var parameters = new DynamicParameters();
@@ -136,6 +137,17 @@ namespace MyClassLibrary.LocalServerMethods
             _dataAccess.ExecuteStoredProcedure("spDeleteFromServer",parameters,_connectionStringName);
         }
 
+        //public void SaveHealthCheck<T>(string type, DateTime dateTime, int responseTime, int expectedStatusCode, int actualStatusCode, string healthCheckResult)
+        //{
+        //    var parameters = new DynamicParameters();
+        //    parameters.Add("@Type",type,DbType.String, ParameterDirection.Input);
+        //    parameters.Add("@DateTime",dateTime,DbType.DateTime2, ParameterDirection.Input);
+        //    parameters.Add("@ResponseTime", responseTime, DbType.Int16, ParameterDirection.Input);
+        //    parameters.Add("@ExpectedStatusCode", expectedStatusCode, DbType.Int16, ParameterDirection.Input);
+        //    parameters.Add("@ActualStatusCode", actualStatusCode, DbType.Int16, ParameterDirection.Input);
+        //    parameters.Add("@Result", healthCheckResult, DbType.String, ParameterDirection.Input);
 
+        //    _dataAccess.ExecuteStoredProcedure("spSaveHealthCheck", parameters, _connectionStringName);
+        //}
     }
 }

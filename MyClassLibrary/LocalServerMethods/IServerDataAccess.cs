@@ -36,6 +36,7 @@ namespace MyClassLibrary.LocalServerMethods
         /// </summary>
         public void DeleteFromServer<T>(List<T> updates) where T : LocalServerIdentityUpdate;
 
+       
 
     }
 }
