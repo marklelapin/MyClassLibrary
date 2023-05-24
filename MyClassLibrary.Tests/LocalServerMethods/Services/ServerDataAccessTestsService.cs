@@ -37,7 +37,10 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         //[Theory, MemberData(nameof(SaveTestData))]
         public void SaveTest(List<T> testUpdates)
         {
-           DateTime updatedOnServer = _serverDataAccess.SaveToServer<T>(testUpdates);
+
+            var saveToServerTask = Task.Run(() => _serverDataAccess.SaveToServer<T>(testUpdates));
+           saveToServerTask.Wait();
+           DateTime updatedOnServer = saveToServerTask.Result;
 
            bool checkUpdatedOnServerDate = true;
 
@@ -80,9 +83,11 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         //[Theory, MemberData(nameof(SaveAndGetTestData))]
         public void SaveAndGetTest(List<T> updates, List<Guid> getIds, List<T> expected)
         {
-            _serverDataAccess.SaveToServer(updates);
+            Task.Run(()=>_serverDataAccess.SaveToServer(updates)).Wait();
 
-            List<T> actual = _serverDataAccess.GetFromServer<T>(getIds);
+            var actualTask = Task.Run(() => _serverDataAccess.GetFromServer<T>(getIds));
+            actualTask.Wait();
+            List<T> actual = actualTask.Result;
 
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
             actual.Sort((x, y) => x.Id.CompareTo(y.Id));
@@ -108,11 +113,18 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         //[Theory, MemberData(nameof(GetChangesTestData))]
         async public void GetChangesTest(List<T> updates, int lastSyncDateAdjustment, List<T> expected)
         {
-            await Task.Delay(4000); //waits for 4 second to ensure that the last sync date produced will be more than the 1 second potential test gap.
+            Task.Run(()=>Task.Delay(5*1000)).Wait(); //waits for 5 second to ensure that other tests don't get in the way.
 
-            DateTime lastSyncDate = _serverDataAccess.SaveToServer(updates);
 
-            (List<T> actualChangesFromServer, DateTime actualLastUpdatedOnServer) = _serverDataAccess.GetChangesFromServer<T>(lastSyncDate.AddSeconds(lastSyncDateAdjustment));
+
+
+            var lastSyncDateTask = Task.Run(()=>_serverDataAccess.SaveToServer(updates));
+            lastSyncDateTask.Wait();
+            DateTime lastSyncDate = lastSyncDateTask.Result;
+
+            var getChangesTask = Task.Run(() => _serverDataAccess.GetChangesFromServer<T>(lastSyncDate.AddSeconds(lastSyncDateAdjustment)));
+            getChangesTask.Wait();
+            (List<T> actualChangesFromServer, DateTime actualLastUpdatedOnServer) = getChangesTask.Result;
 
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
             actualChangesFromServer.Sort((x, y) => x.Id.CompareTo(y.Id));
@@ -154,15 +166,15 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         public void SaveConflictIdTest(List<T> updates, List<Conflict> conflicts,List<Conflict> expected)
         {
 
-            _serverDataAccess.SaveToServer<T>(updates);
-            _serverDataAccess.SaveConflictIdsToServer<T>(conflicts);
+           Task.Run(()=> _serverDataAccess.SaveToServer<T>(updates)).Wait();
+           Task.Run(()=> _serverDataAccess.SaveConflictIdsToServer<T>(conflicts)).Wait();
 
             List<Conflict> actual = new List<Conflict>();
 
-            actual = _serverDataAccess.GetFromServer<T>(_testContent.ListIds(updates))
-                                                    .Where(x => x.ConflictId != null)
-                                                    .Select(x => new Conflict(x.Id, x.Created, x.ConflictId))
-                                                    .ToList();
+            var actualTask = Task.Run(() => _serverDataAccess.GetFromServer<T>(_testContent.ListIds(updates)));
+            actual = actualTask.Result.Where(x => x.ConflictId != null)
+                                    .Select(x => new Conflict(x.Id, x.Created, x.ConflictId))
+                                    .ToList();
 
             actual.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
             expected.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));

@@ -1,5 +1,6 @@
 ﻿
 
+using Microsoft.AspNetCore.Components.Forms;
 using MyClassLibrary.Interfaces;
 using MyClassLibrary.LocalServerMethods;
 using System.Collections.Immutable;
@@ -15,6 +16,10 @@ namespace MyClassLibrary.LocalServerMethods
 {
     public class LocalServerEngine<T> : ILocalServerEngine<T> where T : LocalServerIdentityUpdate
     {
+
+        //TODO = LocalServerIdentity Unit Tests
+
+
         //Properties
         /// <summary>
         /// The interface providing access to Local Data Storage
@@ -39,21 +44,23 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Sorts the list by Id
         /// </summary>
-        public void SortById(List<T> updates)
+        public Task SortById(List<T> updates)
         {
             updates.Sort((x, y) => x.Id.CompareTo(y.Id));
+            return Task.CompletedTask;
         }
         /// <summary>
         /// Sorts the list by Created
         /// </summary>
-        public void SortByCreated(List<T> updates)
+        public Task SortByCreated(List<T> updates)
         {
             updates.Sort((x, y) => x.Created.CompareTo(y.Created));
+            return Task.CompletedTask;
         }
         /// <summary>
         /// Sorts the list by ID and then by Created
         /// </summary>
-        public void SortByIdAndCreated(List<T> updates)
+        public Task SortByIdAndCreated(List<T> updates)
         {
             updates.Sort((x, y) =>
                         {
@@ -65,6 +72,7 @@ namespace MyClassLibrary.LocalServerMethods
                             }
                             return result;
                         });
+            return Task.CompletedTask;
         }
 
 
@@ -73,41 +81,51 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// save a Updates to Local and Server if it can. Throws error if can do neither.
         /// </summary>
-        public void Save(T update)
+        public async Task Save(T update)
         {
-            Save(new List<T> { update });
+            await Save(new List<T> { update });
         }
         /// <summary>
         /// save a Updates to Local and Server if it can. Throws error if can do neither.
         /// </summary>
-        public void Save(List<T> updates)
+        public async Task Save(List<T> updates)
         {
-            bool serverSuccess = TrySaveToServer(updates);
-            bool localSuccess = TrySaveToLocal(updates);
-            if (!serverSuccess && !localSuccess) { throw new Exception("Failed to Save to Server or Local Storage. Check configuration of data access"); }
+            Task<bool> serverSuccess = TrySaveToServer(updates); //Have to wait for this to finish as adds in UpdatedOnServerDate to Updates
+            serverSuccess.Wait();
+            Task<bool> localSuccess = TrySaveToLocal(updates);
 
+            await Task.WhenAll(serverSuccess, localSuccess);
+
+            if (!serverSuccess.Result && !localSuccess.Result) { throw new Exception("Failed to Save to Server or Local Storage. Check configuration of data access"); }
+          
         }
         /// <summary>
         /// Produces a list of Updates filtered for the latest Created date plus any with a conflictID.
         /// </summary>
-        public List<T> FilterLatest(List<T> updates)
+        public  async Task<List<T>> FilterLatest(List<T> updates)
         {
             List<T> output;
 
             //filters for latest created for each Id and removes inactive Updates.
-            var filter = updates.GroupBy(x => x.Id).Select(g => new { Id = g.Key, Created = g.Max(x => x.Created) }).ToList();
+            var filter = await Task.Run(()=>
+            
+                updates.GroupBy(x => x.Id).Select(g => new { Id = g.Key, Created = g.Max(x => x.Created) }).ToList());
 
-            output = (List<T>)(from o in updates
-                               join f in filter
-                               on new { o.Id, o.Created } equals new { f.Id, f.Created }
-                               select o);
-            output = output.Where(x => x.IsActive == true).ToList();
+            var sort = await Task.Run(() =>
+                        (List<T>)(from o in updates
+                                  join f in filter
+                                  on new { o.Id, o.Created } equals new { f.Id, f.Created }
+                                  select o));
 
-            //then adds back in any conflicted 
 
-            var conflicts = updates.Where(x => x.ConflictId != null).ToList();
+            var active = await Task.Run(()=>sort.Where(x => x.IsActive == true).ToList());
 
-            output.Union(conflicts);
+            ////then adds back in any conflicted 
+
+            //var conflicts = await Task.Run(() => updates.Where(x => x.ConflictId != null).ToList());
+
+            //var output = await Task.Run(() => (List<T>)active.Union(conflicts));
+            output = active;
 
             return output;
         }
@@ -117,7 +135,7 @@ namespace MyClassLibrary.LocalServerMethods
         /// Tries to sync Local and Server returning false if it fails. Identifies and saves conflicts.
         /// </summary>
         /// <returns></returns>
-        public bool TrySync()
+        public async Task<bool> TrySync() //TODO Change method of syncing to remove locallastsyncdate. USe copy Guid to identify the local copy and then have table on server that links copyguid with server guid.
         {
             List<T> changesFromServer = new List<T>();
             DateTime lastUpdatedOnServer = DateTime.MinValue;
@@ -126,44 +144,56 @@ namespace MyClassLibrary.LocalServerMethods
 
             try
             {
-                DateTime lastSyncDate = _localDataAccess.GetLocalLastSyncDate<T>();
+                DateTime lastSyncDate = await _localDataAccess.GetLocalLastSyncDate<T>();
 
-                changesFromLocal = _localDataAccess.GetChangesFromLocal<T>();
+                changesFromLocal = await _localDataAccess.GetChangesFromLocal<T>();
 
-                (changesFromServer, lastUpdatedOnServer) = _serverDataAccess.GetChangesFromServer<T>(lastSyncDate);
+                (changesFromServer, lastUpdatedOnServer) = await _serverDataAccess.GetChangesFromServer<T>(lastSyncDate);
 
             }
             catch { return false; } //if it can't access server and local then stops sync until another attempt is made and it is called again
+            //TODO add in pass back of error information.when syncing if not to do with connection.
+
+            List<Conflict> conflictIds = await FindConflicts(changesFromServer, changesFromLocal);
 
 
-            List<Conflict> conflictIds = FindConflicts(changesFromServer, changesFromLocal);
+            var saveServerChangesTask = TrySaveServerChangesToLocal(changesFromServer, lastUpdatedOnServer);
+            var saveLocalChangesTask = TrySaveLocalChangesToServer(changesFromLocal);
+            var saveConflictIdsTask = SaveConflictIds(conflictIds);
 
+            await Task.WhenAll(saveLocalChangesTask, saveServerChangesTask,saveConflictIdsTask);
 
-
-
-            if (!TrySaveServerChangesToLocal(changesFromServer, lastUpdatedOnServer)) return false;
-
-            if (!TrySaveLocalChangesToServer(changesFromLocal)) return false;
-
-            if (!SaveConflictIds(conflictIds)) return false;
-
-
-            return true;
+            if (saveLocalChangesTask.Result && saveServerChangesTask.Result && saveConflictIdsTask.Result)
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
 
         }
 
-
         /// <summary>
-        /// Populates the Updates list with all of the Updates matching Id from Local (or Server if Local unavailable)
+        /// Populates the Updates list with all updates from Local (or Server if Local unavailable)
         /// </summary>
-        public List<T> GetAllUpdates(Guid id)
+        public async Task<List<T>> GetAllUpdates()
         {
-            return GetAllUpdates(new List<Guid> { id });
+            List<Guid>? ids = null;
+            return await GetAllUpdates(ids);
+        }
+        
+
+        /// <summary>
+        /// Populates the Updates list with all of the Updates matching Id from Local (or Server if Local unavailable)
+        /// </summary>
+        public async Task<List<T>> GetAllUpdates(Guid id)
+        {
+            return await GetAllUpdates(new List<Guid> { id });
         }
         /// <summary>
         /// Populates the Updates list with all of the Updates matching Id from Local (or Server if Local unavailable)
         /// </summary>
-        public List<T> GetAllUpdates(List<Guid> ids)
+        public async Task<List<T>> GetAllUpdates(List<Guid>? ids = null)
         {
             List<T> output = new List<T>();
 
@@ -171,41 +201,75 @@ namespace MyClassLibrary.LocalServerMethods
 
             try
             {
-                if (_localDataAccess != null) { output = _localDataAccess.GetFromLocal<T>(ids); }
+                if (_localDataAccess != null) { output = await _localDataAccess.GetFromLocal<T>(ids); }
             }
             catch (Exception)
             {
-                if (_serverDataAccess != null) { output = _serverDataAccess.GetFromServer<T>(ids); }
+                if (_serverDataAccess != null) { output = await _serverDataAccess.GetFromServer<T>(ids); }
             }
 
             return output;
         }
 
+
+
+        public async Task<List<U>> GetAllIdentities<U>() where U : LocalServerIdentity<T>
+        {
+            List<Guid>? ids = null;
+            return await GetAllIdentities<U>(ids);
+
+        }
+
+        public async Task<List<U>> GetAllIdentities<U>(List<Guid>? ids = null) where U : LocalServerIdentity<T>
+        {
+            List<U> output = new List<U>();
+
+            var allUpdates = GetAllUpdates(ids);
+            Task.WaitAll(allUpdates);
+            var latestUpdates = FilterLatest(allUpdates.Result);
+            Task.WaitAll(latestUpdates);
+
+            foreach (var update in latestUpdates.Result)
+            {
+                U identity = (U)new LocalServerIdentity<T>(this, update.Id);
+                identity.Latest = update;
+                identity.History = allUpdates.Result.Where(x=>x.Id== update.Id).ToList();
+                await identity.AddConflicts();
+                output.Add(identity);
+            }
+
+            return output;
+        }
+
+
+
+
+
         //Private Methods
         /// <summary>
         /// Tries to Save Updates to Local. If it fails returns false.
         /// </summary>
-        private bool TrySaveToLocal(List<T> updates)
+        private async Task<bool> TrySaveToLocal(List<T> updates)
         {
             try
             {
-                _localDataAccess.SaveToLocal(updates);
+                await _localDataAccess.SaveToLocal(updates);
                 return true;
             }
             catch
             {
                 return false;
-                //TODO Log error
+                //TODO Try Log Save To Local Error
             }
         }
         /// <summary>
         /// Tries to Save Updates to Server. If it fails returns false.
         /// </summary>
-        private bool TrySaveToServer(List<T> updates)
+        private async Task<bool> TrySaveToServer(List<T> updates)
         {
             try
             {
-               DateTime updatedOnServer = _serverDataAccess.SaveToServer(updates);
+               DateTime updatedOnServer = await _serverDataAccess.SaveToServer(updates);
                foreach(T t in updates)
                 {
                     t.UpdatedOnServer = updatedOnServer;
@@ -215,61 +279,63 @@ namespace MyClassLibrary.LocalServerMethods
             catch
             {
                 return false;
-                //TODO Log error
+                //TODO Try Log Save to Server Error
             }
         }
 
         /// <summary>
         /// Finds changesFromServer with the same Id as changesFromLocal. For each conflicted Id it generates a ConflictID
         /// </summary>
-        public List<Conflict> FindConflicts(List<T> changesFromServer, List<T> changesFromLocal)
+        public async Task<List<Conflict>> FindConflicts(List<T> changesFromServer, List<T> changesFromLocal)
         {
 
             List<Conflict> output = new List<Conflict>();
 
             List<T> conflictedUpdates = new List<T>();
 
-            conflictedUpdates.AddRange(changesFromServer.Where(x => x.ConflictId != null).ToList());
-
-            List<T> joinedList = (
-                              from s in changesFromServer
-                              join l in changesFromLocal
-                              on s.Id equals l.Id
-                              select s
-                              ).ToList();
-
-            conflictedUpdates.AddRange(joinedList);
-
-            Dictionary<Guid, Guid> conflictDictionary = CreateConflictIds(conflictedUpdates);
-
-            List<T> changes = new List<T>();
-
-            changes.AddRange(changesFromServer);
-            changes.AddRange(changesFromLocal);
-
-            changes = (from c in changes
-                       join f in conflictedUpdates
-                       on c.Id equals f.Id
-                       select c).Distinct().ToList();
-
-            foreach (T obj in changes)
+            await Task.Run(() =>
             {
-                conflictDictionary.TryGetValue(obj.Id, out Guid conflictID);
-                output.Add(new Conflict(obj.Id, obj.Created, obj.ConflictId ?? conflictID));
-            }
+                conflictedUpdates.AddRange(changesFromServer.Where(x => x.ConflictId != null).ToList());
 
+                List<T> joinedList = (
+                                  from s in changesFromServer
+                                  join l in changesFromLocal
+                                  on s.Id equals l.Id
+                                  select s
+                                  ).ToList();
+                conflictedUpdates.AddRange(joinedList);
+
+                Dictionary<Guid, Guid> conflictDictionary = CreateConflictIds(conflictedUpdates);
+
+                List<T> changes = new List<T>();
+
+                changes.AddRange(changesFromServer);
+                changes.AddRange(changesFromLocal);
+
+                changes = (from c in changes
+                           join f in conflictedUpdates
+                           on c.Id equals f.Id
+                           select c).Distinct().ToList();
+
+                foreach (T obj in changes)
+                {
+                    conflictDictionary.TryGetValue(obj.Id, out Guid conflictID);
+                    output.Add(new Conflict(obj.Id, obj.Created, obj.ConflictId ?? conflictID));
+                }
+
+            });
 
             return output;
         }
         /// <summary>
         /// Saves the ConflictID associates with it to each object with matching Id on both server and local.
         /// </summary>
-        public bool SaveConflictIds(List<Conflict> conflicts)
+        public async Task<bool> SaveConflictIds(List<Conflict> conflicts)
         {
             try
             {
-                _localDataAccess.SaveConflictIdsToLocal<T>(conflicts);
-                _serverDataAccess.SaveConflictIdsToServer<T>(conflicts);
+                await _localDataAccess.SaveConflictIdsToLocal<T>(conflicts);
+                await _serverDataAccess.SaveConflictIdsToServer<T>(conflicts);
             }
             catch (Exception ex)
             {
@@ -281,21 +347,19 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Tries to save changesFromServer and if successfull saves lastUpdatedOnServer. (if this final step fails it throws an error)
         /// </summary>
-        private bool TrySaveServerChangesToLocal(List<T> changesFromServer, DateTime lastUpdatedOnServer)
+        private async Task<bool> TrySaveServerChangesToLocal(List<T> changesFromServer, DateTime lastUpdatedOnServer)
         {
             try
             {
-                _localDataAccess.SaveToLocal(changesFromServer);
+                await _localDataAccess.SaveToLocal(changesFromServer);
                 try
                 {
-                    _localDataAccess.SaveLocalLastSyncDate<T>(lastUpdatedOnServer);
+                    await _localDataAccess.SaveLocalLastSyncDate<T>(lastUpdatedOnServer);
                 }
                 catch (Exception ex)
                 {
-                    _localDataAccess.DeleteFromLocal(changesFromServer);
-                    throw new NotImplementedException("Need to log this error.", ex); //TODO Add error logging to sync
-                    return false;
-
+                    await _localDataAccess.DeleteFromLocal(changesFromServer);
+                    throw new NotImplementedException("Need to log this error.", ex); //TODO Add error logging to sync.
                 }
             }
             catch (Exception ex)
@@ -308,25 +372,25 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Tries to save changesFromLocal and if successfull updates UpdatedOnServer to local Updates. (if this final step fails it throws an error)
         /// </summary>
-        private bool TrySaveLocalChangesToServer(List<T> changesFromLocal)
+        private async Task<bool> TrySaveLocalChangesToServer(List<T> changesFromLocal)
         {
             DateTime? newUpdatedOnServer = null;
 
             try
             {
-                newUpdatedOnServer = _serverDataAccess.SaveToServer(changesFromLocal);
+                newUpdatedOnServer = await _serverDataAccess.SaveToServer(changesFromLocal);
                 try
                 {
                     if (newUpdatedOnServer != null)
                     {
-                        _localDataAccess.SaveUpdatedOnServerToLocal(changesFromLocal, (DateTime)newUpdatedOnServer);
+                        await _localDataAccess.SaveUpdatedOnServerToLocal(changesFromLocal, (DateTime)newUpdatedOnServer);
                     };
                 }
                 catch (Exception ex)
                 {
-                    _serverDataAccess.DeleteFromServer(changesFromLocal);
+                    await _serverDataAccess.DeleteFromServer(changesFromLocal);
                     throw new NotImplementedException("Failed to Save Updated to local storage. Changes from server have been rolled back.", ex);
-                    return false;
+                    
                 } //TODO Log Error
 
             }

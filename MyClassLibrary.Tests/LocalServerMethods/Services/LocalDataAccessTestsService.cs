@@ -65,9 +65,11 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         // [Theory, MemberData(nameof(SaveAndGetTestData))]
         public void SaveAndGetTest(List<T> testUpdates, List<Guid> idsToGet, List<T> expected)
         {
-            _localDataAccess.SaveToLocal(testUpdates);
+            Task.Run(()=>_localDataAccess.SaveToLocal(testUpdates)).Wait();
 
-            List<T> actual = _localDataAccess.GetFromLocal<T>(idsToGet);
+            var actualTask = Task.Run(()=>   _localDataAccess.GetFromLocal<T>(idsToGet)  );
+            actualTask.Wait();
+            List<T> actual = actualTask.Result; 
 
             actual.Sort((x, y) => x.Id.CompareTo(y.Id));
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
@@ -81,13 +83,21 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         //[Theory, MemberData(nameof(GetChangesTestData))]
         public void GetChangesTest(List<T> updates) //also tests functionality of passing null into GetFromLocal
         {
+            InsertDelay(5 * 1000);//Waits for other test to finish before executing. Otherwise changes will pick up updates occuring in other tests.
 
-            _localDataAccess.SaveToLocal(updates);
-            List<T> allUpdates = _localDataAccess.GetFromLocal<T>(null);
+
+            Task.Run(()=>_localDataAccess.SaveToLocal(updates).Wait());
+
+            var allUpdatesTask = Task.Run(() => _localDataAccess.GetFromLocal<T>(null));
+            var actualTask = Task.Run(() => _localDataAccess.GetChangesFromLocal<T>());
+
+            Task.WaitAll(allUpdatesTask,actualTask);
+
+            List<T> allUpdates = allUpdatesTask.Result;
 
             List<T> expected = allUpdates.Where(x => x.UpdatedOnServer == null).ToList();
 
-            List<T> actual = _localDataAccess.GetChangesFromLocal<T>();
+            List<T> actual = actualTask.Result;
 
             actual.Sort((x, y) => x.Id.CompareTo(y.Id));
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
@@ -100,9 +110,11 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         // [Theory, MemberData(nameof(SaveandGetLocalLastSyncDateTestData))]
         public void SaveAndGetLocalLastSyncDateTest(DateTime expected)
         {
-            _localDataAccess.SaveLocalLastSyncDate<T>(expected);
+            Task.Run(()=>_localDataAccess.SaveLocalLastSyncDate<T>(expected)).Wait();
 
-            DateTime actual = _localDataAccess.GetLocalLastSyncDate<T>();
+            var actualTask = Task.Run(() => _localDataAccess.GetLocalLastSyncDate<T>());
+            actualTask.Wait();
+            DateTime actual = actualTask.Result;
 
             Assert.Equal(expected, actual);
         }
@@ -117,14 +129,19 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
 
             updates = _testContent.Generate(1, "Default")[0];
 
-            _localDataAccess.SaveToLocal(updates);
+            Task.Run(()=>_localDataAccess.SaveToLocal(updates)).Wait();
 
-            _localDataAccess.SaveUpdatedOnServerToLocal(updates, updatedOnServer);
+            Task.Run(()=>_localDataAccess.SaveUpdatedOnServerToLocal(updates, updatedOnServer)).Wait();
 
-            List<T> actualUpdated = _localDataAccess.GetFromLocal<T>(_testContent.ListIds(updates));
+            var actualUpdatedTask = Task.Run(() => _localDataAccess.GetFromLocal<T>(_testContent.ListIds(updates)));
+            actualUpdatedTask.Wait();
+            List<T> actualUpdated = actualUpdatedTask.Result;
 
-            List<T> actualNotUpdated = _localDataAccess.GetFromLocal<T>().Where(x => !actualUpdated.Any(y => y.Id == x.Id)).ToList();
-
+            var actualNotUpdatedTask = Task.Run(() => _localDataAccess.GetFromLocal<T>());
+            actualNotUpdatedTask.Wait();
+            
+            List<T> actualNotUpdated = actualNotUpdatedTask.Result.Where(x => !actualUpdated.Any(y => y.Id == x.Id)).ToList();
+            
             Assert.True(actualNotUpdated.Where(x => x.UpdatedOnServer == updatedOnServer).Count() == 0, "No Other Objects Have UpdatedOnServerDate");
             Assert.True(actualUpdated.Where(x => x.UpdatedOnServer == updatedOnServer).Count() == updates.Count());
         }
@@ -158,15 +175,17 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         //[Theory, MemberData(nameof(saveConflictIdTestData))]
         public void SaveConflictIdTest(List<T> testUpdates, List<Conflict> conflicts, List<Conflict> expected)
         {
-            _localDataAccess.SaveToLocal(testUpdates);
-            _localDataAccess.SaveConflictIdsToLocal<T>(conflicts);
+            var saveToLocalTask = Task.Run(()=>_localDataAccess.SaveToLocal(testUpdates));
+            var saveConflictIdsTask = Task.Run(()=>_localDataAccess.SaveConflictIdsToLocal<T>(conflicts));
+            Task.WaitAll(saveToLocalTask, saveConflictIdsTask);
 
             List<Conflict> actual = new List<Conflict>();
 
-            actual = _localDataAccess.GetFromLocal<T>(_testContent.ListIds(testUpdates))
-                                                    .Where(x => x.ConflictId != null)
-                                                    .Select(x => new Conflict(x.Id, x.Created, x.ConflictId))
-                                                    .ToList();
+            var actualTask = Task.Run(() => _localDataAccess.GetFromLocal<T>(_testContent.ListIds(testUpdates)));
+            actualTask.Wait();
+            actual = actualTask.Result.Where(x => x.ConflictId != null)
+                                      .Select(x => new Conflict(x.Id, x.Created, x.ConflictId))
+                                      .ToList();
 
             actual.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
             expected.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
@@ -184,9 +203,10 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         //}
 
 
-        async private void InsertDelay(int milliSeconds)
+        private void InsertDelay(int milliSeconds)
         {
-            await Task.Delay(milliSeconds);
+            Task.Run(()=> Task.Delay(milliSeconds)).Wait();
+            
         }
 
     }

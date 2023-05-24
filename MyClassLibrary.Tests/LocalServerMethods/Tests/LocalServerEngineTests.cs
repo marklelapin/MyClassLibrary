@@ -53,9 +53,12 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         [Theory, MemberData(nameof(SaveAndGetTestData))]
         public void SaveAndGetTest(List<TestUpdate> updates, List<Guid> ids, List<TestUpdate> expected)
         {
-            _localServerEngine.Save(updates);
+            var saveTask = Task.Run(()=>_localServerEngine.Save(updates));
+            saveTask.Wait();
 
-            List<TestUpdate> actual = _localServerEngine.GetAllUpdates(ids);
+            Task<List<TestUpdate>> taskActual = Task.Run(()=> _localServerEngine.GetAllUpdates(ids));
+            taskActual.Wait();
+            List<TestUpdate> actual = taskActual.Result;
 
             expected.Sort((x, y) => x.Id.CompareTo(y.Id));
             actual.Sort((x, y) => x.Id.CompareTo(y.Id));
@@ -77,14 +80,14 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             new object[] {TrySyncTestContents[6],TrySyncTestContents[13],false,false,false}
         };
         [Theory, MemberData(nameof(TrySyncTestData))]
-        public void TrySyncTest(List<TestUpdate> serverUpdates, List<TestUpdate> localUpdates, bool serverStatus, bool localStatus, bool expectedWasSuccessfull)
+        public async void TrySyncTest(List<TestUpdate> serverUpdates, List<TestUpdate> localUpdates, bool serverStatus, bool localStatus, bool expectedWasSuccessfull)
         {
 
             DateTime localLastSyncDate = DateTime.Now;
 
             CreateDelay(1000);//This delay allows for that for discrepancies between time on server and local
 
-            _localDataAccess.SaveLocalLastSyncDate<TestUpdate>(localLastSyncDate);
+            Task.Run(()=>_localDataAccess.SaveLocalLastSyncDate<TestUpdate>(localLastSyncDate)).Wait();
 
 
             ILocalDataAccess trySyncLocalDataAccess = localStatus ? _localDataAccess : new LocalSQLConnector(new SqlDataAccess(_serviceConfiguration.Config), "Error");
@@ -97,16 +100,24 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             combinedIds.Distinct();
 
-            _serverDataAccess.SaveToServer(serverUpdates);
+           Task.Run(()=> _serverDataAccess.SaveToServer(serverUpdates)).Wait();
 
-            _localDataAccess.SaveToLocal(localUpdates);
+            await Task.Run(()=> _localDataAccess.SaveToLocal(localUpdates));
+
+            var trySyncResultTask = Task.Run(() => _testEngine.TrySync());
+            trySyncResultTask.Wait();
+            bool actualWasSuccessfull = trySyncResultTask.Result;
+
+       
 
 
-            bool actualWasSuccessfull = _testEngine.TrySync();
+            var actualServerResultTask = _serverDataAccess.GetFromServer<TestUpdate>(combinedIds);
+            var actualLocalResultTask = _localDataAccess.GetFromLocal<TestUpdate>(combinedIds);
+            Task.WaitAll(actualLocalResultTask, actualServerResultTask);
 
-            List<TestUpdate> actualServerResult = _serverDataAccess.GetFromServer<TestUpdate>(combinedIds);
+            List<TestUpdate> actualServerResult = actualServerResultTask.Result;
 
-            List<TestUpdate> actualLocalResult = _localDataAccess.GetFromLocal<TestUpdate>(combinedIds);
+            List<TestUpdate> actualLocalResult = actualLocalResultTask.Result;
 
             List<TestUpdate> expectedServerResult = serverUpdates;
 
@@ -161,7 +172,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             List<TestUpdate> actual = _testContent.Generate(1, "Unsorted", overrideIds, DateTime.Now)[0];
             List<TestUpdate> expected = _testContent.Generate(1, "SortedById", overrideIds, DateTime.Now)[0];
 
-            _localServerEngine.SortById(actual);
+            var task = Task.Run(()=>_localServerEngine.SortById(actual));
+            task.Wait();
 
             Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
 
@@ -182,7 +194,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             List<TestUpdate> expected = _testContent.Generate(1, "SortedByCreated", overrideIds, DateTime.Now)[0];
 
 
-            _localServerEngine.SortByCreated(actual);
+            var task = Task.Run(()=>_localServerEngine.SortByCreated(actual));
+            task.Wait();
 
             Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
 
@@ -202,8 +215,9 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             List<TestUpdate> actual = _testContent.Generate(1, "Unsorted", overrideIds, DateTime.Now)[0];
             List<TestUpdate> expected = _testContent.Generate(1, "History", overrideIds, DateTime.Now)[0];
 
-            _localServerEngine.SortByIdAndCreated(actual);
-            
+            var task = Task.Run(()=>_localServerEngine.SortByIdAndCreated(actual));
+            task.Wait();
+
             Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
 
         }
@@ -257,7 +271,10 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             expected.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
 
-            List<Conflict> actual = _localServerEngine.FindConflicts(changesFromServer, changesFromLocal);
+            Task<List<Conflict>> actualTask = Task.Run(()=>_localServerEngine.FindConflicts(changesFromServer, changesFromLocal));
+            actualTask.Wait();
+            List<Conflict> actual = actualTask.Result;
+            
             actual.Sort((x, y) => x.UpdateCreated.CompareTo(y.UpdateCreated));
 
             List<Conflict> actualMinusConflictID = actual.Select(x => new Conflict(x.UpdateId, x.UpdateCreated)).ToList();
@@ -280,8 +297,10 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         {
             List<List<TestUpdate>> testContents = _testContent.Generate(1,"Default");
 
-            _serverDataAccess.SaveToServer(testContents[0]);
-            _localDataAccess.SaveToLocal(testContents[0]);
+            var saveToServerTask = Task.Run(() => _serverDataAccess.SaveToServer(testContents[0]));
+            saveToServerTask.Wait();
+            var saveToLocalTask = Task.Run(()=> _localDataAccess.SaveToLocal(testContents[0]));
+            Task.WaitAll(saveToServerTask, saveToLocalTask);
 
             List<Conflict> conflicts = new List<Conflict>();
 
@@ -297,14 +316,20 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             expected.Select(x => (x.Id, x.Created, x.ConflictId)).ToList();
 
 
-            _localServerEngine.SaveConflictIds(conflicts);
+            var saveConflictIdsTask = Task.Run(()=>_localServerEngine.SaveConflictIds(conflicts));
+            saveConflictIdsTask.Wait();
 
 
-            List<TestUpdate> actualServer = _serverDataAccess.GetFromServer<TestUpdate>(_testContent.ListIds(testContents[0]));
+            var actualServerTask = Task.Run(()=>_serverDataAccess.GetFromServer<TestUpdate>(_testContent.ListIds(testContents[0])));
+            var actualLocalTask = Task.Run(() => _localDataAccess.GetFromLocal<TestUpdate>(_testContent.ListIds(testContents[0])));
+            Task.WaitAll(actualLocalTask, actualServerTask);
+
+            List<TestUpdate> actualServer = actualServerTask.Result;
+            List<TestUpdate> actualLocal = actualLocalTask.Result;
+
             actualServer.Sort((x, y) => x.Id.CompareTo(y.Id));
             actualServer.Select(x => (x.Id, x.Created, x.ConflictId)).ToList();
 
-            List<TestUpdate> actualLocal = _localDataAccess.GetFromLocal<TestUpdate>(_testContent.ListIds(testContents[0]));
             actualLocal.Sort((x, y) => x.Id.CompareTo(y.Id));
             actualLocal.Select(x => (x.Id, x.Created, x.ConflictId)).ToList();
 

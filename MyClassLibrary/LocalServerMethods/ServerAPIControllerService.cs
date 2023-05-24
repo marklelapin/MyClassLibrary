@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Net;
 using MyClassLibrary.ErrorHandling;
 using Microsoft.Extensions.Logging;
+using System.Runtime.CompilerServices;
 
 namespace MyClassLibrary.LocalServerMethods
 {
@@ -19,13 +20,13 @@ namespace MyClassLibrary.LocalServerMethods
             _logger = logger;
         }
 
-        public (HttpStatusCode statusCode, string result) Get(string ids)
+        public async Task<(HttpStatusCode statusCode, string result)> Get(string ids)
         {
             try
             {
                 List<Guid> guids = ids.ToListGuid();
 
-                List<T> updates = _serverDataAccess.GetFromServer<T>(guids);
+                List<T> updates = await _serverDataAccess.GetFromServer<T>(guids);
 
                 if (updates.Count == 0)
                 {
@@ -44,11 +45,11 @@ namespace MyClassLibrary.LocalServerMethods
 
         }
 
-        public (HttpStatusCode statusCode, string result) GetChanges(DateTime lastSyncDate)
+        public async Task<(HttpStatusCode statusCode, string result)> GetChanges(DateTime lastSyncDate)
         {
             try
             {
-                (List<T> updates, DateTime lastUpdatedOnServer) = _serverDataAccess.GetChangesFromServer<T>(lastSyncDate);
+                (List<T> updates, DateTime lastUpdatedOnServer) = await _serverDataAccess.GetChangesFromServer<T>(lastSyncDate);
 
                 if (updates.Count == 0)
                 {
@@ -67,13 +68,13 @@ namespace MyClassLibrary.LocalServerMethods
         }
 
 
-        public (HttpStatusCode statusCode, string result) PostUpdates(List<T> updates)
+        public async Task<(HttpStatusCode statusCode, string result)> PostUpdates(List<T> updates)
         {
             try
             {
                 DateTime result;
 
-                result = _serverDataAccess.SaveToServer(updates);
+                result = await _serverDataAccess.SaveToServer(updates);
 
                 if (result == DateTime.MinValue)
                 {
@@ -92,11 +93,11 @@ namespace MyClassLibrary.LocalServerMethods
 
         }
 
-        public (HttpStatusCode statusCode, string result) PostConflicts(List<Conflict> conflicts)
+        public async Task<(HttpStatusCode statusCode, string result)> PostConflicts(List<Conflict> conflicts)
         {
             try
             {
-                _serverDataAccess.SaveConflictIdsToServer<T>(conflicts);
+               await _serverDataAccess.SaveConflictIdsToServer<T>(conflicts);
 
                 return (HttpStatusCode.OK, "Conflict Successfully Posted.");
             }

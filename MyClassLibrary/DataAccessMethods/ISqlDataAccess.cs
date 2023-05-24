@@ -4,6 +4,6 @@ namespace MyClassLibrary.DataAccessMethods
 {
     public interface ISqlDataAccess
     {
-        public void ExecuteStoredProcedure(string storedProcedure, DynamicParameters parameters, string connectionStringName);
+        public Task ExecuteStoredProcedure(string storedProcedure, DynamicParameters parameters, string connectionStringName);
     }
 }
