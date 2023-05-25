@@ -1,29 +1,24 @@
-﻿using MyClassLibrary.LocalServerMethods;
+﻿
+using MyClassLibrary.LocalServerMethods.Interfaces;
+using MyClassLibrary.LocalServerMethods.Models;
 using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
-using NuGet.Frameworks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Xunit.Sdk;
+
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Services
 {
-    public class LocalDataAccessTestsService<T> : ILocalDataAccessTests<T> where T : LocalServerIdentityUpdate
+    public class LocalDataAccessTestsService<T> : ILocalDataAccessTests<T> where T : LocalServerModelUpdate
     {
 
         private ITestContent<T> _testContent;
-        private IServiceConfiguration _serviceConfiguration;
-        private readonly ILocalDataAccess _localDataAccess;
+        private IServiceConfiguration<T> _serviceConfiguration;
+        private readonly ILocalDataAccess<T> _localDataAccess;
 
-        public LocalDataAccessTestsService(IServiceConfiguration serviceConfiguration)
+        public LocalDataAccessTestsService(IServiceConfiguration<T> serviceConfiguration)
         {
             _serviceConfiguration = serviceConfiguration;
             _localDataAccess = _serviceConfiguration.LocalDataAccess();
-            _testContent = _serviceConfiguration.TestContent<T>();
+            _testContent = _serviceConfiguration.TestContent();
         }
 
 
@@ -67,7 +62,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         {
             Task.Run(()=>_localDataAccess.SaveToLocal(testUpdates)).Wait();
 
-            var actualTask = Task.Run(()=>   _localDataAccess.GetFromLocal<T>(idsToGet)  );
+            var actualTask = Task.Run(()=>   _localDataAccess.GetFromLocal(idsToGet)  );
             actualTask.Wait();
             List<T> actual = actualTask.Result; 
 
@@ -88,8 +83,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
 
             Task.Run(()=>_localDataAccess.SaveToLocal(updates).Wait());
 
-            var allUpdatesTask = Task.Run(() => _localDataAccess.GetFromLocal<T>(null));
-            var actualTask = Task.Run(() => _localDataAccess.GetChangesFromLocal<T>());
+            var allUpdatesTask = Task.Run(() => _localDataAccess.GetFromLocal(null));
+            var actualTask = Task.Run(() => _localDataAccess.GetChangesFromLocal());
 
             Task.WaitAll(allUpdatesTask,actualTask);
 
@@ -110,9 +105,9 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         // [Theory, MemberData(nameof(SaveandGetLocalLastSyncDateTestData))]
         public void SaveAndGetLocalLastSyncDateTest(DateTime expected)
         {
-            Task.Run(()=>_localDataAccess.SaveLocalLastSyncDate<T>(expected)).Wait();
+            Task.Run(()=>_localDataAccess.SaveLocalLastSyncDate(expected)).Wait();
 
-            var actualTask = Task.Run(() => _localDataAccess.GetLocalLastSyncDate<T>());
+            var actualTask = Task.Run(() => _localDataAccess.GetLocalLastSyncDate());
             actualTask.Wait();
             DateTime actual = actualTask.Result;
 
@@ -133,11 +128,11 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
 
             Task.Run(()=>_localDataAccess.SaveUpdatedOnServerToLocal(updates, updatedOnServer)).Wait();
 
-            var actualUpdatedTask = Task.Run(() => _localDataAccess.GetFromLocal<T>(_testContent.ListIds(updates)));
+            var actualUpdatedTask = Task.Run(() => _localDataAccess.GetFromLocal(_testContent.ListIds(updates)));
             actualUpdatedTask.Wait();
             List<T> actualUpdated = actualUpdatedTask.Result;
 
-            var actualNotUpdatedTask = Task.Run(() => _localDataAccess.GetFromLocal<T>());
+            var actualNotUpdatedTask = Task.Run(() => _localDataAccess.GetFromLocal());
             actualNotUpdatedTask.Wait();
             
             List<T> actualNotUpdated = actualNotUpdatedTask.Result.Where(x => !actualUpdated.Any(y => y.Id == x.Id)).ToList();
@@ -176,12 +171,12 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         public void SaveConflictIdTest(List<T> testUpdates, List<Conflict> conflicts, List<Conflict> expected)
         {
             var saveToLocalTask = Task.Run(()=>_localDataAccess.SaveToLocal(testUpdates));
-            var saveConflictIdsTask = Task.Run(()=>_localDataAccess.SaveConflictIdsToLocal<T>(conflicts));
+            var saveConflictIdsTask = Task.Run(()=>_localDataAccess.SaveConflictIdsToLocal(conflicts));
             Task.WaitAll(saveToLocalTask, saveConflictIdsTask);
 
             List<Conflict> actual = new List<Conflict>();
 
-            var actualTask = Task.Run(() => _localDataAccess.GetFromLocal<T>(_testContent.ListIds(testUpdates)));
+            var actualTask = Task.Run(() => _localDataAccess.GetFromLocal(_testContent.ListIds(testUpdates)));
             actualTask.Wait();
             actual = actualTask.Result.Where(x => x.ConflictId != null)
                                       .Select(x => new Conflict(x.Id, x.Created, x.ConflictId))

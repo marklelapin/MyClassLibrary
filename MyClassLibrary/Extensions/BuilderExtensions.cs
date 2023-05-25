@@ -46,12 +46,26 @@ namespace MyClassLibrary.Extensions
             builder.Services.Configure<OpenIdConnectOptions>(builder.Configuration.GetSection("AzureAdB2C"));
 
 
-            
 
 
-           //TODO Add in example of appsettings setup to builder extension
 
+            ////TODO Add in example of appsettings setup to builder extension
 
+            //"AzureAdB2C": {
+            //"Instance": "https://thewhaddonentertainers.b2clogin.com",
+            //"Domain": "thewhaddonentertainers.onmicrosoft.com",
+            //"ClientId": "ccd332a0-62d0-4d09-865b-f5ab0a1aab18",
+            //"ClientSecret": "uhG8Q~YUob30El.k3_30wrHMCc99XB0f8u9e0bYf",
+            // //"CallbackPath": "/signin-oidc",
+            //"SignedOutCallbackPath": "/signout/B2C_1_susi",
+            //"SignUpSignInPolicyId": "B2C_1_susi",
+            //"ResetPasswordPolicyId": "B2C_1_reset",
+            //"EditProfilePolicyId": "B2C_1_edit"
+            //},
+            //"Show": {
+            //    "ShowScope": "https://thewhaddonentertainers.onmicrosoft.com/show-api/show.write",
+            //    "ShowBaseAddress": "https://localhost:44332"
+            //}
 
 
 

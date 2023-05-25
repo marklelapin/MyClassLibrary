@@ -4,6 +4,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using MyClassLibrary.DataAccessMethods;
 using MyClassLibrary.LocalServerMethods;
+using MyClassLibrary.LocalServerMethods.Interfaces;
+using MyClassLibrary.LocalServerMethods.Models;
 using MyClassLibrary.Tests.LocalServerMethods;
 using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
 using System;
@@ -16,7 +18,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
 {
 
 
-    public class TestServiceConfiguration : IServiceConfiguration
+    public class TestServiceConfiguration<T> : IServiceConfiguration<T> where T : LocalServerModelUpdate, new()
     {
 
         private ConnectionStringDictionary connectionStringDictionary = new ConnectionStringDictionary();
@@ -28,21 +30,21 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
             var builder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json")
-                    .AddUserSecrets<TestServiceConfiguration>();
+                    .AddUserSecrets<TestServiceConfiguration<T>>();
             Config = builder.Build();
         }
 
-        public ILocalDataAccess LocalDataAccess() { return new LocalSQLConnector(new SqlDataAccess(Config)); }
+        public ILocalDataAccess<T> LocalDataAccess() { return new LocalSQLConnector<T>(new SqlDataAccess(Config)); }
 
-        public IServerDataAccess ServerDataAccess() { return new ServerSQLConnector(new SqlDataAccess(Config)); }
+        public IServerDataAccess<T> ServerDataAccess() { return new ServerSQLConnector<T>(new SqlDataAccess(Config)); }
 
-        public ILocalDataAccessTests<T> LocalDataAccessTests<T>() where T : LocalServerIdentityUpdate { return new LocalDataAccessTestsService<T>(this); }
+        public ILocalDataAccessTests<T> LocalDataAccessTests()  { return new LocalDataAccessTestsService<T>(this); }
 
-        public IServerDataAccessTests<T> ServerDataAccessTests<T>() where T : LocalServerIdentityUpdate { return new ServerDataAccessTestsService<T>(this); }
+        public IServerDataAccessTests<T> ServerDataAccessTests()  { return new ServerDataAccessTestsService<T>(this); }
 
-        public ITestContent<T> TestContent<T>() where T : LocalServerIdentityUpdate { return new TestContentService<T>(); }
+        public ITestContent<T> TestContent()  { return new TestContentService<T>(); }
 
-        public ILocalServerEngine<T> LocalServerEngine<T>(ILocalDataAccess localDataAccess, IServerDataAccess serverDataAccess) where T : LocalServerIdentityUpdate
+        public ILocalServerEngine<T> LocalServerEngine(ILocalDataAccess<T> localDataAccess, IServerDataAccess<T> serverDataAccess) 
         {
             return new LocalServerEngine<T>(serverDataAccess, localDataAccess);
         }

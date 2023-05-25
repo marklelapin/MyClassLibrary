@@ -1,13 +1,10 @@
-﻿using MyClassLibrary.LocalServerMethods;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using MyClassLibrary.LocalServerMethods.Models;
+
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Interfaces
 {
-    public interface IServerDataAccessTests<T> where T : LocalServerIdentityUpdate
+    public interface IServerDataAccessTests<T> where T : LocalServerModelUpdate
     {
         public object[][] SaveTestData();
         public void SaveTest(List<T> testUpdates);

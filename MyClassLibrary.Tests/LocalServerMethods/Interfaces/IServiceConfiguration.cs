@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MyClassLibrary.LocalServerMethods;
+using MyClassLibrary.LocalServerMethods.Interfaces;
+using MyClassLibrary.LocalServerMethods.Models;
 using MyClassLibrary.Tests.LocalServerMethods.Services;
 using System;
 using System.Collections.Generic;
@@ -9,21 +11,21 @@ using System.Threading.Tasks;
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Interfaces
 {
-    public interface IServiceConfiguration
+    public interface IServiceConfiguration<T> where T : LocalServerModelUpdate
     {
         public IConfiguration Config { get; }
         
-        public ILocalDataAccess LocalDataAccess();
+        public ILocalDataAccess<T> LocalDataAccess();
 
-        public IServerDataAccess ServerDataAccess();
+        public IServerDataAccess<T> ServerDataAccess();
 
-        public ILocalDataAccessTests<T> LocalDataAccessTests<T>() where T : LocalServerIdentityUpdate;
+        public ILocalDataAccessTests<T> LocalDataAccessTests();
 
-        public IServerDataAccessTests<T> ServerDataAccessTests<T>() where T : LocalServerIdentityUpdate;
+        public IServerDataAccessTests<T> ServerDataAccessTests();
 
-        public ITestContent<T> TestContent<T>() where T : LocalServerIdentityUpdate;
+        public ITestContent<T> TestContent();
 
-        public ILocalServerEngine<T> LocalServerEngine<T>  (ILocalDataAccess localDataAccess,IServerDataAccess serverDataAccess) where T : LocalServerIdentityUpdate;
+        public ILocalServerEngine<T> LocalServerEngine(ILocalDataAccess<T> localDataAccess,IServerDataAccess<T> serverDataAccess);
 
 
     }

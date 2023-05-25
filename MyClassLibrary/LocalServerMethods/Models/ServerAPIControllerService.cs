@@ -5,16 +5,18 @@ using System.Net;
 using MyClassLibrary.ErrorHandling;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
+using MyClassLibrary.LocalServerMethods.Interfaces;
+using MyClassLibrary.LocalServerMethods.Models;
 
-namespace MyClassLibrary.LocalServerMethods
+namespace MyClassLibrary.LocalServerMethods.Models
 {
-    public class ServerAPIControllerService<T> : IServerAPIControllerService<T> where T : LocalServerIdentityUpdate
+    public class ServerAPIControllerService<T> : IServerAPIControllerService<T> where T : LocalServerModelUpdate
     {
 
-        private readonly IServerDataAccess _serverDataAccess;
+        private readonly IServerDataAccess<T> _serverDataAccess;
         private readonly ILogger<T> _logger;
 
-        public ServerAPIControllerService(IServerDataAccess serverDataAccess,ILogger<T> logger)
+        public ServerAPIControllerService(IServerDataAccess<T> serverDataAccess,ILogger<T> logger)
         {
             _serverDataAccess = serverDataAccess;
             _logger = logger;
@@ -26,7 +28,7 @@ namespace MyClassLibrary.LocalServerMethods
             {
                 List<Guid> guids = ids.ToListGuid();
 
-                List<T> updates = await _serverDataAccess.GetFromServer<T>(guids);
+                List<T> updates = await _serverDataAccess.GetFromServer(guids);
 
                 if (updates.Count == 0)
                 {
@@ -49,7 +51,7 @@ namespace MyClassLibrary.LocalServerMethods
         {
             try
             {
-                (List<T> updates, DateTime lastUpdatedOnServer) = await _serverDataAccess.GetChangesFromServer<T>(lastSyncDate);
+                (List<T> updates, DateTime lastUpdatedOnServer) = await _serverDataAccess.GetChangesFromServer(lastSyncDate);
 
                 if (updates.Count == 0)
                 {
@@ -97,7 +99,7 @@ namespace MyClassLibrary.LocalServerMethods
         {
             try
             {
-               await _serverDataAccess.SaveConflictIdsToServer<T>(conflicts);
+               await _serverDataAccess.SaveConflictIdsToServer(conflicts);
 
                 return (HttpStatusCode.OK, "Conflict Successfully Posted.");
             }

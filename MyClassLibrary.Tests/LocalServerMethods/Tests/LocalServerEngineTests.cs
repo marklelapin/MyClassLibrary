@@ -14,20 +14,22 @@ using NuGet.Frameworks;
 using Xunit.Sdk;
 using Microsoft.Extensions.Configuration;
 using MyClassLibrary.DataAccessMethods;
+using MyClassLibrary.LocalServerMethods.Interfaces;
+using MyClassLibrary.LocalServerMethods.Models;
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 {
     public class LocalServerEngineTests
     {
-       private static IServiceConfiguration _serviceConfiguration = new TestServiceConfiguration();
+       private static IServiceConfiguration<TestUpdate> _serviceConfiguration = new TestServiceConfiguration<TestUpdate>();
 
-        private static readonly ILocalDataAccess _localDataAccess = _serviceConfiguration.LocalDataAccess();
+        private static readonly ILocalDataAccess<TestUpdate> _localDataAccess = _serviceConfiguration.LocalDataAccess();
 
-        private static readonly IServerDataAccess _serverDataAccess = _serviceConfiguration.ServerDataAccess();
+        private static readonly IServerDataAccess<TestUpdate> _serverDataAccess = _serviceConfiguration.ServerDataAccess();
 
-        private static readonly ITestContent<TestUpdate> _testContent = _serviceConfiguration.TestContent<TestUpdate>();
+        private static readonly ITestContent<TestUpdate> _testContent = _serviceConfiguration.TestContent();
 
-        private static readonly ILocalServerEngine<TestUpdate> _localServerEngine = _serviceConfiguration.LocalServerEngine<TestUpdate>(_localDataAccess,_serverDataAccess);
+        private static readonly ILocalServerEngine<TestUpdate> _localServerEngine = _serviceConfiguration.LocalServerEngine(_localDataAccess,_serverDataAccess);
 
 
 
@@ -87,13 +89,13 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             CreateDelay(1000);//This delay allows for that for discrepancies between time on server and local
 
-            Task.Run(()=>_localDataAccess.SaveLocalLastSyncDate<TestUpdate>(localLastSyncDate)).Wait();
+            Task.Run(()=>_localDataAccess.SaveLocalLastSyncDate(localLastSyncDate)).Wait();
 
 
-            ILocalDataAccess trySyncLocalDataAccess = localStatus ? _localDataAccess : new LocalSQLConnector(new SqlDataAccess(_serviceConfiguration.Config), "Error");
-            IServerDataAccess trySyncServerDataAccess = serverStatus ? _serverDataAccess : new ServerSQLConnector(new SqlDataAccess(_serviceConfiguration.Config),"Error");
+            ILocalDataAccess<TestUpdate> trySyncLocalDataAccess = localStatus ? _localDataAccess : new LocalSQLConnector<TestUpdate>(new SqlDataAccess(_serviceConfiguration.Config), "Error");
+            IServerDataAccess<TestUpdate> trySyncServerDataAccess = serverStatus ? _serverDataAccess : new ServerSQLConnector<TestUpdate>(new SqlDataAccess(_serviceConfiguration.Config),"Error");
 
-            ILocalServerEngine<TestUpdate> _testEngine = _serviceConfiguration.LocalServerEngine<TestUpdate>(trySyncLocalDataAccess, trySyncServerDataAccess);
+            ILocalServerEngine<TestUpdate> _testEngine = _serviceConfiguration.LocalServerEngine(trySyncLocalDataAccess, trySyncServerDataAccess);
 
             List<Guid> combinedIds = serverUpdates.Select(x => x.Id).ToList();
             combinedIds.AddRange(localUpdates.Select(x => x.Id).ToList());
@@ -111,8 +113,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
        
 
 
-            var actualServerResultTask = _serverDataAccess.GetFromServer<TestUpdate>(combinedIds);
-            var actualLocalResultTask = _localDataAccess.GetFromLocal<TestUpdate>(combinedIds);
+            var actualServerResultTask = _serverDataAccess.GetFromServer(combinedIds);
+            var actualLocalResultTask = _localDataAccess.GetFromLocal(combinedIds);
             Task.WaitAll(actualLocalResultTask, actualServerResultTask);
 
             List<TestUpdate> actualServerResult = actualServerResultTask.Result;
@@ -232,14 +234,14 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             DateTime ServerCreatedDate = DateTime.Now;
             List<TestUpdate> changesFromServer = new List<TestUpdate>()
                         {
-                            new TestUpdate(draftIds[1], ServerCreatedDate, "mcarter", null, true, "Bob", "Hoskins", DateTime.Parse("1934-05-02 00:00:00.000"), new List<string> { "Chips", "Strawberries" }),
-                            new TestUpdate(draftIds[1], ServerCreatedDate.AddSeconds(1), "mcarter", null, true, "Bob", "Hoskins", DateTime.Parse("1934-05-02 00:00:00.000"), new List<string> { "Chips" }),
-                            new TestUpdate(draftIds[1], ServerCreatedDate.AddSeconds(2), "mcarter", null, true, "Bob", "Hoskins", DateTime.Parse("1956-12-24 00:00:00.000"), new List<string> { "Chips", "Strawberries", "Tiramisu" }),
-                            new TestUpdate(draftIds[2], ServerCreatedDate.AddSeconds(3), "mcarter", null, true, "Tracey", "Emin", DateTime.Parse("1999-12-31 00:00:00.000"), new List<string> { "Cake" }),
-                            new TestUpdate(draftIds[2], ServerCreatedDate.AddSeconds(4), "mcarter", null, false, "Tracey", "Emin", DateTime.Parse("1999-12-31 00:00:00.000"), new List<string> { "Cake" }),
-                            new TestUpdate(draftIds[3], ServerCreatedDate.AddSeconds(5), "mcarter", null, true, "Jim", "Broadbent", DateTime.Parse("2010-06-04 00:00:00.000"), new List<string> { "Peas","Carrots" }),
-                            new TestUpdate(draftIds[4], ServerCreatedDate.AddSeconds(6), "mcarter", null, true, "Mark", "Carter", DateTime.Parse("1978-07-02 00:00:00.000"), new List<string> { "Burger","Chicken","Chocolate" }),
-                            new TestUpdate(draftIds[4], ServerCreatedDate.AddSeconds(7), "mcarter", null, true, "Mark", "Carter", DateTime.Parse("1978-07-02 00:00:00.000"), new List<string> { "Burger","Chicken","Chocolate","Lindor Balls" })
+                            new TestUpdate(draftIds[1], ServerCreatedDate, "mcarter", null, true, "Bob", "Hoskins", DateTime.Parse("1934-05-02 00:00:00.000"), new List<string> { "Chips", "Strawberries" },null),
+                            new TestUpdate(draftIds[1], ServerCreatedDate.AddSeconds(1), "mcarter", null, true, "Bob", "Hoskins", DateTime.Parse("1934-05-02 00:00:00.000"), new List<string> { "Chips" },null),
+                            new TestUpdate(draftIds[1], ServerCreatedDate.AddSeconds(2), "mcarter", null, true, "Bob", "Hoskins", DateTime.Parse("1956-12-24 00:00:00.000"), new List<string> { "Chips", "Strawberries", "Tiramisu" },null),
+                            new TestUpdate(draftIds[2], ServerCreatedDate.AddSeconds(3), "mcarter", null, true, "Tracey", "Emin", DateTime.Parse("1999-12-31 00:00:00.000"), new List<string> { "Cake" },null),
+                            new TestUpdate(draftIds[2], ServerCreatedDate.AddSeconds(4), "mcarter", null, false, "Tracey", "Emin", DateTime.Parse("1999-12-31 00:00:00.000"), new List<string> { "Cake" },null),
+                            new TestUpdate(draftIds[3], ServerCreatedDate.AddSeconds(5), "mcarter", null, true, "Jim", "Broadbent", DateTime.Parse("2010-06-04 00:00:00.000"), new List<string> { "Peas","Carrots" },null),
+                            new TestUpdate(draftIds[4], ServerCreatedDate.AddSeconds(6), "mcarter", null, true, "Mark", "Carter", DateTime.Parse("1978-07-02 00:00:00.000"), new List<string> { "Burger","Chicken","Chocolate" },null),
+                            new TestUpdate(draftIds[4], ServerCreatedDate.AddSeconds(7), "mcarter", null, true, "Mark", "Carter", DateTime.Parse("1978-07-02 00:00:00.000"), new List<string> { "Burger","Chicken","Chocolate","Lindor Balls" },null)
                         };
 
             CreateDelay(200);
@@ -247,14 +249,14 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             DateTime LocalCreatedDate = DateTime.Now;
             List<TestUpdate> changesFromLocal = new List<TestUpdate>()
                         {
-                            new TestUpdate(draftIds[5], LocalCreatedDate, "mcarter", null, true, "Bob", "Hoskins", DateTime.Parse("1934-05-02 00:00:00.000"), new List<string> { "Chips", "Strawberries" }),
-                            new TestUpdate(draftIds[5], LocalCreatedDate.AddSeconds(1), "mcarter", null, true, "Bob", "Hoskins", DateTime.Parse("1934-05-02 00:00:00.000"), new List<string> { "Chips" }),
-                            new TestUpdate(draftIds[5], LocalCreatedDate.AddSeconds(2), "mcarter", null, true, "Bob", "Hoskins", DateTime.Parse("1956-12-24 00:00:00.000"), new List<string> { "Chips", "Strawberries", "Tiramisu" }),
-                            new TestUpdate(draftIds[2], LocalCreatedDate.AddSeconds(3), "mcarter", null, true, "Tracey", "Emin", DateTime.Parse("1999-12-31 00:00:00.000"), new List<string> { "Cake" }),
-                            new TestUpdate(draftIds[2], LocalCreatedDate.AddSeconds(4), "mcarter", null, false, "Tracey", "Emin", DateTime.Parse("1999-12-31 00:00:00.000"), new List<string> { "Cake" }),
-                            new TestUpdate(draftIds[3], LocalCreatedDate.AddSeconds(5), "mcarter", null, true, "Jim", "Broadbent", DateTime.Parse("2010-06-04 00:00:00.000"), new List<string> { "Peas", "Carrots" }),
-                            new TestUpdate(draftIds[6], LocalCreatedDate.AddSeconds(6), "mcarter", null, true, "Mark", "Carter", DateTime.Parse("1978-07-02 00:00:00.000"), new List<string> { "Burger", "Chicken", "Chocolate" }),
-                            new TestUpdate(draftIds[6], LocalCreatedDate.AddSeconds(7), "mcarter", null, true, "Mark", "Carter", DateTime.Parse("1978-07-02 00:00:00.000"), new List<string> { "Burger", "Chicken", "Chocolate", "Lindor Balls" })
+                            new TestUpdate(draftIds[5], LocalCreatedDate, "mcarter", null, true, "Bob", "Hoskins", DateTime.Parse("1934-05-02 00:00:00.000"), new List<string> { "Chips", "Strawberries" },null),
+                            new TestUpdate(draftIds[5], LocalCreatedDate.AddSeconds(1), "mcarter", null, true, "Bob", "Hoskins", DateTime.Parse("1934-05-02 00:00:00.000"), new List<string> { "Chips" },null),
+                            new TestUpdate(draftIds[5], LocalCreatedDate.AddSeconds(2), "mcarter", null, true, "Bob", "Hoskins", DateTime.Parse("1956-12-24 00:00:00.000"), new List<string> { "Chips", "Strawberries", "Tiramisu" },null),
+                            new TestUpdate(draftIds[2], LocalCreatedDate.AddSeconds(3), "mcarter", null, true, "Tracey", "Emin", DateTime.Parse("1999-12-31 00:00:00.000"), new List<string> { "Cake" },null),
+                            new TestUpdate(draftIds[2], LocalCreatedDate.AddSeconds(4), "mcarter", null, false, "Tracey", "Emin", DateTime.Parse("1999-12-31 00:00:00.000"), new List<string> { "Cake" },null),
+                            new TestUpdate(draftIds[3], LocalCreatedDate.AddSeconds(5), "mcarter", null, true, "Jim", "Broadbent", DateTime.Parse("2010-06-04 00:00:00.000"), new List<string> { "Peas", "Carrots" },null),
+                            new TestUpdate(draftIds[6], LocalCreatedDate.AddSeconds(6), "mcarter", null, true, "Mark", "Carter", DateTime.Parse("1978-07-02 00:00:00.000"), new List<string> { "Burger", "Chicken", "Chocolate" },null),
+                            new TestUpdate(draftIds[6], LocalCreatedDate.AddSeconds(7), "mcarter", null, true, "Mark", "Carter", DateTime.Parse("1978-07-02 00:00:00.000"), new List<string> { "Burger", "Chicken", "Chocolate", "Lindor Balls" },null)
                         };
 
 
@@ -320,8 +322,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             saveConflictIdsTask.Wait();
 
 
-            var actualServerTask = Task.Run(()=>_serverDataAccess.GetFromServer<TestUpdate>(_testContent.ListIds(testContents[0])));
-            var actualLocalTask = Task.Run(() => _localDataAccess.GetFromLocal<TestUpdate>(_testContent.ListIds(testContents[0])));
+            var actualServerTask = Task.Run(()=>_serverDataAccess.GetFromServer(_testContent.ListIds(testContents[0])));
+            var actualLocalTask = Task.Run(() => _localDataAccess.GetFromLocal(_testContent.ListIds(testContents[0])));
             Task.WaitAll(actualLocalTask, actualServerTask);
 
             List<TestUpdate> actualServer = actualServerTask.Result;

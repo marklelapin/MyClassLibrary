@@ -1,6 +1,8 @@
-﻿namespace MyClassLibrary.LocalServerMethods
+﻿using MyClassLibrary.LocalServerMethods.Models;
+
+namespace MyClassLibrary.LocalServerMethods.Interfaces
 {
-    public interface ILocalServerEngine<T> where T : LocalServerIdentityUpdate
+    public interface ILocalServerEngine<T> where T : LocalServerModelUpdate
     {
 
         Task<List<T>> FilterLatest(List<T> updates);

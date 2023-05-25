@@ -1,23 +1,25 @@
-﻿using MyClassLibrary.LocalServerMethods;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
+﻿
 using System.Text.Json.Serialization;
+using MyClassLibrary.LocalServerMethods.Models;
 
 namespace MyClassLibrary.Tests.LocalServerMethods
 {
-    public class TestUpdate : LocalServerIdentityUpdate
+    public class TestUpdate : LocalServerModelUpdate
     {
+        
         public string? FirstName { get; set; }
+        
         public string? LastName { get; set; }
-
+        
         public DateTime? FavouriteDate { get; set; }
-
+        
         public List<string>? FavouriteFoods { get; set; }
     
+        public TestUpdate() :base()
+        {
+
+        }
+
         public TestUpdate(Guid id) : base(id) { }
 
         public TestUpdate(Guid id,string firstName, string lastName, DateTime favouriteDate, List<string> favouriteFoods) : base(id)
@@ -29,7 +31,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods
         }
 
         [JsonConstructor]
-        public TestUpdate(Guid id,DateTime created,string createdBy,DateTime? updatedOnServer,bool isActive, string? firstName, string? lastName, DateTime? favouriteDate, List<string> favouriteFoods) : base(id)
+        public TestUpdate(Guid id, DateTime created,string createdBy,DateTime? updatedOnServer,bool isActive, string? firstName, string? lastName, DateTime? favouriteDate, List<string> favouriteFoods,Guid? conflictID): base(id)
         {
             Id = id;
             Created = created;
@@ -40,6 +42,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods
             LastName = lastName;
             FavouriteDate = favouriteDate;
             FavouriteFoods = favouriteFoods;
+            ConflictId = conflictID;
         }
 
  

@@ -1,40 +1,34 @@
 ﻿
 
-using Microsoft.AspNetCore.Components.Forms;
-using MyClassLibrary.Interfaces;
-using MyClassLibrary.LocalServerMethods;
-using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
+using MyClassLibrary.LocalServerMethods.Interfaces;
 using System.Data;
-using System.Dynamic;
-using System.Runtime.CompilerServices;
-using System.Security.AccessControl;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.Json;
 
-namespace MyClassLibrary.LocalServerMethods
+
+namespace MyClassLibrary.LocalServerMethods.Models
 {
-    public class LocalServerEngine<T> : ILocalServerEngine<T> where T : LocalServerIdentityUpdate
+    public class LocalServerEngine<T> : ILocalServerEngine<T> where T : LocalServerModelUpdate, new()
     {
 
-        //TODO = LocalServerIdentity Unit Tests
+        //TODO Test GetAllIdentities function
+        //TODO Change sync process - moving away from UpdatedonServer to separate table in server.
+        //TODO Test Sync
 
 
         //Properties
         /// <summary>
         /// The interface providing access to Local Data Storage
         /// </summary>
-        private ILocalDataAccess _localDataAccess;
+        private ILocalDataAccess<T> _localDataAccess;
         /// <summary>
         /// The interface providing access to Server Data Storage
         /// </summary>
-        private IServerDataAccess _serverDataAccess;
+        private IServerDataAccess<T> _serverDataAccess;
 
         /// <summary>
         /// Constructor for LocalServerIdentiy
         /// In Production environment services will supply IServerDataAcces and ILocalDataAccess.
         /// </summary>
-        public LocalServerEngine(IServerDataAccess serverDataAccess, ILocalDataAccess localDataAccess)
+        public LocalServerEngine(IServerDataAccess<T> serverDataAccess, ILocalDataAccess<T> localDataAccess)
         {
             _serverDataAccess = serverDataAccess;
             _localDataAccess = localDataAccess;
@@ -144,11 +138,11 @@ namespace MyClassLibrary.LocalServerMethods
 
             try
             {
-                DateTime lastSyncDate = await _localDataAccess.GetLocalLastSyncDate<T>();
+                DateTime lastSyncDate = await _localDataAccess.GetLocalLastSyncDate();
 
-                changesFromLocal = await _localDataAccess.GetChangesFromLocal<T>();
+                changesFromLocal = await _localDataAccess.GetChangesFromLocal();
 
-                (changesFromServer, lastUpdatedOnServer) = await _serverDataAccess.GetChangesFromServer<T>(lastSyncDate);
+                (changesFromServer, lastUpdatedOnServer) = await _serverDataAccess.GetChangesFromServer(lastSyncDate);
 
             }
             catch { return false; } //if it can't access server and local then stops sync until another attempt is made and it is called again
@@ -201,11 +195,11 @@ namespace MyClassLibrary.LocalServerMethods
 
             try
             {
-                if (_localDataAccess != null) { output = await _localDataAccess.GetFromLocal<T>(ids); }
+                if (_localDataAccess != null) { output = await _localDataAccess.GetFromLocal(ids); }
             }
             catch (Exception)
             {
-                if (_serverDataAccess != null) { output = await _serverDataAccess.GetFromServer<T>(ids); }
+                if (_serverDataAccess != null) { output = await _serverDataAccess.GetFromServer(ids); }
             }
 
             return output;
@@ -213,33 +207,6 @@ namespace MyClassLibrary.LocalServerMethods
 
 
 
-        public async Task<List<U>> GetAllIdentities<U>() where U : LocalServerIdentity<T>
-        {
-            List<Guid>? ids = null;
-            return await GetAllIdentities<U>(ids);
-
-        }
-
-        public async Task<List<U>> GetAllIdentities<U>(List<Guid>? ids = null) where U : LocalServerIdentity<T>
-        {
-            List<U> output = new List<U>();
-
-            var allUpdates = GetAllUpdates(ids);
-            Task.WaitAll(allUpdates);
-            var latestUpdates = FilterLatest(allUpdates.Result);
-            Task.WaitAll(latestUpdates);
-
-            foreach (var update in latestUpdates.Result)
-            {
-                U identity = (U)new LocalServerIdentity<T>(this, update.Id);
-                identity.Latest = update;
-                identity.History = allUpdates.Result.Where(x=>x.Id== update.Id).ToList();
-                await identity.AddConflicts();
-                output.Add(identity);
-            }
-
-            return output;
-        }
 
 
 
@@ -334,8 +301,8 @@ namespace MyClassLibrary.LocalServerMethods
         {
             try
             {
-                await _localDataAccess.SaveConflictIdsToLocal<T>(conflicts);
-                await _serverDataAccess.SaveConflictIdsToServer<T>(conflicts);
+                await _localDataAccess.SaveConflictIdsToLocal(conflicts);
+                await _serverDataAccess.SaveConflictIdsToServer(conflicts);
             }
             catch (Exception ex)
             {
@@ -354,7 +321,7 @@ namespace MyClassLibrary.LocalServerMethods
                 await _localDataAccess.SaveToLocal(changesFromServer);
                 try
                 {
-                    await _localDataAccess.SaveLocalLastSyncDate<T>(lastUpdatedOnServer);
+                    await _localDataAccess.SaveLocalLastSyncDate(lastUpdatedOnServer);
                 }
                 catch (Exception ex)
                 {

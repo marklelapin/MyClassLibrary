@@ -1,16 +1,13 @@
 ﻿using MyClassLibrary.ErrorHandling;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MyClassLibrary.LocalServerMethods.Models;
+
 
 namespace MyClassLibrary.LocalServerMethods.Extensions
 {
     public static class Extensions
     {
 
-        public static string GetUpdateType<T>(this T obj) where T : LocalServerIdentityUpdate
+        public static string GetUpdateType<T>(this T obj) where T : LocalServerModelUpdate
         {
             string output;
 

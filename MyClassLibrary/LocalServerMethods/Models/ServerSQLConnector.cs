@@ -8,10 +8,12 @@ using System.Text.Json;
 using System.Runtime.CompilerServices;
 using System.Reflection.Metadata.Ecma335;
 using MyClassLibrary.DataAccessMethods;
+using MyClassLibrary.LocalServerMethods.Interfaces;
+using MyClassLibrary.LocalServerMethods.Models;
 
-namespace MyClassLibrary.LocalServerMethods
+namespace MyClassLibrary.LocalServerMethods.Models
 {
-    public class ServerSQLConnector : IServerDataAccess
+    public class ServerSQLConnector<T> : IServerDataAccess<T> where T : LocalServerModelUpdate
     {
         private readonly ISqlDataAccess _dataAccess;
         private readonly string _connectionStringName;
@@ -27,7 +29,7 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Saves Objects Data that inherit from LocalServerIdentity into Server Storage. Pass back UpdatedOnServer date as return value but also updates List of Objects.
         /// </summary>
-        public async Task<DateTime> SaveToServer<T>(List<T> updates) where T : LocalServerIdentityUpdate
+        public async Task<DateTime> SaveToServer(List<T> updates)
         
         {
             var parameters = new DynamicParameters();
@@ -55,7 +57,7 @@ namespace MyClassLibrary.LocalServerMethods
         /// <summary>
         /// Finds all objects on the Server where the UpdatedOnServer date is later than lastSyncDate
         /// </summary>
-        public async Task<(List<T> changesFromServer,DateTime lastUpdatedOnServer)> GetChangesFromServer<T>( DateTime lastSyncDate) where T : LocalServerIdentityUpdate
+        public async Task<(List<T> changesFromServer,DateTime lastUpdatedOnServer)> GetChangesFromServer( DateTime lastSyncDate)
         {   
             List<T> output = new List<T>();
 
@@ -81,7 +83,7 @@ namespace MyClassLibrary.LocalServerMethods
         }
 
 
-        public async Task<List<T>> GetFromServer<T>(List<Guid>? ids = null) where T : LocalServerIdentityUpdate
+        public async Task<List<T>> GetFromServer(List<Guid>? ids = null)
         {
             List<T> output;
 
@@ -116,7 +118,7 @@ namespace MyClassLibrary.LocalServerMethods
 
         }
 
-        public async Task SaveConflictIdsToServer<T>(List<Conflict> conflicts) where T : LocalServerIdentityUpdate
+        public async Task SaveConflictIdsToServer(List<Conflict> conflicts)
         {
             string jsonConflicts = JsonSerializer.Serialize(conflicts);
             var parameters = new DynamicParameters();
@@ -127,7 +129,7 @@ namespace MyClassLibrary.LocalServerMethods
            await _dataAccess.ExecuteStoredProcedure("spSaveConflictIdsToServer", parameters,_connectionStringName);
         }
 
-        public async Task DeleteFromServer<T>(List<T> objects) where T : LocalServerIdentityUpdate
+        public async Task DeleteFromServer(List<T> objects)
         {
             string jsonObjects = JsonSerializer.Serialize(objects);
             var parameters = new DynamicParameters();

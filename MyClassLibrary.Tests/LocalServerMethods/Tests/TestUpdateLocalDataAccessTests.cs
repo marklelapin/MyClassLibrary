@@ -1,17 +1,14 @@
-﻿using MyClassLibrary.LocalServerMethods;
+﻿
+using MyClassLibrary.LocalServerMethods.Models;
 using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
 using MyClassLibrary.Tests.LocalServerMethods.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 {
     public class TestUpdateLocalDataAccessTests
     {
-        private static IServiceConfiguration _serviceConfiguration = new TestServiceConfiguration();
+        private static IServiceConfiguration<TestUpdate> _serviceConfiguration = new TestServiceConfiguration<TestUpdate>();
 
         private static ILocalDataAccessTests<TestUpdate> _localDataAccessTests = new LocalDataAccessTestsService<TestUpdate>(_serviceConfiguration);
 

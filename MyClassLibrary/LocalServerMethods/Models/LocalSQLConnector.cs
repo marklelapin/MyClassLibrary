@@ -8,13 +8,15 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Text.Json;
 using MyClassLibrary.DataAccessMethods;
+using MyClassLibrary.LocalServerMethods.Interfaces;
+using MyClassLibrary.LocalServerMethods.Models;
 
-namespace MyClassLibrary.LocalServerMethods
+namespace MyClassLibrary.LocalServerMethods.Models
 {
 
 
 
-    public class LocalSQLConnector : ILocalDataAccess 
+    public class LocalSQLConnector<T> : ILocalDataAccess<T> where T : LocalServerModelUpdate 
     {
 
         private readonly ISqlDataAccess _dataAccess;
@@ -28,7 +30,7 @@ namespace MyClassLibrary.LocalServerMethods
         }
 
 
-        public async Task<DateTime> GetLocalLastSyncDate<T>()
+        public async Task<DateTime> GetLocalLastSyncDate()
         {
             DateTime output;
             
@@ -47,7 +49,7 @@ namespace MyClassLibrary.LocalServerMethods
         }
 
 
-        public async Task SaveLocalLastSyncDate<T>(DateTime lastSyncDate)
+        public async Task SaveLocalLastSyncDate(DateTime lastSyncDate)
         {
             var parameters = new DynamicParameters();
 
@@ -58,7 +60,7 @@ namespace MyClassLibrary.LocalServerMethods
             
         }
 
-        public async Task SaveToLocal<T>(List<T> updates) where T : LocalServerIdentityUpdate
+        public async Task SaveToLocal(List<T> updates)
         {
             var parameters = new DynamicParameters();
             string jsonUpdates = JsonSerializer.Serialize(updates);
@@ -69,7 +71,7 @@ namespace MyClassLibrary.LocalServerMethods
 
         }
 
-        public async Task<List<T>> GetFromLocal<T>(List<Guid>? ids = null) where T : LocalServerIdentityUpdate
+        public async Task<List<T>> GetFromLocal(List<Guid>? ids = null)
         {
             List<T> output;
             
@@ -95,7 +97,7 @@ namespace MyClassLibrary.LocalServerMethods
             return output;
         }
 
-        public async Task<List<T>> GetChangesFromLocal<T>() where T : LocalServerIdentityUpdate
+        public async Task<List<T>> GetChangesFromLocal()
         {            
             List<T> output;
 
@@ -120,7 +122,7 @@ namespace MyClassLibrary.LocalServerMethods
 
         }
 
-        public async Task SaveUpdatedOnServerToLocal<T>(List<T> objects, DateTime updatedOnServer) where T : LocalServerIdentityUpdate
+        public async Task SaveUpdatedOnServerToLocal(List<T> objects, DateTime updatedOnServer)
         {
             var parameters = new DynamicParameters();
             string jsonObjects = JsonSerializer.Serialize(objects);
@@ -131,7 +133,7 @@ namespace MyClassLibrary.LocalServerMethods
            await  _dataAccess.ExecuteStoredProcedure("spSaveUpdatedOnServerToLocal", parameters, _connectionStringName);
         }
 
-        public async Task SaveConflictIdsToLocal<T>(List<Conflict> conflicts) where T : LocalServerIdentityUpdate
+        public async Task SaveConflictIdsToLocal(List<Conflict> conflicts)
         {
             string jsonConflicts = JsonSerializer.Serialize(conflicts);
             var parameters = new DynamicParameters();
@@ -141,7 +143,7 @@ namespace MyClassLibrary.LocalServerMethods
             await _dataAccess.ExecuteStoredProcedure("spSaveConflictIdsToLocal", parameters, _connectionStringName);
         }
 
-        public async Task DeleteFromLocal<T>(List<T> objects) where T : LocalServerIdentityUpdate
+        public async Task DeleteFromLocal(List<T> objects)
         {
             string jsonObjects = JsonSerializer.Serialize(objects);
             var parameters = new DynamicParameters();

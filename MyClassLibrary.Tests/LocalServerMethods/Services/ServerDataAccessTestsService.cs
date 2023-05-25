@@ -1,35 +1,27 @@
-﻿using Microsoft.Extensions.Hosting;
-using MyClassLibrary.Extensions;
-using MyClassLibrary.LocalServerMethods;
-using MyExtensions;
-using System;
-using System.Collections.Generic;
+﻿
 using System.Data;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
+
 using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using System.Runtime.CompilerServices;
-using Xunit.Sdk;
+
 using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
-using System.Text.Json;
+
+using MyClassLibrary.LocalServerMethods.Models;
+using MyClassLibrary.LocalServerMethods.Interfaces;
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Services
 
 {
-    public class ServerDataAccessTestsService<T> : IServerDataAccessTests<T> where T : LocalServerIdentityUpdate
+    public class ServerDataAccessTestsService<T> : IServerDataAccessTests<T> where T : LocalServerModelUpdate
     {
         private ITestContent<T> _testContent;
-        private IServiceConfiguration _serviceConfiguration;
-        private readonly IServerDataAccess _serverDataAccess;
+        private IServiceConfiguration<T> _serviceConfiguration;
+        private readonly IServerDataAccess<T> _serverDataAccess;
 
-        public ServerDataAccessTestsService(IServiceConfiguration serviceConfiguration)
+        public ServerDataAccessTestsService(IServiceConfiguration<T> serviceConfiguration)
         {
             _serviceConfiguration = serviceConfiguration;
             _serverDataAccess = _serviceConfiguration.ServerDataAccess();
-            _testContent = _serviceConfiguration.TestContent<T>();
+            _testContent = _serviceConfiguration.TestContent();
         }
 
 
@@ -38,7 +30,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         public void SaveTest(List<T> testUpdates)
         {
 
-            var saveToServerTask = Task.Run(() => _serverDataAccess.SaveToServer<T>(testUpdates));
+            var saveToServerTask = Task.Run(() => _serverDataAccess.SaveToServer(testUpdates));
            saveToServerTask.Wait();
            DateTime updatedOnServer = saveToServerTask.Result;
 
@@ -85,7 +77,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         {
             Task.Run(()=>_serverDataAccess.SaveToServer(updates)).Wait();
 
-            var actualTask = Task.Run(() => _serverDataAccess.GetFromServer<T>(getIds));
+            var actualTask = Task.Run(() => _serverDataAccess.GetFromServer(getIds));
             actualTask.Wait();
             List<T> actual = actualTask.Result;
 
@@ -122,7 +114,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
             lastSyncDateTask.Wait();
             DateTime lastSyncDate = lastSyncDateTask.Result;
 
-            var getChangesTask = Task.Run(() => _serverDataAccess.GetChangesFromServer<T>(lastSyncDate.AddSeconds(lastSyncDateAdjustment)));
+            var getChangesTask = Task.Run(() => _serverDataAccess.GetChangesFromServer(lastSyncDate.AddSeconds(lastSyncDateAdjustment)));
             getChangesTask.Wait();
             (List<T> actualChangesFromServer, DateTime actualLastUpdatedOnServer) = getChangesTask.Result;
 
@@ -166,12 +158,12 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         public void SaveConflictIdTest(List<T> updates, List<Conflict> conflicts,List<Conflict> expected)
         {
 
-           Task.Run(()=> _serverDataAccess.SaveToServer<T>(updates)).Wait();
-           Task.Run(()=> _serverDataAccess.SaveConflictIdsToServer<T>(conflicts)).Wait();
+           Task.Run(()=> _serverDataAccess.SaveToServer(updates)).Wait();
+           Task.Run(()=> _serverDataAccess.SaveConflictIdsToServer(conflicts)).Wait();
 
             List<Conflict> actual = new List<Conflict>();
 
-            var actualTask = Task.Run(() => _serverDataAccess.GetFromServer<T>(_testContent.ListIds(updates)));
+            var actualTask = Task.Run(() => _serverDataAccess.GetFromServer(_testContent.ListIds(updates)));
             actual = actualTask.Result.Where(x => x.ConflictId != null)
                                     .Select(x => new Conflict(x.Id, x.Created, x.ConflictId))
                                     .ToList();
