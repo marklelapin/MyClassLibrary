@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 using MyClassLibrary.LocalServerMethods.Interfaces;
 using MyClassLibrary.LocalServerMethods.Models;
+using System.Data;
 
 namespace MyClassLibrary.LocalServerMethods.Models
 {
@@ -22,13 +23,13 @@ namespace MyClassLibrary.LocalServerMethods.Models
             _logger = logger;
         }
 
-        public async Task<(HttpStatusCode statusCode, string result)> Get(string ids)
+        public async Task<(HttpStatusCode statusCode, string result)> GetUpdates(string? ids,bool latestOnly)
         {
             try
             {
-                List<Guid> guids = ids.ToListGuid();
+                List<Guid>? guids = ids?.ToListGuid();
 
-                List<T> updates = await _serverDataAccess.GetFromServer(guids);
+                List<T> updates = await _serverDataAccess.GetUpdatesFromServer(guids,latestOnly);
 
                 if (updates.Count == 0)
                 {
@@ -47,11 +48,11 @@ namespace MyClassLibrary.LocalServerMethods.Models
 
         }
 
-        public async Task<(HttpStatusCode statusCode, string result)> GetChanges(DateTime lastSyncDate)
+        public async Task<(HttpStatusCode statusCode, string result)> GetUnsyncedUpdates(Guid copyId)
         {
             try
             {
-                (List<T> updates, DateTime lastUpdatedOnServer) = await _serverDataAccess.GetChangesFromServer(lastSyncDate);
+                List<T> updates = await _serverDataAccess.GetUnsyncedFromServer(copyId);
 
                 if (updates.Count == 0)
                 {
@@ -70,23 +71,41 @@ namespace MyClassLibrary.LocalServerMethods.Models
         }
 
 
-        public async Task<(HttpStatusCode statusCode, string result)> PostUpdates(List<T> updates)
+
+        public async Task<(HttpStatusCode statusCode, string result)> GetConflictedUpdates(List<Guid> ids)
         {
             try
             {
-                DateTime result;
+                List<T> updates = await _serverDataAccess.GetConflictedUpdatesFromServer(ids);
 
-                result = await _serverDataAccess.SaveToServer(updates);
-
-                if (result == DateTime.MinValue)
+                if (updates.Count == 0)
                 {
-                    return (HttpStatusCode.BadRequest, "Post failed to save update to server - check values in request body.");
+                    return (HttpStatusCode.NotFound, "[]");
                 }
+
+                string output = JsonSerializer.Serialize(updates);
+
+                return (HttpStatusCode.OK, output);
+            }
+            catch (Exception ex)
+            {
+                return APIErrorResponse(ex);
+            }
+
+        }
+
+
+        public async Task<(HttpStatusCode statusCode, string result)> PostUpdates(List<T> updates,Guid copyId)
+        {
+            try
+            {
+                List<ServerToLocalPostBack> result;
+
+                result = await _serverDataAccess.SaveUpdatesToServer(updates,copyId);
 
                 string resultJson = JsonSerializer.Serialize(result);
 
                 return (HttpStatusCode.OK, resultJson);
-                ;
             }
             catch (Exception ex)
             {
@@ -95,13 +114,13 @@ namespace MyClassLibrary.LocalServerMethods.Models
 
         }
 
-        public async Task<(HttpStatusCode statusCode, string result)> PostConflicts(List<Conflict> conflicts)
+        public async Task<(HttpStatusCode statusCode,string result)> PutPostBackToServer(List<LocalToServerPostBack> postBacks,Guid copyID)
         {
             try
             {
-               await _serverDataAccess.SaveConflictIdsToServer(conflicts);
+               await _serverDataAccess.LocalPostBackToServer(postBacks,copyID);
 
-                return (HttpStatusCode.OK, "Conflict Successfully Posted.");
+                return (HttpStatusCode.OK, "Post Back from Local to Server was Successful.");
             }
             catch (Exception ex)
             {
@@ -110,29 +129,54 @@ namespace MyClassLibrary.LocalServerMethods.Models
 
         }
 
+
+        public async Task<(HttpStatusCode statusCode, string result)> PutClearConflicts(List<Guid> ids)
+        {
+            try
+            {
+                await _serverDataAccess.ClearConflictsFromServer(ids);
+
+                return (HttpStatusCode.OK, "Conflicts successfully cleared.");
+            }
+            catch (Exception ex)
+            {
+                return APIErrorResponse(ex);
+            };
+        }
+
+
+        public async Task<(HttpStatusCode statusCode, string result)> PostDeleteUpdates(List<T> updates)
+        {
+            try
+            {
+                await _serverDataAccess.DeleteFromServer(updates);
+
+                return (HttpStatusCode.OK, "Updates successfully deleted.");
+            }
+            catch (Exception ex)
+            {
+                return APIErrorResponse(ex);
+            };
+
+        }
+
+
+
+
+
+
+
+
         private (HttpStatusCode statusCode, string result) APIErrorResponse(Exception ex)
         {
             ApiErrorResponse<T> error = new ApiErrorResponse<T>(ex,_logger);
             return (error.StatusCode, error.Body);
         }
 
-
-
-
-        ////// DELETE api/Part/
-        ////[HttpDelete("{updates}")]
-        ////public void Delete([FromBody] string updates)
-        ////{
-
-        ////    List<PartUpdate> partUpdates = JsonSerializer.Deserialize<List<PartUpdate>>(updates) ?? new List<PartUpdate>();
-
-        ////    _serverDataAccess.DeleteFromServer(partUpdates);
-        ////}
-
-
-
+        
     }
+}
     
 
 
-}
+

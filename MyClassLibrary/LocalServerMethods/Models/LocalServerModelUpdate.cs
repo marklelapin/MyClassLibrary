@@ -18,60 +18,52 @@ namespace MyClassLibrary.LocalServerMethods.Models
     /// Gives objects inherting from it an Id and LocalTempID and functionality to synchronise between local and server versions for working offline.
     /// </summary>
     /// 
-    public class LocalServerModelUpdate : IHasId<Guid>
+    public class LocalServerModelUpdate : IHasId<Guid>, ILocalServerModelUpdate
     {
-        
-        public Guid Id { get; set; }
+        /// <summary>
+        /// The Id of the model that the update relates to.
+        /// </summary>
+        public Guid Id { get; set; } = Guid.Empty;
+
         /// <summary>
         /// An Id indicating a conflict between this and another object with same Id save at different times locally. This is identifed and created when Syncing.
         /// </summary>
-        /// [JsonInclude]
-        
-        public Guid? ConflictId { get; set; }
+        public bool IsConflicted { get; set; } = false;
 
         /// <summary>
-        /// The DateTime the object was created with the application.
+        /// The DateTime the update was saved to local/server.
         /// </summary>
-
-        
         public DateTime Created { get; set; } = DateTime.MinValue;
         /// <summary>
-        /// The DateTime the object was saved onto the Server
+        /// The DateTime the update was saved onto the Server
         /// </summary>
-       
         public DateTime? UpdatedOnServer { get; set; }
         /// <summary>
-        /// The user who created the object.
+        /// The user who created the update.
         /// </summary>
-
         public string CreatedBy { get; set; } = string.Empty;
         /// <summary>
-        /// Whether or not the object is generally available or not.
+        /// Whether or not the update is generally available or not.
         /// </summary>
-        
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
         public LocalServerModelUpdate()
         {
-            Id = Guid.NewGuid();
-            Created = DateTime.UtcNow;
         }
 
         public LocalServerModelUpdate(Guid id)
         {
             Id = (Guid)id;
-            Created = DateTime.UtcNow;
-            IsActive = true;
         }
 
-        public LocalServerModelUpdate(Guid id,Guid? conflictId,DateTime created,DateTime? updatedOnServer,string? createdBy,bool? isActive)
+        public LocalServerModelUpdate(Guid id, DateTime? created = null, string? createdBy = null, DateTime? updatedOnServer = null,bool isConflicted = false, bool isActive = true)
         {
             Id = id;
-            ConflictId = conflictId;
-            Created = created;
-            UpdatedOnServer = updatedOnServer; 
+            Created = created ?? DateTime.MinValue;
             CreatedBy = createdBy ?? string.Empty;
-            IsActive = isActive ?? false;
+            IsConflicted = isConflicted;
+            UpdatedOnServer = updatedOnServer;
+            IsActive = isActive;
         }
     }
 }

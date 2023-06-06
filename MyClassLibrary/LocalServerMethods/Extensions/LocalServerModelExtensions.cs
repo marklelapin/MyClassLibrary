@@ -19,5 +19,22 @@ namespace MyClassLibrary.LocalServerMethods.Extensions
             }
             return output.Replace("Update", "");
         }
+
+        public static List<T> SortByCreated<T>(this List<T> list) where T : LocalServerModelUpdate
+        {
+            return list.OrderByDescending(x => x.Created).ToList();
+        }
+
+        public static List<LocalToServerPostBack> SortByCreated(this List<LocalToServerPostBack> list) 
+        {
+            return list.OrderByDescending(x => x.Created).ToList();
+
+        }
+
+        public static List<ServerToLocalPostBack> SortByCreated(this List<ServerToLocalPostBack> list)
+        {
+            return list.OrderByDescending(x => x.Created).ToList();
+
+        }
     }
 }

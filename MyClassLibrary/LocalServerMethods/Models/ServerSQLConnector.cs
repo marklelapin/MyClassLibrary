@@ -10,13 +10,16 @@ using System.Reflection.Metadata.Ecma335;
 using MyClassLibrary.DataAccessMethods;
 using MyClassLibrary.LocalServerMethods.Interfaces;
 using MyClassLibrary.LocalServerMethods.Models;
+using MyClassLibrary.LocalServerMethods.Extensions;
 
 namespace MyClassLibrary.LocalServerMethods.Models
 {
-    public class ServerSQLConnector<T> : IServerDataAccess<T> where T : LocalServerModelUpdate
+    public class ServerSQLConnector<T> : IServerDataAccess<T> where T : LocalServerModelUpdate 
     {
         private readonly ISqlDataAccess _dataAccess;
         private readonly string _connectionStringName;
+
+        private string UpdateType { get { return typeof(T).Name; } }
 
         public ServerSQLConnector(ISqlDataAccess dataAccess, string? overrideConnectionStringName = null) //override added for testing of sync with failed connection)
         {
@@ -25,67 +28,82 @@ namespace MyClassLibrary.LocalServerMethods.Models
         }
 
 
-
-        /// <summary>
-        /// Saves Objects Data that inherit from LocalServerIdentity into Server Storage. Pass back UpdatedOnServer date as return value but also updates List of Objects.
-        /// </summary>
-        public async Task<DateTime> SaveToServer(List<T> updates)
+        public async Task<List<ServerToLocalPostBack>> SaveUpdatesToServer(List<T> updates,Guid localCopyID)
         
         {
+            List<ServerToLocalPostBack> output;
+
             var parameters = new DynamicParameters();
 
             //var opt = new JsonSerializerOptions() { WriteIndented = true };
             string jsonUpdates = JsonSerializer.Serialize(updates);
 
-            parameters.Add("@Updates", jsonUpdates, DbType.AnsiString,ParameterDirection.Input);
-            parameters.Add("@UpdateType", typeof(T).Name, DbType.AnsiString,ParameterDirection.Input);
-            parameters.Add("@UpdatedOnServer", null, DbType.DateTime2, ParameterDirection.Output);
+            parameters.Add("@CopyID", localCopyID, DbType.Guid, ParameterDirection.Input);
+            parameters.Add("@Updates", jsonUpdates, DbType.String,ParameterDirection.Input);
+            parameters.Add("@UpdateType", UpdateType, DbType.String,ParameterDirection.Input);
+            parameters.Add("@PostBack", null, DbType.String, ParameterDirection.Output, size: int.MaxValue);
 
-            await _dataAccess.ExecuteStoredProcedure("spSaveToServer", parameters,_connectionStringName);
+            await _dataAccess.ExecuteStoredProcedure("spSaveUpdatesToServer", parameters,_connectionStringName);
             
 
-            DateTime output = parameters.Get<DateTime>("@UpdatedOnServer");
+           string spOutput = parameters.Get<string>("@PostBack");
 
-            foreach(T obj in updates)
-            {
-                obj.UpdatedOnServer = output;
-            }
+            output = JsonSerializer.Deserialize<List<ServerToLocalPostBack>>(spOutput) ?? new List<ServerToLocalPostBack>();
 
             return output;
         }
 
-        /// <summary>
-        /// Finds all objects on the Server where the UpdatedOnServer date is later than lastSyncDate
-        /// </summary>
-        public async Task<(List<T> changesFromServer,DateTime lastUpdatedOnServer)> GetChangesFromServer( DateTime lastSyncDate)
+        public async Task<List<T>> GetUnsyncedFromServer(Guid localCopyId)
         {   
             List<T> output = new List<T>();
 
             var parameters = new DynamicParameters();
 
-            parameters.Add("@LastSyncDate",lastSyncDate,DbType.DateTime2,ParameterDirection.Input);
-            parameters.Add("@UpdateType", typeof(T).Name, DbType.String, ParameterDirection.Input);
-            parameters.Add("@Output","", DbType.String, ParameterDirection.Output,size:int.MaxValue);
+            parameters.Add("@CopyId",localCopyId,DbType.Guid,ParameterDirection.Input);
+            parameters.Add("@UpdateType", UpdateType, DbType.String, ParameterDirection.Input);
+            parameters.Add("@Output",null, DbType.String, ParameterDirection.Output, size: int.MaxValue);
 
-            await _dataAccess.ExecuteStoredProcedure("spGetChangesFromServer", parameters,_connectionStringName);
+            await _dataAccess.ExecuteStoredProcedure("spGetUnsyncedFromServer", parameters,_connectionStringName);
             
             string spOutput = parameters.Get<string>("@Output");
 
-            if (spOutput != null)
-            {
-                output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>();
-            }
-            
-            DateTime lastUpdatedOutput = (output ?? new List<T>()).Max(x => x.UpdatedOnServer) ?? DateTime.MinValue;
-            
-       
-            return (changesFromServer: output, lastUpdatedOnServer: lastUpdatedOutput);
+            output = spOutput.ConvertSQLJsonUpdateToUpdate<T>();
+
+            return output;
         }
 
-
-        public async Task<List<T>> GetFromServer(List<Guid>? ids = null)
+        public async Task<List<T>> GetConflictedUpdatesFromServer(List<Guid>? ids = null)
         {
-            List<T> output;
+            //TODO Add Unit Testing for Get ConflictedUpdates
+
+            List<T> output = new List<T>();
+
+            string? idsCSV = null;
+
+            if (ids != null)
+            {
+                idsCSV = string.Join(",", ids.Select(i => i.ToString()));
+            }
+
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@UpdateIds", idsCSV, DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateType", UpdateType, DbType.String, ParameterDirection.Input);
+            parameters.Add("@Output", null, DbType.String, ParameterDirection.Output, size: int.MaxValue);
+
+            await _dataAccess.ExecuteStoredProcedure("spGetConflictedUpdates", parameters, _connectionStringName);
+
+            string spOutput = parameters.Get<string>("@Output");
+
+            output = spOutput.ConvertSQLJsonUpdateToUpdate<T>();
+
+            return output;
+
+        }
+
+        public async Task<List<T>> GetUpdatesFromServer(List<Guid>? ids = null,bool latestOnly = false)
+        {
+            List<T> output = new List<T>();
 
             string idsCSV = string.Empty;
 
@@ -96,37 +114,30 @@ namespace MyClassLibrary.LocalServerMethods.Models
 
             var parameters = new DynamicParameters();
             
-            parameters.Add("@UpdateType", typeof(T).Name, DbType.String, ParameterDirection.Input);
+            parameters.Add("@LatestOnly", latestOnly,DbType.Boolean,ParameterDirection.Input);
+            parameters.Add("@UpdateType", UpdateType, DbType.String, ParameterDirection.Input);
             parameters.Add("@UpdateIds",idsCSV,DbType.String, ParameterDirection.Input);
-            parameters.Add("@Output","",DbType.String, ParameterDirection.Output,size:int.MaxValue);
+            parameters.Add("@Output","",DbType.String, ParameterDirection.Output, size: int.MaxValue);
 
-            await _dataAccess.ExecuteStoredProcedure("spGetFromServer",parameters,_connectionStringName);  
+            await _dataAccess.ExecuteStoredProcedure("spGetUpdates",parameters,_connectionStringName);  
             
             string spOutput = parameters.Get<string>("@Output");
 
-            if (spOutput != null)
-            {
-                output = JsonSerializer.Deserialize<List<T>>(spOutput) ?? new List<T>();
-            } else {
-                output = new List<T>(); 
-            }
-            //for testing
-            
-            string jsonOutput = JsonSerializer.Serialize(output);
+            output = spOutput.ConvertSQLJsonUpdateToUpdate<T>();
 
             return output;
 
         }
 
-        public async Task SaveConflictIdsToServer(List<Conflict> conflicts)
+        public async Task LocalPostBackToServer(List<LocalToServerPostBack> postBacks,Guid localCopyId)
         {
-            string jsonConflicts = JsonSerializer.Serialize(conflicts);
+            string jsonUpdates = JsonSerializer.Serialize(postBacks);
             var parameters = new DynamicParameters();
 
-            parameters.Add("@Conflicts",jsonConflicts, DbType.String, ParameterDirection.Input);
-            parameters.Add("@UpdateType",typeof(T).Name,DbType.String, ParameterDirection.Input);
+            parameters.Add("@CopyId", localCopyId, DbType.Guid, ParameterDirection.Input);
+            parameters.Add("@PostBack",jsonUpdates, DbType.String, ParameterDirection.Input);
 
-           await _dataAccess.ExecuteStoredProcedure("spSaveConflictIdsToServer", parameters,_connectionStringName);
+           await _dataAccess.ExecuteStoredProcedure("spLocalPostBackToServer", parameters,_connectionStringName);
         }
 
         public async Task DeleteFromServer(List<T> objects)
@@ -134,11 +145,32 @@ namespace MyClassLibrary.LocalServerMethods.Models
             string jsonObjects = JsonSerializer.Serialize(objects);
             var parameters = new DynamicParameters();
             parameters.Add("@Updates",jsonObjects, DbType.String, ParameterDirection.Input);
-            parameters.Add("@UpdateType", typeof(T).Name, DbType.String,ParameterDirection.Input);
+            parameters.Add("@UpdateType", UpdateType, DbType.String,ParameterDirection.Input);
 
-            await _dataAccess.ExecuteStoredProcedure("spDeleteFromServer",parameters,_connectionStringName);
+            await _dataAccess.ExecuteStoredProcedure("spDeleteUpdates",parameters,_connectionStringName);
         }
 
-    
+        public async Task ClearConflictsFromServer(List<Guid> ids)
+        {
+            string idsCSV = string.Join(",", ids.Select(x=>x.ToString()));
+
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@Ids",idsCSV, DbType.String, ParameterDirection.Input);
+
+            await _dataAccess.ExecuteStoredProcedure("spClearConflicts",parameters, _connectionStringName);
+        }
+
+        public async Task<bool> ResetSampleData(string folderPath)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@Location", "Server", DbType.String, ParameterDirection.Input);
+            parameters.Add("@Success", false, DbType.Boolean, ParameterDirection.Output);
+            await _dataAccess.ExecuteStoredProcedure("spResetSampleData", parameters, _connectionStringName);
+
+            return parameters.Get<bool>("@Success");
+        }
     }
 }
+

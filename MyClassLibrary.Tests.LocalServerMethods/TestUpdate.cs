@@ -14,6 +14,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods
         public DateTime? FavouriteDate { get; set; }
         
         public List<string>? FavouriteFoods { get; set; }
+
+        public bool IsCool { get; set; }
     
         public TestUpdate() :base()
         {
@@ -22,27 +24,29 @@ namespace MyClassLibrary.Tests.LocalServerMethods
 
         public TestUpdate(Guid id) : base(id) { }
 
-        public TestUpdate(Guid id,string firstName, string lastName, DateTime favouriteDate, List<string> favouriteFoods) : base(id)
+        public TestUpdate(Guid id,string firstName, string lastName, DateTime? favouriteDate, List<string>? favouriteFoods, bool isCool) : base(id)
         {
             FirstName = firstName;
             LastName = lastName;
             FavouriteDate = favouriteDate;
             FavouriteFoods = favouriteFoods;
+            IsCool = isCool;    
         }
 
         [JsonConstructor]
-        public TestUpdate(Guid id, DateTime created,string createdBy,DateTime? updatedOnServer,bool isActive, string? firstName, string? lastName, DateTime? favouriteDate, List<string> favouriteFoods,Guid? conflictID): base(id)
+        public TestUpdate(Guid id, DateTime created,string createdBy,DateTime? updatedOnServer,bool isConflicted, bool isActive, string? firstName, string? lastName, DateTime? favouriteDate, List<string>? favouriteFoods,bool isCool): base(id)
         {
             Id = id;
             Created = created;
             CreatedBy = createdBy;
             UpdatedOnServer = updatedOnServer;
+            IsConflicted = isConflicted;
             IsActive = isActive;
             FirstName = firstName;
             LastName = lastName;
             FavouriteDate = favouriteDate;
             FavouriteFoods = favouriteFoods;
-            ConflictId = conflictID;
+            IsCool = isCool;
         }
 
  

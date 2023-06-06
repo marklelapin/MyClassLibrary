@@ -15,8 +15,9 @@ namespace MyClassLibrary.DataAccessMethods
 
         public async Task ExecuteStoredProcedure(string storedProcedure, DynamicParameters parameters, string connectionStringName)
         {
-                             
-            using (IDbConnection connection = new SqlConnection(_config.GetConnectionString(connectionStringName)))
+            string connectionString = _config.GetConnectionString(connectionStringName) ?? "";
+
+            using (IDbConnection connection = new SqlConnection(connectionString))
             {
                await  connection.ExecuteAsync(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
             }

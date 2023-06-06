@@ -1,21 +1,19 @@
-﻿using MyClassLibrary.LocalServerMethods.Models;
+﻿using Microsoft.Identity.Client;
+using MyClassLibrary.LocalServerMethods.Models;
 
 namespace MyClassLibrary.LocalServerMethods.Interfaces
 {
-    public interface ILocalServerEngine<T> where T : LocalServerModelUpdate
+    /// <summary>
+    /// The interface providing management of data access between local and server storage.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface ILocalServerEngine<T> where T : ILocalServerModelUpdate
     {
 
-        Task<List<T>> FilterLatest(List<T> updates);
-        Task<List<Conflict>> FindConflicts(List<T> changesFromServer, List<T> changesFromLocal);
-
-
-
-
         /// <summary>
-        /// Returns all updates for the sorted By id and created date.
+        /// Returns all updates for the type sorted By id and created date.
         /// </summary>
         Task<List<T>> GetAllUpdates();
-
         /// <summary>
         /// Returns all updates for the given id sorted By id and created date.
         /// </summary>
@@ -25,43 +23,80 @@ namespace MyClassLibrary.LocalServerMethods.Interfaces
         /// </summary>
         Task<List<T>> GetAllUpdates(List<Guid>? ids);
 
-        /// <summary>
-        /// Saves an update to local and or server storage. 
-        /// </summary>
-        Task Save(T update);
-        /// <summary>
-        /// Saves a list of updates to local and or server storage.
-        /// </summary>
-        /// <param name="updates"></param>
-        Task Save(List<T> updates);
 
         /// <summary>
-        /// Sorts a list of updates by created date.
+        /// Returns latest update for all models matching Id(s) of the type sorted By id and created date. No parameters returns all models.
         /// </summary>
-        /// <param name="updates"></param>
-        Task SortByCreated(List<T> updates);
+        Task<List<T>> GetLatestUpdates();
         /// <summary>
-        /// Sorts a list of updates by id.
+        /// Returns latest update for all models matching Id(s) of the type sorted By id and created date. No parameters returns all models.
         /// </summary>
-        /// <param name="updates"></param>
-        Task SortById(List<T> updates);
+        Task<List<T>> GetLatestUpdates(Guid id);
         /// <summary>
-        /// Sorts a list of updates by id and then created date.
+        /// Returns latest update for all models matching Id(s) of the type sorted By id and created date. No parameters returns all models.
         /// </summary>
-        /// <param name="updates"></param>
-        Task SortByIdAndCreated(List<T> updates);
+        Task<List<T>> GetLatestUpdates(List<Guid>? ids);
+
+
+
         /// <summary>
-        /// Attempts to sync the data between local and server storage. Returns false if failed.
+        ///  Returns all updates that contain a conflictID matching the conflictId(s)  given. Null returns all updates relating to all latest updates with a conflictID. 
+        /// </summary>
+        Task<List<T>> GetConflictedUpdates();
+        /// <summary>
+        /// Returns all updates that contain a conflictID matching the conflictId given.
+        /// </summary>
+        Task<List<T>> GetConflictedUpdates(Guid id);
+        /// <summary>
+        /// Returns all updates that contain a conflictID matching the conflictIds given.
+        /// </summary>
+        Task<List<T>> GetConflictedUpdates(List<Guid>? ids);
+
+
+
+
+        /// <summary>
+        /// Saves the update to local and server storage (if it can) (and syncAfterwards parameter is set to true(default))
+        /// </summary>
+        Task SaveUpdates(T update,bool syncAfterwards = true);
+        /// <summary>
+        /// Saves the list of updates to local and server storage (if it can) (and syncAfterwards parameter is set to true(default))
+        /// </summary>
+        Task SaveUpdates(List<T> updates,bool syncAfterwards = true);
+
+        /// <summary>
+        /// Mark IsConflicted = false to local and or server storage for the Id passed in
+        /// </summary>
+        Task<bool> ClearConflictIds(Guid Id);
+        /// <summary>
+        /// Mark IsConflicted = false to local and or server storage for all updates with Ids passed in.
+        /// </summary>
+        Task<bool> ClearConflictIds(List<Guid> Ids);
+       
+
+
+        /// <summary>
+        /// Attempts to sync local and server storage. Returns true if successfull and the DateTime it synced..
         /// </summary>
         /// <returns></returns>
-        Task<bool> TrySync();
+        Task<(DateTime? syncedDateTime, bool success)> TrySync();
+ 
+        
         /// <summary>
-        /// Saves a list of conflicts to local and or server storage.
+        /// Deletes all updates from local and server storage that match the given Id. This is irreversible.
         /// </summary>
-        /// <param name="conflicts"></param>
-        /// <returns></returns>
-        Task<bool> SaveConflictIds(List<Conflict> conflicts);
+        Task DeleteEntirely(List<T> updates);
 
 
+
+        /// <summary>
+        /// Changes IlocalDataAccess for the purposes of testing sync failures.
+        /// </summary>
+        public void ChangeLocalDataAccess(ILocalDataAccess<T> localDataAccess);
+
+        /// <summary>
+        /// Changes IServerDataAccess for the purposes of testing sync failures.
+        /// </summary>
+        public void ChangeServerDataAccess(IServerDataAccess<T> serverDataAccess);
     }
 }
