@@ -27,7 +27,16 @@ namespace MyClassLibrary.LocalServerMethods.Models
         {
             try
             {
-                List<Guid>? guids = ids?.ToListGuid();
+                List<Guid>? guids;
+
+                if ((ids ?? "all").ToLower() == "all")
+                {
+                    guids = null;
+                } else
+                {
+                    guids = ids?.ToListGuid();
+                }
+                
 
                 List<T> updates = await _serverDataAccess.GetUpdatesFromServer(guids,latestOnly);
 
@@ -72,11 +81,22 @@ namespace MyClassLibrary.LocalServerMethods.Models
 
 
 
-        public async Task<(HttpStatusCode statusCode, string result)> GetConflictedUpdates(List<Guid> ids)
+        public async Task<(HttpStatusCode statusCode, string result)> GetConflictedUpdates(string? ids)
         {
             try
             {
-                List<T> updates = await _serverDataAccess.GetConflictedUpdatesFromServer(ids);
+                List<Guid>? guids;
+
+                if ((ids ?? "all").ToLower() == "all")
+                {
+                    guids = null;
+                }
+                else
+                {
+                    guids = ids?.ToListGuid();
+                }
+
+                List<T> updates = await _serverDataAccess.GetConflictedUpdatesFromServer(guids);
 
                 if (updates.Count == 0)
                 {
@@ -130,11 +150,21 @@ namespace MyClassLibrary.LocalServerMethods.Models
         }
 
 
-        public async Task<(HttpStatusCode statusCode, string result)> PutClearConflicts(List<Guid> ids)
+        public async Task<(HttpStatusCode statusCode, string result)> PutClearConflicts(string ids)
         {
+            List<Guid>? guids;
             try
             {
-                await _serverDataAccess.ClearConflictsFromServer(ids);
+                guids = ids.ToListGuid();
+            }
+            catch (Exception ex)
+            {
+                return APIErrorResponse(ex);
+            }
+            
+            try
+            {
+                await _serverDataAccess.ClearConflictsFromServer(guids);
 
                 return (HttpStatusCode.OK, "Conflicts successfully cleared.");
             }
@@ -145,20 +175,20 @@ namespace MyClassLibrary.LocalServerMethods.Models
         }
 
 
-        public async Task<(HttpStatusCode statusCode, string result)> PostDeleteUpdates(List<T> updates)
-        {
-            try
-            {
-                await _serverDataAccess.DeleteFromServer(updates);
+        //public async Task<(HttpStatusCode statusCode, string result)> PostDeleteUpdates(List<T> updates)
+        //{
+        //    try
+        //    {
+        //        await _serverDataAccess.DeleteFromServer(updates);
 
-                return (HttpStatusCode.OK, "Updates successfully deleted.");
-            }
-            catch (Exception ex)
-            {
-                return APIErrorResponse(ex);
-            };
+        //        return (HttpStatusCode.OK, "Updates successfully deleted.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return APIErrorResponse(ex);
+        //    };
 
-        }
+        //}
 
 
 
