@@ -1,4 +1,6 @@
-﻿using MyClassLibrary.LocalServerMethods.Models;
+﻿using MyClassLibrary.LocalServerMethods.Interfaces;
+using MyClassLibrary.LocalServerMethods.Models;
+using MyClassLibrary.LocalServerMethods.Extensions;
 
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Interfaces
@@ -18,6 +20,29 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Interfaces
         /// <remarls>
         /// Should be setup for each new UpdateType created.
         /// </remarls>
-        public Task SaveAndGetUpdatesTest(List<T> testUpdates, List<T> expected);
+        [Fact]
+        public async Task SaveAndGetUpdatesTest(List<T> updates)
+        {
+            //Setup
+            List<T> expected = updates;
+            List<LocalToServerPostBack> expectedPostBack = updates.Select(x => new LocalToServerPostBack(x.Id, x.Created, x.IsConflicted)).ToList();
+            expectedPostBack = expectedPostBack.SortByCreated();
+
+            //Test
+            List<LocalToServerPostBack> actualPostBack = await _localDataAccess.SaveUpdatesToLocal(testUpdates);
+            actualPostBack = actualPostBack.SortByCreated();
+
+            //Get Result From Local
+            List<TestUpdate> actual = await _localDataAccess.GetUpdatesFromLocal(testUpdates.Select(x => x.Id).ToList(), false);
+            actual = actual.SortByCreated();
+
+            //Assert
+            Assert.Equal(JsonSerializer.Serialize(expectedPostBack), JsonSerializer.Serialize(actualPostBack));
+            Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
+
+
+        }
+
+
     }
 }
