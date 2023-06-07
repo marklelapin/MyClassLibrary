@@ -66,6 +66,6 @@ namespace MyClassLibrary.LocalServerMethods.Interfaces
         /// Resets the sample data on Local Storage without affecting other data.
         /// </summary>
         /// <returns></returns>
-        public Task<bool> ResetSampleData(string folderPath);
+        public Task<bool> ResetSampleData(List<T> sampleUpdates);
     }
 }

@@ -1,4 +1,5 @@
-﻿using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
+﻿using MyClassLibrary.LocalServerMethods.Models;
+using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 {
+    /// <summary>
+    /// Provides the test content for LocalServerMethods.Tests
+    /// </summary>
     public static class TestContent
     {
         public static Guid CopyId = new Guid("27fc9657-3c92-6758-16a6-b9f82ca696b3");
@@ -14,7 +18,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         public static Guid CopyId2 = new Guid("05A3DE29-008D-4785-825A-BC6A0A286A40");
 
         /// <summary>
-        /// The TestUpdates matching testupdates on Local Storage just after ResetSampleData has been run
+        /// The updates to pass into the local UpdateLog when resetting sample Data.
         /// </summary>
         public static List<TestUpdate> LocalStartingData
         {
@@ -24,18 +28,18 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
                 List<TestUpdate> output = new List<TestUpdate>()
             {
                 //Setup so that this guid is unsynced on both local and storage (i.e. updatedOnServer = null)
-                new TestUpdate(new Guid("e5ec560c-ab81-13b3-ece1-43b10bb19e49"),DateTime.Parse("2023-5-15T09:04:00.1234567"),"mr test",null,false,true,"Bob","Hoskins",DateTime.Parse("1999-12-31T23:59:59.1234567"),new List<string>{"Cake","Chocolate","Biscuits"},true)
-                ,new TestUpdate(new Guid("e5ec560c-ab81-13b3-ece1-43b10bb19e49"),DateTime.Parse("2023-5-14T09:05:00.1234567"),"mr test",null,false,true,"Bob","Hoskins",DateTime.Parse("1999-12-31T23:59:59.1234567"),new List<string>{"Cake","Chocolate"},true)
-                ,new TestUpdate(new Guid("e5ec560c-ab81-13b3-ece1-43b10bb19e49"),DateTime.Parse("2023-5-13T09:06:00.1234567"),"mr test",null,false,true,"Bob","Hoskins",DateTime.Parse("1999-12-31T23:59:59.1234567"),new List<string>{"Cake"},true)
+                new TestUpdate(new Guid("e5ec560c-ab81-13b3-ece1-43b10bb19e49"),DateTime.Parse("2023-5-15T09:04:00.1234567"),"mr test",null,false,true,true,"Bob","Hoskins",DateTime.Parse("1999-12-31T23:59:59.1234567"),new List<string>{"Cake","Chocolate","Biscuits"},true)
+                ,new TestUpdate(new Guid("e5ec560c-ab81-13b3-ece1-43b10bb19e49"),DateTime.Parse("2023-5-14T09:05:00.1234567"),"mr test",null,false,true,true,"Bob","Hoskins",DateTime.Parse("1999-12-31T23:59:59.1234567"),new List<string>{"Cake","Chocolate"},true)
+                ,new TestUpdate(new Guid("e5ec560c-ab81-13b3-ece1-43b10bb19e49"),DateTime.Parse("2023-5-13T09:06:00.1234567"),"mr test",null,false,true,true,"Bob","Hoskins",DateTime.Parse("1999-12-31T23:59:59.1234567"),new List<string>{"Cake"},true)
                 //Setup as already conflicted updates on local and storage with latest update IsActive = false
-                ,new TestUpdate(new Guid("3d704ce3-1dc0-eba0-ace3-3b2428f41005"),DateTime.Parse("2023-5-12T09:02:00.1234567"),"mr test",DateTime.Parse("2023-5-12T09:02:20.1234567"),true,false,"Tracey","Emin",DateTime.Parse("1985-11-23T09:05:00.1234567"),new List<string>{"Cherries"},true)
-                ,new TestUpdate(new Guid("3d704ce3-1dc0-eba0-ace3-3b2428f41005"),DateTime.Parse("2023-5-11T09:34:00.1234567"),"mr test",DateTime.Parse("2023-5-11T09:34:20.1234567"),true,true,"Tracey","Emin",DateTime.Parse("1985-11-23T09:05:00.1234567"),new List<string>{"Cherries"},true)
+                ,new TestUpdate(new Guid("3d704ce3-1dc0-eba0-ace3-3b2428f41005"),DateTime.Parse("2023-5-12T09:02:00.1234567"),"mr test",DateTime.Parse("2023-5-12T09:02:20.1234567"),true,false,true,"Tracey","Emin",DateTime.Parse("1985-11-23T09:05:00.1234567"),new List<string>{"Cherries"},true)
+                ,new TestUpdate(new Guid("3d704ce3-1dc0-eba0-ace3-3b2428f41005"),DateTime.Parse("2023-5-11T09:34:00.1234567"),"mr test",DateTime.Parse("2023-5-11T09:34:20.1234567"),true,true,true,"Tracey","Emin",DateTime.Parse("1985-11-23T09:05:00.1234567"),new List<string>{"Cherries"},true)
                 //Normal Setup 
-               ,new TestUpdate(new Guid("b01df9cc-4af9-7d5b-57e4-3ec0ec922e8b"),DateTime.Parse("2023-5-10T09:00:00.1234567"),"mr test",DateTime.Parse("2023-5-10T09:00:20.1234567"),false,true,"Jim","Broadbent",null,null,false)
+               ,new TestUpdate(new Guid("b01df9cc-4af9-7d5b-57e4-3ec0ec922e8b"),DateTime.Parse("2023-5-10T09:00:00.1234567"),"mr test",DateTime.Parse("2023-5-10T09:00:20.1234567"),false,true,true,"Jim","Broadbent",null,null,false)
                 //Setup with additional update on Local that is unsynced with Server.
-                ,new TestUpdate(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-5-9T10:35:00.1234567"),"mr test",null,false,true,"Fred","Astair",DateTime.Parse("1945-11-11T11:11:11.1234567"),new List<string>{"Chicken"},true)
-                ,new TestUpdate(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-5-9T09:35:00.1234567"),"mr test",DateTime.Parse("2023-5-9T09:35:20.1234567"),false,true,"Fred","Astair",DateTime.Parse("1945-11-11T11:11:11.1234567"),new List<string>{"Chicken","Beef"},true)
-                    ,new TestUpdate(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-5-8T09:43:00.1234567"),"mr test",DateTime.Parse("2023-5-8T09:43:20.1234567"),false,true,"Fred","Astair",DateTime.Parse("1945-11-11T11:11:11.1234567"),new List<string>{"Chicken","Beef","Lamb"},false)
+                ,new TestUpdate(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-5-9T10:35:00.1234567"),"mr test",null,false,true,true,"Fred","Astair",DateTime.Parse("1945-11-11T11:11:11.1234567"),new List<string>{"Chicken"},true)
+                ,new TestUpdate(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-5-9T09:35:00.1234567"),"mr test",DateTime.Parse("2023-5-9T09:35:20.1234567"),false,true,true,"Fred","Astair",DateTime.Parse("1945-11-11T11:11:11.1234567"),new List<string>{"Chicken","Beef"},true)
+                    ,new TestUpdate(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-5-8T09:43:00.1234567"),"mr test",DateTime.Parse("2023-5-8T09:43:20.1234567"),false,true,true,"Fred","Astair",DateTime.Parse("1945-11-11T11:11:11.1234567"),new List<string>{"Chicken","Beef","Lamb"},false)
 
             };
 
@@ -44,7 +48,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
         }
         /// <summary>
-        /// The TestUpdates matching testupdates on Local Storage just after ResetSampleData has been run
+        /// The updates to pass into the server UpdateLog when resetting sample data
         /// </summary>
         public static List<TestUpdate> ServerStartingData
         {
@@ -53,13 +57,13 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
                 List<TestUpdate> output = new List<TestUpdate>()
                 {
                     //Setup so that this guid is unsynced on both local and storage (i.e. the ServerSyncInfo table does not have CopyId associated with this.)
-                   new TestUpdate(new Guid("e5ec560c-ab81-13b3-ece1-43b10bb19e49"),DateTime.Parse("2023-5-16T09:04:00.1234567"),"mrs test",DateTime.Parse("2023-5-15T09:04:00.1234567"),false,true,"Bob","Hoskins",DateTime.Parse("1999-12-31T23:59:59.1234567"),new List<string>{"Cake","Chocolate","Biscuits","IceCream"},false)
+                   new TestUpdate(new Guid("e5ec560c-ab81-13b3-ece1-43b10bb19e49"),DateTime.Parse("2023-5-16T09:04:00.1234567"),"mrs test",DateTime.Parse("2023-5-15T09:04:00.1234567"),false,true,true,"Bob","Hoskins",DateTime.Parse("1999-12-31T23:59:59.1234567"),new List<string>{"Cake","Chocolate","Biscuits","IceCream"},false)
                     //Setup as already conflicted updates on local and storage with latest update IsACtive = false
-                    ,new TestUpdate(new Guid("3d704ce3-1dc0-eba0-ace3-3b2428f41005"),DateTime.Parse("2023-5-12T09:02:00.1234567"),"mr test",DateTime.Parse("2023-5-12T09:02:20.1234567"),true,false,"Tracey","Emin",DateTime.Parse("1985-11-23T09:05:00.1234567"),new List<string>{"Cherries"},true)
-                    ,new TestUpdate(new Guid("3d704ce3-1dc0-eba0-ace3-3b2428f41005"),DateTime.Parse("2023-5-11T09:34:00.1234567"),"mr test",DateTime.Parse("2023-5-11T09:34:20.1234567"),true,true,"Tracey","Emin",DateTime.Parse("1985-11-23T09:05:00.1234567"),new List<string>{"Cherries"},true)
-                    ,new TestUpdate(new Guid("b01df9cc-4af9-7d5b-57e4-3ec0ec922e8b"),DateTime.Parse("2023-5-10T09:00:00.1234567"),"mr test",DateTime.Parse("2023-5-10T09:00:20.1234567"),false,true,"Jim","Broadbent",null,null,false)
-                    ,new TestUpdate(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-5-9T09:35:00.1234567"),"mr test",DateTime.Parse("2023-5-9T09:35:20.1234567"),false,true,"Fred","Astair",DateTime.Parse("1945-11-11T11:11:11.1234567"),new List<string>{"Chicken","Beef"},true)
-                    ,new TestUpdate(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-5-8T09:43:00.1234567"),"mr test",DateTime.Parse("2023-5-8T09:43:20.1234567"),false,true,"Fred","Astair",DateTime.Parse("1945-11-11T11:11:11.1234567"),new List<string>{"Chicken","Beef","Lamb"},false)
+                    ,new TestUpdate(new Guid("3d704ce3-1dc0-eba0-ace3-3b2428f41005"),DateTime.Parse("2023-5-12T09:02:00.1234567"),"mr test",DateTime.Parse("2023-5-12T09:02:20.1234567"),true,false,true,"Tracey","Emin",DateTime.Parse("1985-11-23T09:05:00.1234567"),new List<string>{"Cherries"},true)
+                    ,new TestUpdate(new Guid("3d704ce3-1dc0-eba0-ace3-3b2428f41005"),DateTime.Parse("2023-5-11T09:34:00.1234567"),"mr test",DateTime.Parse("2023-5-11T09:34:20.1234567"),true,true,true,"Tracey","Emin",DateTime.Parse("1985-11-23T09:05:00.1234567"),new List<string>{"Cherries"},true)
+                    ,new TestUpdate(new Guid("b01df9cc-4af9-7d5b-57e4-3ec0ec922e8b"),DateTime.Parse("2023-5-10T09:00:00.1234567"),"mr test",DateTime.Parse("2023-5-10T09:00:20.1234567"),false,true,true,"Jim","Broadbent",null,null,false)
+                    ,new TestUpdate(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-5-9T09:35:00.1234567"),"mr test",DateTime.Parse("2023-5-9T09:35:20.1234567"),false,true,true,"Fred","Astair",DateTime.Parse("1945-11-11T11:11:11.1234567"),new List<string>{"Chicken","Beef"},true)
+                    ,new TestUpdate(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-5-8T09:43:00.1234567"),"mr test",DateTime.Parse("2023-5-8T09:43:20.1234567"),false,true,true,"Fred","Astair",DateTime.Parse("1945-11-11T11:11:11.1234567"),new List<string>{"Chicken","Beef","Lamb"},false)
 
                 };
 
@@ -67,6 +71,36 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             }
 
         }
+
+
+        /// <summary>
+        /// The data to insert into ServerSyncInfo when resetting sample data
+        /// </summary>
+        public static List<ServerSyncLog> ServerSyncInfoStartingData
+        {
+            get
+            {
+                List<ServerSyncLog> output = new List<ServerSyncLog>()
+                {
+                   new ServerSyncLog(new Guid("3d704ce3-1dc0-eba0-ace3-3b2428f41005"),DateTime.Parse("2023-05-12T09:02:00.1234567"),CopyId)
+                    ,new ServerSyncLog(new Guid("3d704ce3-1dc0-eba0-ace3-3b2428f41005"),DateTime.Parse("2023-05-11T09:34:00.1234567"),CopyId)
+                    ,new ServerSyncLog(new Guid("b01df9cc-4af9-7d5b-57e4-3ec0ec922e8b"),DateTime.Parse("2023-05-10T09:00:00.1234567"),CopyId)
+                    ,new ServerSyncLog(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-05-09T09:35:00.1234567"),CopyId)
+                    ,new ServerSyncLog(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-05-08T09:43:00.1234567"),CopyId)
+                    ,new ServerSyncLog(new Guid("e5ec560c-ab81-13b3-ece1-43b10bb19e49"),DateTime.Parse("2023-05-16T09:04:00.1234567"),CopyId2)
+                    ,new ServerSyncLog(new Guid("3d704ce3-1dc0-eba0-ace3-3b2428f41005"),DateTime.Parse("2023-05-12T09:02:00.1234567"),CopyId2)
+                    ,new ServerSyncLog(new Guid("3d704ce3-1dc0-eba0-ace3-3b2428f41005"),DateTime.Parse("2023-05-11T09:34:00.1234567"),CopyId2)
+                    ,new ServerSyncLog(new Guid("b01df9cc-4af9-7d5b-57e4-3ec0ec922e8b"),DateTime.Parse("2023-05-10T09:00:00.1234567"),CopyId2)
+                    ,new ServerSyncLog(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-05-09T09:35:00.1234567"),CopyId2)
+                    ,new ServerSyncLog(new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2"),DateTime.Parse("2023-05-08T09:43:00.1234567"),CopyId2)
+                };
+
+                return output;
+            }
+
+        }
+
+
 
         //Single Id Test Answers
         public static Guid SingleTestId = new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2");
@@ -122,10 +156,10 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         {
             return new List<TestUpdate>()
                 {
-                    new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(20), "mr test", null, false, true, "Bob", "Hoskins", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true)
-                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(10), "mr test", DateTime.Parse("2023-05-10T09:00:20.1234567"), false, true, "Jim", "Broadbent", null, new List<string> { },false)
-                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks), "mr test", DateTime.Parse("2023-05-9T09:35:20.1234567"), false, true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
-                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(-10), "mr test", DateTime.Parse("2023-05-8T09:43:20.1234567"), false, true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
+                    new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(20), "mr test", null, false, true,true, "Bob", "Hoskins", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true)
+                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(10), "mr test", DateTime.Parse("2023-05-10T09:00:20.1234567"), false, true,true, "Jim", "Broadbent", null, new List<string> { },false)
+                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks), "mr test", DateTime.Parse("2023-05-9T09:35:20.1234567"), false, true,true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
+                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(-10), "mr test", DateTime.Parse("2023-05-8T09:43:20.1234567"), false, true,true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
                 };
 
         }
@@ -137,10 +171,10 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             Guid id = Guid.NewGuid();
             return new List<TestUpdate>()
                 {
-                    new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks).AddSeconds(20), "mr test", null, true, true, "Bob", "Hoskins", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true)
-                    ,new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks).AddSeconds(10), "mr test", DateTime.Parse("2023-05-10T09:00:20.1234567"), true, true, "Jim", "Broadbent", null, new List<string> { },false)
-                    ,new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks), "mr test", DateTime.Parse("2023-05-9T09:35:20.1234567"), true, true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
-                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(-10), "mr test", DateTime.Parse("2023-05-8T09:43:20.1234567"), true, true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
+                    new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks).AddSeconds(20), "mr test", null, true, true,true, "Bob", "Hoskins", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true)
+                    ,new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks).AddSeconds(10), "mr test", DateTime.Parse("2023-05-10T09:00:20.1234567"), true, true,true, "Jim", "Broadbent", null, new List<string> { },false)
+                    ,new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks), "mr test", DateTime.Parse("2023-05-9T09:35:20.1234567"), true, true,true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
+                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(-10), "mr test", DateTime.Parse("2023-05-8T09:43:20.1234567"), true, true,true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
                 };
 
         }
@@ -152,10 +186,10 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         {
             return new List<TestUpdate>()
                 {
-                    new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(20), "mr test", null, true, true, "Bob", "Hoskins", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true)
-                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(10), "mr test", null, true, true, "Jim", "Broadbent", null, new List<string> { },false)
-                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks), "mr test", null, true, true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
-                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(-10), "mr test", null, true, true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
+                    new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(20), "mr test", null, true, true,true, "Bob", "Hoskins", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true)
+                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(10), "mr test", null, true, true,true, "Jim", "Broadbent", null, new List<string> { },false)
+                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks), "mr test", null, true, true,true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
+                    ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(-10), "mr test", null, true, true,true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
                 };
 
         }
@@ -170,10 +204,10 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             Guid id = Guid.NewGuid();
             return new List<TestUpdate>()
                 {
-                    new TestUpdate(id,new DateTime(DateTime.UtcNow.Ticks).AddSeconds(20), "mr test", null, true, true, "Bob", "Hoskins", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true)
-                    ,new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks).AddSeconds(10), "mr test", null, true, true, "Jim", "Broadbent", null, new List<string> { },false)
-                    ,new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks), "mr test", null, true, true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
-                    ,new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks).AddSeconds(-10), "mr test", null, true, true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
+                    new TestUpdate(id,new DateTime(DateTime.UtcNow.Ticks).AddSeconds(20), "mr test", null, true, true,true, "Bob", "Hoskins", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true)
+                    ,new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks).AddSeconds(10), "mr test", null, true, true,true, "Jim", "Broadbent", null, new List<string> { },false)
+                    ,new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks), "mr test", null, true, true,true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
+                    ,new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks).AddSeconds(-10), "mr test", null, true, true,true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
                 };
 
         }
@@ -190,18 +224,18 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             List<TestUpdate> localUpdates = new List<TestUpdate>()
             {
-                new TestUpdate(id, DateTime.Parse("2023-5-15T09:04:00.1234567"), "mr test", null, true, true, "Frank", "Smith", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true)
-                ,new TestUpdate(id, DateTime.Parse("2023-5-15T09:03:00.1234567"), "mr test", null, true, true, "Frank", "Smith", null, new List<string> { },false)
-                ,new TestUpdate(id2, DateTime.Parse("2023-5-15T09:02:00.1234567"), "mr test", null, true, true, "Michael", "Hatcher", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
-                ,new TestUpdate(id2, DateTime.Parse("2023-5-15T09:01:00.1234567"), "mr test", null, true, true, "Michael", "Hatcher", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
+                new TestUpdate(id, DateTime.Parse("2023-5-15T09:04:00.1234567"), "mr test", null, true, true,true, "Frank", "Smith", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true)
+                ,new TestUpdate(id, DateTime.Parse("2023-5-15T09:03:00.1234567"), "mr test", null, true, true,true, "Frank", "Smith", null, new List<string> { },false)
+                ,new TestUpdate(id2, DateTime.Parse("2023-5-15T09:02:00.1234567"), "mr test", null, true, true,true, "Michael", "Hatcher", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
+                ,new TestUpdate(id2, DateTime.Parse("2023-5-15T09:01:00.1234567"), "mr test", null, true, true,true, "Michael", "Hatcher", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
             };
 
             List<TestUpdate> serverUpdates = new List<TestUpdate>()
             {
-                new TestUpdate(id, DateTime.Parse("2023-5-15T10:07:00.1234567"), "mrs test", null, true, true, "Francesca", "Smith", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true)
-                ,new TestUpdate(id, DateTime.Parse("2023-5-15T10:06:00.1234567"), "mrs test", null, true, true, "Francesca", "Smith", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { },false)
-                ,new TestUpdate(id2, DateTime.Parse("2023-5-15T10:05:00.1234567"), "mrs test", null, true, true, "Michelle", "Hatter", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
-                ,new TestUpdate(id2, DateTime.Parse("2023-5-15T10:04:00.1234567"), "mrs test", null, true, true, "Michelle", "Hatter", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
+                new TestUpdate(id, DateTime.Parse("2023-5-15T10:07:00.1234567"), "mrs test", null, true, true,true, "Francesca", "Smith", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true)
+                ,new TestUpdate(id, DateTime.Parse("2023-5-15T10:06:00.1234567"), "mrs test", null, true, true,true, "Francesca", "Smith", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { },false)
+                ,new TestUpdate(id2, DateTime.Parse("2023-5-15T10:05:00.1234567"), "mrs test", null, true, true,true, "Michelle", "Hatter", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
+                ,new TestUpdate(id2, DateTime.Parse("2023-5-15T10:04:00.1234567"), "mrs test", null, true, true,true, "Michelle", "Hatter", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
 
             };
 

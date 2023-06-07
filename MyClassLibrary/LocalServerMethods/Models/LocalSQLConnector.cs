@@ -11,7 +11,7 @@ namespace MyClassLibrary.LocalServerMethods.Models
 
 
 
-    public class LocalSQLConnector<T> : ILocalDataAccess<T> where T : LocalServerModelUpdate 
+    public class LocalSQLConnector<T> : ILocalDataAccess<T> where T : ILocalServerModelUpdate 
     {
 
         private readonly ISqlDataAccess _dataAccess;
@@ -199,11 +199,16 @@ namespace MyClassLibrary.LocalServerMethods.Models
             await _dataAccess.ExecuteStoredProcedure("spClearConflicts",parameters,_connectionStringName);
         }
 
-        public async Task<bool> ResetSampleData(string folderPath)
+        public async Task<bool> ResetSampleData(List<T> sampleUpdates)
         {
+            string jsonSampleUpdates = JsonSerializer.Serialize(sampleUpdates);
+
             var parameters = new DynamicParameters();
 
             parameters.Add("@Location","Local",DbType.String, ParameterDirection.Input);
+            parameters.Add("@SampleUpdates",jsonSampleUpdates,DbType.String, ParameterDirection.Input);
+            parameters.Add("@SampleServerSyncLogs",null,DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateType", UpdateType, DbType.String, ParameterDirection.Input);
             parameters.Add("@Success", false, DbType.Boolean, ParameterDirection.Output);
             await _dataAccess.ExecuteStoredProcedure("spResetSampleData", parameters, _connectionStringName);
 

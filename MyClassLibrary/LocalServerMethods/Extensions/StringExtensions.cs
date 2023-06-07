@@ -1,4 +1,5 @@
-﻿using MyClassLibrary.LocalServerMethods.Models;
+﻿using MyClassLibrary.LocalServerMethods.Interfaces;
+using MyClassLibrary.LocalServerMethods.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace MyClassLibrary.LocalServerMethods.Extensions
 {
     internal static class StringExtensions
     {
-        internal static List<T> ConvertSQLJsonUpdateToUpdate<T>(this string? jsonStr)
+        internal static List<T> ConvertSQLJsonUpdateToUpdate<T>(this string? jsonStr) where T : ILocalServerModelUpdate
         {
             List<T> result;
 

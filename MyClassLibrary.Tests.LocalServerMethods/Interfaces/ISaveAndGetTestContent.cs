@@ -9,8 +9,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Interfaces
 {
     public interface ISaveAndGetTestContent<T> where T : ILocalServerModelUpdate
     {
-        public List<T> getNewUpdates();
-    
-    }
+        List<T> getNewUpdates();
 
+        Guid CopyId { get; }
+    }
 }

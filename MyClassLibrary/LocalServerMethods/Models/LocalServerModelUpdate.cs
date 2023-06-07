@@ -46,6 +46,10 @@ namespace MyClassLibrary.LocalServerMethods.Models
         /// Whether or not the update is generally available or not.
         /// </summary>
         public bool IsActive { get; set; } = true;
+        /// <summary>
+        /// Indicates whether the update is sample data (used for testing and/or providing samples)
+        /// </summary>
+        public bool IsSample { get; set; } = false;
 
         public LocalServerModelUpdate()
         {
@@ -56,7 +60,7 @@ namespace MyClassLibrary.LocalServerMethods.Models
             Id = (Guid)id;
         }
 
-        public LocalServerModelUpdate(Guid id, DateTime? created = null, string? createdBy = null, DateTime? updatedOnServer = null,bool isConflicted = false, bool isActive = true)
+        public LocalServerModelUpdate(Guid id, DateTime? created = null, string? createdBy = null, DateTime? updatedOnServer = null,bool isConflicted = false, bool isActive = true,bool isSample = false)
         {
             Id = id;
             Created = created ?? DateTime.MinValue;
@@ -64,6 +68,7 @@ namespace MyClassLibrary.LocalServerMethods.Models
             IsConflicted = isConflicted;
             UpdatedOnServer = updatedOnServer;
             IsActive = isActive;
+            IsSample = isSample;    
         }
     }
 }

@@ -5,7 +5,7 @@ using MyClassLibrary.LocalServerMethods.Interfaces;
 namespace MyClassLibrary.LocalServerMethods.Models
 {
     //TODO - Unit Test Functionallity of LocalServerIdentity
-    public class LocalServerModel<T> : ILocalServerModel<T> where T : LocalServerModelUpdate, new()
+    public class LocalServerModel<T> : ILocalServerModel<T> where T : ILocalServerModelUpdate, new()
     {
         /// <summary>
         /// The Identity of the LocalServerIdentity

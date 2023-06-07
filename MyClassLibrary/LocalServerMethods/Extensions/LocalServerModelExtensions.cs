@@ -1,4 +1,5 @@
 ﻿using MyClassLibrary.ErrorHandling;
+using MyClassLibrary.LocalServerMethods.Interfaces;
 using MyClassLibrary.LocalServerMethods.Models;
 
 
@@ -7,7 +8,7 @@ namespace MyClassLibrary.LocalServerMethods.Extensions
     public static class Extensions
     {
 
-        public static string GetUpdateType<T>(this T obj) where T : LocalServerModelUpdate
+        public static string GetUpdateType<T>(this T obj) where T : ILocalServerModelUpdate
         {
             string output;
 
@@ -20,7 +21,7 @@ namespace MyClassLibrary.LocalServerMethods.Extensions
             return output.Replace("Update", "");
         }
 
-        public static List<T> SortByCreated<T>(this List<T> list) where T : LocalServerModelUpdate
+        public static List<T> SortByCreated<T>(this List<T> list) where T : ILocalServerModelUpdate
         {
             return list.OrderByDescending(x => x.Created).ToList();
         }

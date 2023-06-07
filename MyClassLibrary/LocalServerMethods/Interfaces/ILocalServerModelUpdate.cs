@@ -26,6 +26,10 @@
         /// </summary>
         bool IsActive { get; set; }
         /// <summary>
+        /// Indicates whether the update is sample data (used for testing and/or providing samples)
+        /// </summary>
+        public bool IsSample { get; set; }
+        /// <summary>
         /// The date and time that the update was saved to the central server storage.
         /// </summary>
         DateTime? UpdatedOnServer { get; set; }

@@ -11,18 +11,18 @@ namespace MyClassLibrary.LocalServerMethods.Interfaces
         /// <summary>
         /// A list of Updates that conflict with the Latest Update. i.e. that were created on different local machines without the knowledge of each one.
         /// </summary>
-        List<T>? Conflicts { get; set; }
+        public List<T>? Conflicts { get; set; }
         /// <summary>
         /// All of the updates relating to the model.
         /// </summary>
-        List<T>? History { get; set; }
+        public List<T>? History { get; set; }
         /// <summary>
         /// The unique Id identifying the model.
         /// </summary>
-        Guid Id { get; }
+        public Guid Id { get; set; }
         /// <summary>
         /// The latest update relating to the model.
         /// </summary>
-        T? Latest { get; set; }
+        public T? Latest { get; set; }
     }
 }

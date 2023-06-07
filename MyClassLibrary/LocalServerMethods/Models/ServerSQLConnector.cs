@@ -11,10 +11,11 @@ using MyClassLibrary.DataAccessMethods;
 using MyClassLibrary.LocalServerMethods.Interfaces;
 using MyClassLibrary.LocalServerMethods.Models;
 using MyClassLibrary.LocalServerMethods.Extensions;
+using Microsoft.AspNetCore.Components.Routing;
 
 namespace MyClassLibrary.LocalServerMethods.Models
 {
-    public class ServerSQLConnector<T> : IServerDataAccess<T> where T : LocalServerModelUpdate 
+    public class ServerSQLConnector<T> : IServerDataAccess<T> where T : ILocalServerModelUpdate 
     {
         private readonly ISqlDataAccess _dataAccess;
         private readonly string _connectionStringName;
@@ -161,11 +162,19 @@ namespace MyClassLibrary.LocalServerMethods.Models
             await _dataAccess.ExecuteStoredProcedure("spClearConflicts",parameters, _connectionStringName);
         }
 
-        public async Task<bool> ResetSampleData(string folderPath)
+        public async Task<bool> ResetSampleData(List<T> sampleUpdates,List<ServerSyncLog> sampleServerSyncLogs)
         {
+
+            string jsonSampleUpdates = JsonSerializer.Serialize(sampleUpdates);
+            string jsonSampleServerSyncLogs = JsonSerializer.Serialize(sampleServerSyncLogs);   
+
+
             var parameters = new DynamicParameters();
 
             parameters.Add("@Location", "Server", DbType.String, ParameterDirection.Input);
+            parameters.Add("@SampleUpdates",jsonSampleUpdates, DbType.String, ParameterDirection.Input);
+            parameters.Add("@SampleServerSyncLogs",jsonSampleServerSyncLogs, DbType.String, ParameterDirection.Input);
+            parameters.Add("@UpdateType",UpdateType,DbType.String, ParameterDirection.Input);
             parameters.Add("@Success", false, DbType.Boolean, ParameterDirection.Output);
             await _dataAccess.ExecuteStoredProcedure("spResetSampleData", parameters, _connectionStringName);
 

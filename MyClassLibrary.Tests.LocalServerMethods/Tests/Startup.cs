@@ -4,8 +4,8 @@ using Microsoft.Extensions.Hosting;
 using MyClassLibrary.DataAccessMethods;
 using MyClassLibrary.LocalServerMethods.Interfaces;
 using MyClassLibrary.LocalServerMethods.Models;
-
-
+using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
+using MyClassLibrary.Tests.LocalServerMethods.Services;
 
 namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 {
@@ -37,7 +37,9 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
                         services.AddTransient(typeof(ILocalDataAccess<TestUpdate>),typeof(LocalSQLConnector<TestUpdate>));
                         services.AddTransient(typeof(IServerDataAccess<TestUpdate>), typeof(ServerSQLConnector<TestUpdate>));
                         services.AddTransient(typeof(ILocalServerEngine<TestUpdate>), typeof(LocalServerEngine<TestUpdate>));
-                    }
+                        services.AddTransient(typeof(ISaveAndGetUpdateTypeTests<TestUpdate>),typeof(SaveAndGetUpdateTypeTestService<TestUpdate>));
+                        services.AddTransient(typeof(ISaveAndGetTestContent<TestUpdate>),typeof(SaveAndGetTestUpdateContent));            
+        }
 
         
 

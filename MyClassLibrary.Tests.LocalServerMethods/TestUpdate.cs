@@ -34,7 +34,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods
         }
 
         [JsonConstructor]
-        public TestUpdate(Guid id, DateTime created,string createdBy,DateTime? updatedOnServer,bool isConflicted, bool isActive, string? firstName, string? lastName, DateTime? favouriteDate, List<string>? favouriteFoods,bool isCool): base(id)
+        public TestUpdate(Guid id, DateTime created,string createdBy,DateTime? updatedOnServer,bool isConflicted, bool isActive, bool isSample,string? firstName, string? lastName, DateTime? favouriteDate, List<string>? favouriteFoods,bool isCool): base(id)
         {
             Id = id;
             Created = created;
@@ -42,6 +42,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods
             UpdatedOnServer = updatedOnServer;
             IsConflicted = isConflicted;
             IsActive = isActive;
+            IsSample = isSample;
             FirstName = firstName;
             LastName = lastName;
             FavouriteDate = favouriteDate;

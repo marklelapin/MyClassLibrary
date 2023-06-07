@@ -11,7 +11,7 @@ using System.Data;
 
 namespace MyClassLibrary.LocalServerMethods.Models
 {
-    public class ServerAPIControllerService<T> : IServerAPIControllerService<T> where T : LocalServerModelUpdate
+    public class ServerAPIControllerService<T> : IServerAPIControllerService<T> where T : ILocalServerModelUpdate
     {
 
         private readonly IServerDataAccess<T> _serverDataAccess;

@@ -4,7 +4,7 @@ using MyClassLibrary.LocalServerMethods.Models;
 
 namespace MyClassLibrary.LocalServerMethods.Models
 {
-    public class LocalServerModelFactory<T, U> : ILocalServerModelFactory<T, U> where T : LocalServerModel<U>,new() where U : LocalServerModelUpdate, new()
+    public class LocalServerModelFactory<T, U> : ILocalServerModelFactory<T, U> where T : ILocalServerModel<U>,new() where U : ILocalServerModelUpdate, new()
     {
 
         private ILocalServerEngine<U> _localServerEngine;
@@ -13,6 +13,7 @@ namespace MyClassLibrary.LocalServerMethods.Models
         {
             _localServerEngine = localServerEngine;
         }
+
 
         /// <summary>
         /// Returns a new Model of type T populated with the Latest update relating to Id if Id is not null.

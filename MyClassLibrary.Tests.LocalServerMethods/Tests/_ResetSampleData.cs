@@ -24,8 +24,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         public async void ResetTest()
         {
 
-            var resetLocalSampleData = await _localDataAccess?.ResetSampleData("not yet implemented"); //TODO = setup bulk insert in sql
-            var resetServerSampleData = await _serverDataAccess?.ResetSampleData("not yet implemented"); //TODO = setup bulk insert in sql
+            var resetLocalSampleData = await _localDataAccess.ResetSampleData(TestContent.LocalStartingData); 
+            var resetServerSampleData = await _serverDataAccess.ResetSampleData(TestContent.ServerStartingData,TestContent.ServerSyncInfoStartingData); 
 
             
 
