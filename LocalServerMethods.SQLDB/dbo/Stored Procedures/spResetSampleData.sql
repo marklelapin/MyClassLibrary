@@ -13,6 +13,7 @@ BEGIN
 	DELETE u
 	FROM dbo.UpdateLog u
 	WHERE u.IsSample = 1
+	AND u.UpdateType = @UpdateType
 
 	INSERT dbo.UpdateLog (Id,Created,CreatedBy,UpdatedOnServer,IsConflicted,UpdateType,IsActive,IsSample,JsonUpdate)
 	
@@ -44,11 +45,13 @@ BEGIN
 	SELECT Id,Created
 	FROM dbo.UpdateLog 
 	WHERE IsSample = 1
+	AND UpdateType = @UpdateType
 	
 
 	DELETE u
 	FROM dbo.UpdateLog u
 	WHERE u.IsSample = 1
+	AND u.UpdateType = @UpdateType
 
 
 	INSERT dbo.UpdateLog(Id,Created,CreatedBy,UpdatedOnServer,IsConflicted,UpdateType,IsActive,IsSample,JsonUpdate)
