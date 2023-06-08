@@ -151,6 +151,9 @@
   <ItemGroup>
     <None Include="LocalServerMethods.LocalTest.publish.xml" />
     <None Include="LocalServerMethods.ServerTest.publish.xml" />
+    <None Include="TheWhaddonShow.LocalTest.publish.xml" />
+    <None Include="TheWhaddonShow.ServerTest.publish.xml" />
+    <None Include="TheWhaddonShow.DevelopmentServer.publish.xml" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="LocalServerMethods.SQLDB.refactorlog" />

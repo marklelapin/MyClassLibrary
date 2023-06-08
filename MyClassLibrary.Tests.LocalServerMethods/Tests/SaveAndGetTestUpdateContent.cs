@@ -18,7 +18,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
         public Guid CopyId { get { return TestContent.CopyId; } }
 
-        public List<TestUpdate> getNewUpdates()
+        public List<TestUpdate> GetNewUpdates()
         {
            return TestContent.GetNewUpdatesWithoutUpdatedOnServerDates();
         }

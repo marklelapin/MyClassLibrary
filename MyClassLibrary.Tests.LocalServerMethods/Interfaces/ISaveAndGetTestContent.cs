@@ -9,7 +9,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Interfaces
 {
     public interface ISaveAndGetTestContent<T> where T : ILocalServerModelUpdate
     {
-        List<T> getNewUpdates();
+        List<T> GetNewUpdates();
 
         Guid CopyId { get; }
     }

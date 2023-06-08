@@ -23,7 +23,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         public async Task SaveAndGetLocalTest()
         {
             //Setup
-            List<T> updates = _testContent.getNewUpdates();
+            List<T> updates = _testContent.GetNewUpdates();
             List<T> expected = updates;
             expected = expected.SortByCreated();
 
@@ -44,7 +44,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
         public async Task SaveAndGetServerTest()
         {
             //Setup
-            List<T> updates = _testContent.getNewUpdates();
+            List<T> updates = _testContent.GetNewUpdates();
 
             //Test
             await _serverDataAccess.SaveUpdatesToServer(updates,_testContent.CopyId);

@@ -38,7 +38,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
                         services.AddTransient(typeof(IServerDataAccess<TestUpdate>), typeof(ServerSQLConnector<TestUpdate>));
                         services.AddTransient(typeof(ILocalServerEngine<TestUpdate>), typeof(LocalServerEngine<TestUpdate>));
                         services.AddTransient(typeof(ISaveAndGetUpdateTypeTests<TestUpdate>),typeof(SaveAndGetUpdateTypeTestService<TestUpdate>));
-                        services.AddTransient(typeof(ISaveAndGetTestContent<TestUpdate>),typeof(SaveAndGetTestUpdateContent));            
+                        services.AddTransient(typeof(ISaveAndGetTestContent<TestUpdate>),typeof(SaveAndGetTestUpdateContent));
         }
 
         
