@@ -75,8 +75,6 @@ namespace MyClassLibrary.LocalServerMethods.Models
 
         public async Task<List<T>> GetConflictedUpdatesFromServer(List<Guid>? ids = null)
         {
-            //TODO Add Unit Testing for Get ConflictedUpdates
-
             List<T> output = new List<T>();
 
             string? idsCSV = null;

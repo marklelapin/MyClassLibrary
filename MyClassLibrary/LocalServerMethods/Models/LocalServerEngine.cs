@@ -10,10 +10,6 @@ namespace MyClassLibrary.LocalServerMethods.Models
     public class LocalServerEngine<T> : ILocalServerEngine<T> where T : ILocalServerModelUpdate, new()
     {
 
-        //TODO Test GetAllIdentities function
-        //TODO Change sync process - moving away from UpdatedonServer to separate table in server.
-        //TODO Test Sync
-
 
         private ILocalDataAccess<T> _localDataAccess;
 
@@ -206,51 +202,57 @@ namespace MyClassLibrary.LocalServerMethods.Models
             return false;
         }
 
-       
-        
-        
-        //DeleteEntirely_____________________________________________________________
-         public async Task DeleteEntirely(List<T> updates)  //TODO Unit Test this
-                {
-                     await TryDeleteFromLocal(updates);
-                     await TryDeleteFromServer(updates);//TODO need to think through what happens if this fails. - won't get pickedup in any future updates.
-                                                        //Add in something to update that tells server to delete??      
-        }
+
+
+        ////TODO - Make final decision on removing this functionality entirely.
+        ////DeleteEntirely_____________________________________________________________
+        //public async Task DeleteEntirely(List<T> updates)  //TODO Unit Test this
+        //        {
+        //             await TryDeleteFromLocal(updates);
+        //             await TryDeleteFromServer(updates);//TODO need to think through what happens if this fails. - won't get pickedup in any future updates.
+        //                                                //Add in something to update that tells server to delete??      
+        //}
+
+
+
+
+
 
 
         //Private Methods________________________________________________________________
-        /// <summary>
-        /// Tries to Save Updates to Local. If it fails returns false.
-        /// </summary>
-        private async Task<bool> TryDeleteFromLocal(List<T> updates)
-        {
-            try
-            {
-                await _localDataAccess.DeleteFromLocal(updates);
-                return true;
-            }
-            catch
-            {
-                return false;
-                //TODO Try Log Delete from Local Error
-            }
-        }
-        /// <summary>
-        /// Tries to Save Updates to Server. If it fails returns false.
-        /// </summary>
-        private async Task<bool> TryDeleteFromServer(List<T> updates)
-        {
-            try
-            {
-                await _serverDataAccess.DeleteFromServer(updates);
-                return true;
-            }
-            catch
-            {
-                return false;
-                //TODO Try Log Delete from Server Error
-            }
-        }
+        ////TODO - Make final decision on removing DeleteEntirely functionality.
+        ///// <summary>
+        ///// Tries to Save Updates to Local. If it fails returns false.
+        ///// </summary>
+        //private async Task<bool> TryDeleteFromLocal(List<T> updates)
+        //{
+        //    try
+        //    {
+        //        await _localDataAccess.DeleteFromLocal(updates);
+        //        return true;
+        //    }
+        //    catch
+        //    {
+        //        return false;
+        //        Try Log Delete from Local Error
+        //    }
+        //}
+        ///// <summary>
+        ///// Tries to Save Updates to Server. If it fails returns false.
+        ///// </summary>
+        //private async Task<bool> TryDeleteFromServer(List<T> updates)
+        //{
+        //    try
+        //    {
+        //        await _serverDataAccess.DeleteFromServer(updates);
+        //        return true;
+        //    }
+        //    catch
+        //    {
+        //        return false;
+        //        Try Log Delete from Server Error
+        //    }
+        //}
 
 
         public async Task<bool> ClearConflictIds(Guid id)

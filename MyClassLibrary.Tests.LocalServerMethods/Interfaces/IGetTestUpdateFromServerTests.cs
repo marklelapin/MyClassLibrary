@@ -46,8 +46,9 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Interfaces
         public Task GetUnsyncedUpdatesFromServerTest(Guid copyId, List<TestUpdate> expected);
 
 
-        //TODO - ADD in Delete to these interfaces
-        //public object[][] DeleteTestData();
-        //public Task DeleteTest(List<T> testUpdatesTpDelete);
+        ////TODO - Make final decision on removing DeleteEntirely functionality.
+        ////ADD in Delete to these interfaces
+        ////public object[][] DeleteTestData();
+        ////public Task DeleteTest(List<T> testUpdatesTpDelete);
     }
 }

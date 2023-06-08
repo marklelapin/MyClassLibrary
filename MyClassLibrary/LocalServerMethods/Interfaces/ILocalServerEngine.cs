@@ -80,12 +80,12 @@ namespace MyClassLibrary.LocalServerMethods.Interfaces
         /// </summary>
         /// <returns></returns>
         Task<(DateTime? syncedDateTime, bool success)> TrySync();
- 
-        
-        /// <summary>
-        /// Deletes all updates from local and server storage that match the given Id. This is irreversible.
-        /// </summary>
-        Task DeleteEntirely(List<T> updates);
+
+        ////TODO - Make final decision on removing DeleteEntirely functionality.
+        ///// <summary>
+        ///// Deletes all updates from local and server storage that match the given Id. This is irreversible.
+        ///// </summary>
+        //Task DeleteEntirely(List<T> updates);
 
 
 
