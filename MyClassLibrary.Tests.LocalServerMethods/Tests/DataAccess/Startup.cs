@@ -7,9 +7,9 @@ using MyClassLibrary.LocalServerMethods.Models;
 using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
 using MyClassLibrary.Tests.LocalServerMethods.Services;
 
-namespace MyClassLibrary.Tests.LocalServerMethods.Tests
+namespace MyClassLibrary.Tests.LocalServerMethods.Tests.DataAccess
 {
-    public class Startup 
+    public class Startup
     {
 
         //public void ConfigureHost(IHostBuilder hostBuilder) =>
@@ -28,20 +28,20 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
                                  .AddJsonFile("appsettings.json")
                                  .AddUserSecrets<Startup>();
            });
-        
-      
+
+
 
         public void ConfigureServices(IServiceCollection services)
-                    {
-                        services.AddTransient<ISqlDataAccess,SqlDataAccess>();
-                        services.AddTransient(typeof(ILocalDataAccess<TestUpdate>),typeof(LocalSQLConnector<TestUpdate>));
-                        services.AddTransient(typeof(IServerDataAccess<TestUpdate>), typeof(ServerSQLConnector<TestUpdate>));
-                        services.AddTransient(typeof(ILocalServerEngine<TestUpdate>), typeof(LocalServerEngine<TestUpdate>));
-                        services.AddTransient(typeof(ISaveAndGetUpdateTypeTests<TestUpdate>),typeof(SaveAndGetUpdateTypeTestService<TestUpdate>));
-                        services.AddTransient(typeof(ISaveAndGetTestContent<TestUpdate>),typeof(SaveAndGetTestUpdateContent));
+        {
+            services.AddTransient<ISqlDataAccess, SqlDataAccess>();
+            services.AddTransient(typeof(ILocalDataAccess<TestUpdate>), typeof(LocalSQLConnector<TestUpdate>));
+            services.AddTransient(typeof(IServerDataAccess<TestUpdate>), typeof(ServerSQLConnector<TestUpdate>));
+            services.AddTransient(typeof(ILocalServerEngine<TestUpdate>), typeof(LocalServerEngine<TestUpdate>));
+            services.AddTransient(typeof(ISaveAndGetUpdateTypeTests<TestUpdate>), typeof(SaveAndGetUpdateTypeTestService<TestUpdate>));
+            services.AddTransient(typeof(ISaveAndGetTestContent<TestUpdate>), typeof(SaveAndGetTestUpdateContent));
         }
 
-        
+
 
     }
 }

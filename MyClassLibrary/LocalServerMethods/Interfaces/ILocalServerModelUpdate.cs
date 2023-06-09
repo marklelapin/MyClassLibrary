@@ -8,23 +8,23 @@
         /// <summary>
         /// Indicates if other updates exist that were created locally and seperately on different local machines before syncing could take place.
         /// </summary>
-        bool IsConflicted { get; set; }
+        public bool IsConflicted { get; set; }
         /// <summary>
         /// The date and time the update was created on the local machine.
         /// </summary>
-        DateTime Created { get; set; }
+        public DateTime Created { get; set; }
         /// <summary>
         /// The user who created the update.
         /// </summary>
-        string CreatedBy { get; set; }
+        public string CreatedBy { get; set; }
         /// <summary>
         /// The id of the model for which this update relates.
         /// </summary>
-        Guid Id { get; set; }
+        public Guid Id { get; set; }
         /// <summary>
         /// Indicates wether or not the model should be generally viewed. (Soft Delete)
         /// </summary>
-        bool IsActive { get; set; }
+        public bool IsActive { get; set; }
         /// <summary>
         /// Indicates whether the update is sample data (used for testing and/or providing samples)
         /// </summary>
@@ -32,6 +32,6 @@
         /// <summary>
         /// The date and time that the update was saved to the central server storage.
         /// </summary>
-        DateTime? UpdatedOnServer { get; set; }
+        public DateTime? UpdatedOnServer { get; set; }
     }
 }

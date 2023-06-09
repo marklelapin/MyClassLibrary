@@ -1,36 +1,21 @@
-﻿
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.EventHandlers;
-using MyClassLibrary.LocalServerMethods.Extensions;
+﻿using MyClassLibrary.LocalServerMethods.Extensions;
 using MyClassLibrary.LocalServerMethods.Interfaces;
 using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
 using System.Text.Json;
 
 
-namespace MyClassLibrary.Tests.LocalServerMethods.Tests;
+namespace MyClassLibrary.Tests.LocalServerMethods.Tests.DataAccess;
 
-public class GetTestUpdateFromLocalTests : IGetTestUpdateFromLocalTests
+public class GetTestUpdateFromServerTests : IGetTestUpdateFromServerTests
 {
-  private readonly ILocalDataAccess<TestUpdate> _localDataAccess;
 
+    private readonly IServerDataAccess<TestUpdate> _serverDataAccess;
 
-    public GetTestUpdateFromLocalTests(ILocalDataAccess<TestUpdate> localDataAccess)
+    private static Guid CopyId { get { return TestContent.CopyId; } } //This matches the GUid used when resetting the ServerSyncInfo table in ResetSampleData
+
+    public GetTestUpdateFromServerTests(IServerDataAccess<TestUpdate> serverDataAccess)
     {
-        _localDataAccess = localDataAccess;
-    }
-
-
-    [Fact]
-    public async Task GetLocalCopyIDTest()
-    {
-        var copyIdFirstAttemptTask = _localDataAccess.GetLocalCopyID(); //if database has been reset this will be null in the database and the function should create new Id.
-
-        await Task.WhenAll(copyIdFirstAttemptTask);
-
-        Guid copyIdFirstAttempt = copyIdFirstAttemptTask.Result;
-
-        Guid copyIdSecondAttempt = await _localDataAccess.GetLocalCopyID();
-
-        Assert.Equal(copyIdFirstAttempt, copyIdSecondAttempt);
+        _serverDataAccess = serverDataAccess;
     }
 
 
@@ -39,52 +24,52 @@ public class GetTestUpdateFromLocalTests : IGetTestUpdateFromLocalTests
         return new object[][] {
             new object[] {
                 new List<Guid> {TestContent.SingleTestId }
-                ,TestContent.SingleLatestUpdateOnLocal
+                ,TestContent.SingleLatestUpdateOnServer
             }
             ,new object[]
             {
                 TestContent.TwoTestIds
-                ,TestContent.TwoLatestTestUpdatesOnLocal
+                ,TestContent.TwoLatestTestUpdatesOnServer
             }
             ,new object[]
             {
                 new List<Guid>()
-                ,TestContent.AllLatestTestUpdatesOnLocal
+                ,TestContent.AllLatestTestUpdatesOnServer
             }
         };
     }
     [Theory, MemberData(nameof(GetLatestUpdatesTestData))]
     public async Task GetLatestUpdatesTest(List<Guid>? ids, List<TestUpdate> expected)
     {
-        //setup
+        //Setup
         if (ids?.Count == 0) { ids = null; };
         expected = expected.SortByCreated();
 
-        //test
-        List<TestUpdate> actual = await _localDataAccess.GetUpdatesFromLocal(ids, true);
+        //Test
+        List<TestUpdate> actual = await _serverDataAccess.GetUpdatesFromServer(ids, true);
 
-
-        //assert
+        //Assert
         Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
     }
+
 
 
     public static object[][] GetAllUpdatesTestData()
     {
         return new object[][]{
             new object[] {
-               new List<Guid> {TestContent.SingleTestId }
-                ,TestContent.SingleTestUpdatesOnLocal
+                new List<Guid> {TestContent.SingleTestId }
+                ,TestContent.SingleTestUpdatesOnServer
             }
             ,new object[]
             {
                 TestContent.TwoTestIds
-                ,TestContent.TwoTestUpdatesOnLocal
+                ,TestContent.TwoTestUpdatesOnServer
             }
             ,new object[]
             {
                 new List<Guid>()
-                , TestContent.LocalStartingData
+                , TestContent.ServerStartingData
             }
         };
     }
@@ -96,8 +81,8 @@ public class GetTestUpdateFromLocalTests : IGetTestUpdateFromLocalTests
         expected = expected.SortByCreated();
 
         //Test
-        List<TestUpdate> actual = await _localDataAccess.GetUpdatesFromLocal(ids, false);
-        
+        List<TestUpdate> actual = await _serverDataAccess.GetUpdatesFromServer(ids, false);
+
         //Assert
         Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
     }
@@ -112,27 +97,34 @@ public class GetTestUpdateFromLocalTests : IGetTestUpdateFromLocalTests
         expected = expected.SortByCreated();
 
         //Test
-        List<TestUpdate> actual = await _localDataAccess.GetConflictedUpdatesFromLocal(ids);
+        List<TestUpdate> actual = await _serverDataAccess.GetConflictedUpdatesFromServer(ids);
 
         //Assert
         Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
     }
 
-
-    [Fact]
-    public async Task GetUnsyncedUpdatesFromLocalTest()
+    public static object[][] GetUnsyncedUpdateTestData()
+    {
+        return new object[][]
+        {
+            new object[] {TestContent.CopyId,TestContent.ServerUnsyncedUpdates}
+            ,new object[] {TestContent.CopyId2,new List<TestUpdate>()} //Data is setup so that CopyId2 is fully synced already
+        };
+    }
+    [Theory, MemberData(nameof(GetUnsyncedUpdateTestData))]
+    public async Task GetUnsyncedUpdatesFromServerTest(Guid copyId, List<TestUpdate> expected)
     {
         //Setup
-        List<TestUpdate> expected = TestContent.LocalUnsyncedUpdates;
         expected = expected.SortByCreated();
 
-        //Test
-        List<TestUpdate> actual = await _localDataAccess.GetUnsyncedFromLocal();
 
+        //Test
+        List<TestUpdate> actual = await _serverDataAccess.GetUnsyncedFromServer(copyId);
 
         //Assert
         Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
     }
+
 
 
 }

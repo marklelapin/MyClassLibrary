@@ -1,12 +1,11 @@
-﻿
-using MyClassLibrary.LocalServerMethods.Extensions;
+﻿using MyClassLibrary.LocalServerMethods.Extensions;
 using MyClassLibrary.LocalServerMethods.Interfaces;
 using MyClassLibrary.LocalServerMethods.Models;
 using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
 using System.Text.Json;
 
 
-namespace MyClassLibrary.Tests.LocalServerMethods.Tests;
+namespace MyClassLibrary.Tests.LocalServerMethods.Tests.DataAccess;
 
 public class PostTestUpdate_ServerDataAccessTests : IPostTestUpdateToServerTests
 {
@@ -105,7 +104,7 @@ public class PostTestUpdate_ServerDataAccessTests : IPostTestUpdateToServerTests
 
 
         //Assert
-        Assert.True(actual.Where(x=>x.IsConflicted == true).Count() == 1,"Not all conflicts have been removed."); //count = 1 is used as the test data has 1 line with an id that isn't cleared.
+        Assert.True(actual.Where(x => x.IsConflicted == true).Count() == 1, "Not all conflicts have been removed."); //count = 1 is used as the test data has 1 line with an id that isn't cleared.
     }
 
     [Fact]

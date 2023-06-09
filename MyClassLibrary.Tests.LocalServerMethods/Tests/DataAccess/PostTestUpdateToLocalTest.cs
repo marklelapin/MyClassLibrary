@@ -6,7 +6,7 @@ using MyClassLibrary.LocalServerMethods.Models;
 using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
 using System.Text.Json;
 
-namespace MyClassLibrary.Tests.LocalServerMethods.Tests;
+namespace MyClassLibrary.Tests.LocalServerMethods.Tests.DataAccess;
 
 public class PostTestUpdate_LocalDataAccessTests : IPostTestUpdateToLocalTests
 {
@@ -47,9 +47,9 @@ public class PostTestUpdate_LocalDataAccessTests : IPostTestUpdateToLocalTests
         List<TestUpdate> actual = await _localDataAccess.GetUpdatesFromLocal(testUpdates.Select(x => x.Id).ToList(), false);
         actual = actual.SortByCreated();
 
-       //Assert
-       Assert.Equal(JsonSerializer.Serialize(expectedPostBack), JsonSerializer.Serialize(actualPostBack));
-       Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
+        //Assert
+        Assert.Equal(JsonSerializer.Serialize(expectedPostBack), JsonSerializer.Serialize(actualPostBack));
+        Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
 
 
     }
@@ -109,7 +109,7 @@ public class PostTestUpdate_LocalDataAccessTests : IPostTestUpdateToLocalTests
             if (update.Id == testId) { update.IsConflicted = false; }
         });
 
-        expected =  expected.SortByCreated();
+        expected = expected.SortByCreated();
 
         //Test
         await _localDataAccess.ClearConflictsFromLocal(new List<Guid> { testId });

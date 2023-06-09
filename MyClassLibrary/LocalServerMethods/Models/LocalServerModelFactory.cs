@@ -35,7 +35,7 @@ namespace MyClassLibrary.LocalServerMethods.Models
             return model;
         }
 
-        public async Task<List<T>> CreateModelsList(List<Guid>? ids = null)
+        public async Task<List<T>> CreateModelList(List<Guid>? ids = null)
                 {
                     List<T> output = new List<T>();
 
@@ -73,6 +73,7 @@ namespace MyClassLibrary.LocalServerMethods.Models
             List<U> listLatest = await _localServerEngine.GetLatestUpdates(model.Id) ;
 
             model.Latest = listLatest.FirstOrDefault();
+            if (model.Latest?.IsConflicted ?? false) { await RefreshConflicts(model); }
         }
         public async Task RefreshLatest(List<T> models)
         {
@@ -84,7 +85,7 @@ namespace MyClassLibrary.LocalServerMethods.Models
 
         public async Task RefreshConflicts(T model)
         {
-            if (model.Latest?.IsConflicted != null)
+            if (model.Latest?.IsConflicted == true)
             {
                 model.Conflicts = await _localServerEngine.GetConflictedUpdates(model.Latest.Id);
             } else
@@ -106,7 +107,6 @@ namespace MyClassLibrary.LocalServerMethods.Models
             await _localServerEngine.TrySync();
         }
 
-
         public async Task Update(T model,U update)
         {
             update.Created = DateTime.UtcNow;
@@ -116,7 +116,7 @@ namespace MyClassLibrary.LocalServerMethods.Models
 
             model.Latest = update;
 
-            model.History = model.History ?? new List<U>().Prepend(update).ToList();
+            model.History = (model.History ?? new List<U>()).Prepend(update).ToList();
         }
      
         public async Task ResolveConflict(T model,U update)
@@ -153,14 +153,15 @@ namespace MyClassLibrary.LocalServerMethods.Models
             await Update(model, update);
         }
 
-        public async Task DeleteEntirely(List<U> updates,bool areYouSure)
-        {
-            if (areYouSure)
-            {
-                await _localServerEngine.DeleteEntirely(updates);
-            }
-           
-        }
+        //TODO - Make final decision on removing DeleteEntirely functionality.
+        //public async Task DeleteEntirely(List<U> updates,bool areYouSure)
+        //{
+        //    if (areYouSure)
+        //    {
+        //        await _localServerEngine.DeleteEntirely(updates);
+        //    }
+
+        //}
 
 
 

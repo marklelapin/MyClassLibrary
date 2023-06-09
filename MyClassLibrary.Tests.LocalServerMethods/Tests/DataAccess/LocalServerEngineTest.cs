@@ -8,7 +8,7 @@ using MyClassLibrary.LocalServerMethods.Models;
 using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
 using System.Text.Json;
 
-namespace MyClassLibrary.Tests.LocalServerMethods.Tests
+namespace MyClassLibrary.Tests.LocalServerMethods.Tests.DataAccess
 {
     public class LocalServerEngineTests : ILocalServerEngineTests
     {
@@ -19,11 +19,11 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         private readonly IServerDataAccess<TestUpdate> _serverDataAccess;
 
         public LocalServerEngineTests(ILocalServerEngine<TestUpdate> localServerEngine
-                                        ,ILocalDataAccess<TestUpdate> localDataAccess
-                                        ,IServerDataAccess<TestUpdate> serverDataAccess
-                                        ,ISqlDataAccess sqlDataAccess
-                                        ,ILocalServerEngine<TestUpdate> localServerEngine_FailedServer
-                                        ,ILocalServerEngine<TestUpdate> localServerEngine_FailedLocal)
+                                        , ILocalDataAccess<TestUpdate> localDataAccess
+                                        , IServerDataAccess<TestUpdate> serverDataAccess
+                                        , ISqlDataAccess sqlDataAccess
+                                        , ILocalServerEngine<TestUpdate> localServerEngine_FailedServer
+                                        , ILocalServerEngine<TestUpdate> localServerEngine_FailedLocal)
         {
             _serverDataAccess = serverDataAccess;
             _localDataAccess = localDataAccess;
@@ -32,15 +32,15 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             _localServerEngine_FailedServer = localServerEngine_FailedServer;
 
             //Add failures
-            var failedLocalDataAccess = new LocalSQLConnector<TestUpdate>(sqlDataAccess, "Error"); 
+            var failedLocalDataAccess = new LocalSQLConnector<TestUpdate>(sqlDataAccess, "Error");
             _localServerEngine_FailedLocal.ChangeLocalDataAccess(failedLocalDataAccess);
 
             var failedServerDataAccess = new ServerSQLConnector<TestUpdate>(sqlDataAccess, "Error");
             _localServerEngine_FailedServer.ChangeServerDataAccess(failedServerDataAccess);
 
 
-            
-       
+
+
         }
 
 
@@ -106,9 +106,9 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
             //Test
             await _localDataAccess.SaveUpdatesToLocal(testUpdates);
-            (DateTime? lastSynced, bool syncSuccess) = await _localServerEngine.TrySync(); 
-            
-            
+            (DateTime? lastSynced, bool syncSuccess) = await _localServerEngine.TrySync();
+
+
             //Get result from local
             List<TestUpdate> local = await _localDataAccess.GetUpdatesFromLocal(testUpdates.Select(x => x.Id).ToList(), false);
             local = local.SortByCreated();

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyClassLibrary.Tests.LocalServerMethods.Tests
+namespace MyClassLibrary.Tests.LocalServerMethods.Tests.DataAccess
 {
     public class SaveAndGetTestUpdateContent : ISaveAndGetTestContent<TestUpdate>
     {
@@ -20,9 +20,9 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
         public List<TestUpdate> GetNewUpdates()
         {
-           return TestContent.GetNewUpdatesWithoutUpdatedOnServerDates();
+            return TestContent.GetNewUpdatesWithoutUpdatedOnServerDates();
         }
     }
 }
 
-       
+

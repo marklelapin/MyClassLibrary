@@ -1,7 +1,7 @@
 ﻿using MyClassLibrary.Tests.LocalServerMethods.Interfaces;
 
 
-namespace MyClassLibrary.Tests.LocalServerMethods.Tests
+namespace MyClassLibrary.Tests.LocalServerMethods.Tests.DataAccess
 {
     public class SaveAndGetTestUpdateTest : ISaveAndGetUpdateTypeTests<TestUpdate>
     {
@@ -10,7 +10,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
         public SaveAndGetTestUpdateTest(ISaveAndGetUpdateTypeTests<TestUpdate> saveAndGetTestProvider)
         {
 
-           _saveAndGetTestProvider = saveAndGetTestProvider;
+            _saveAndGetTestProvider = saveAndGetTestProvider;
         }
 
         [Fact]

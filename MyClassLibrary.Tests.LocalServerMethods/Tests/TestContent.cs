@@ -108,7 +108,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
 
 
 
-        //Two TEst Id Test Answeres
+        //Two Test Id Test Answeres
         public static List<Guid> TwoTestIds = new List<Guid> { new Guid("b01df9cc-4af9-7d5b-57e4-3ec0ec922e8b"), new Guid("db516527-fcc3-6da6-b090-fb5ff747c7c2") };
 
         public static List<TestUpdate> TwoTestUpdatesOnLocal = LocalStartingData.Where(x => TwoTestIds.Contains(x.Id)).ToList();
@@ -130,9 +130,11 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
                                                                                             ,ServerStartingData[4]};
 
         //Conflicted
-        //this is the same wether on local of server
+        //this is the same wether on local or server
         public static Guid ConflictedTestId = new Guid("3d704ce3-1dc0-eba0-ace3-3b2428f41005");
         public static List<TestUpdate> ConflictedTestUpdates = LocalStartingData.Where(x => x.Id == ConflictedTestId).ToList(); //same on either server or local
+        public static List<TestUpdate> ConflictedTestUpdateLatest = new List<TestUpdate> { LocalStartingData.Where(x => x.Id == ConflictedTestId).OrderByDescending(x => x.Created).First() };
+
 
 
         //Unsynced Data has been setup so that Bob Hoskins Guid "e5ec560c - ab81 - 13b3 - ece1 - 43b10bb19e49" is unsynced on both local and server storage
@@ -155,6 +157,22 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
                     ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(10), "mr test", DateTime.Parse("2023-05-10T09:00:20.1234567"), false, true,true, "Jim", "Broadbent", null, new List<string> { },false)
                     ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks), "mr test", DateTime.Parse("2023-05-9T09:35:20.1234567"), false, true,true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
                     ,new TestUpdate(Guid.NewGuid(), new DateTime(DateTime.UtcNow.Ticks).AddSeconds(-10), "mr test", DateTime.Parse("2023-05-8T09:43:20.1234567"), false, true,true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
+                };
+
+        }
+        /// <summary>
+        /// Returns a List of Sample Updates with new Guids with a broad mixture of potential and edge case values.
+        /// </summary>
+        /// <returns></returns>
+        public static List<TestUpdate> GetNewUpdatesWithSameId()
+        {
+            Guid id = Guid.NewGuid();   
+            return new List<TestUpdate>()
+                {
+                    new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks).AddMinutes(-2), "mr test", null, false, true,true, "Bob", "Hoskins", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true)
+                    ,new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks).AddMinutes(-4), "mr test", DateTime.Parse("2023-05-10T09:00:20.1234567"), false, true,true, "Jim", "Broadbent", null, new List<string> { },false)
+                    ,new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks).AddMinutes(-6), "mr test", DateTime.Parse("2023-05-9T09:35:20.1234567"), false, true,true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef" }, true)
+                    ,new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks).AddMinutes(-8), "mr test", DateTime.Parse("2023-05-8T09:43:20.1234567"), false, true,true, "Fred", "Astair", DateTime.Parse("1945-11-11T11:11:11.1234567"), new List<string> { "Chicken", "Beef", "Lamb" }, false)
                 };
 
         }
@@ -235,6 +253,17 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests
             };
 
             return (localUpdates, serverUpdates);
+
+        }
+
+
+        /// <summary>
+        /// Returns a deactivated update
+        /// </summary>
+        public static TestUpdate GetDeactivatedUpdate()
+        {
+            Guid id = Guid.NewGuid();
+            return new TestUpdate(id, new DateTime(DateTime.UtcNow.Ticks).AddSeconds(20), "mr test", null, true, false, true, "Bob", "Hoskins", DateTime.Parse("1999-12-31T23:59:59.1234567"), new List<string> { "Cake", "Chocolate", "Biscuits" }, true);
 
         }
     }
