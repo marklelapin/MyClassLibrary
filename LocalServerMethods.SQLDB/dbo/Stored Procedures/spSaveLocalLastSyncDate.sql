@@ -3,8 +3,8 @@
 	,@LastSyncDate DateTime2
 	
 AS
-	DELETE 
-	FROM dbo.LocalSyncInfo 
+	DELETE l
+	FROM dbo.LocalSyncInfo l
 	WHERE UpdateType = @UpdateType
 
 	INSERT dbo.LocalSyncInfo
