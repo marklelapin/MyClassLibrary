@@ -116,8 +116,32 @@ namespace MyClassLibrary.LocalServerMethods.Models
 
             model.Latest = update;
 
-            model.History = (model.History ?? new List<U>()).Prepend(update).ToList();
+            
         }
+
+
+        public async Task SaveModelLatest(List<T> models) //TODO Unit Test SaveModelLatest
+        {
+            List<U> updates = new List<U>();
+
+            models.ForEach(async model => await Task.Run(() =>
+            {
+
+                if (model.Latest != null)
+                {
+                    model.Latest.Created = DateTime.UtcNow;
+                    model.Latest.UpdatedOnServer = null;
+                    updates.Add(model.Latest);
+                    model.History = (model.History ?? new List<U>()).Prepend(model.Latest).ToList();
+                };
+
+            }));
+  
+             
+            await _localServerEngine.SaveUpdates(updates);
+                  
+        }
+
      
         public async Task ResolveConflict(T model,U update)
         {

@@ -63,7 +63,7 @@ namespace MyClassLibrary.LocalServerMethods.Models
             
             var parameters = new DynamicParameters();
 
-            string idsCSV = String.Empty;
+            string? idsCSV = null;
 
             if (ids != null)
             {

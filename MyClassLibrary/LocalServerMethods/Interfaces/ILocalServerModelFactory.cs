@@ -96,6 +96,12 @@ namespace MyClassLibrary.LocalServerMethods.Interfaces
         /// </summary>
         public Task Update(T model, U update);
 
+        /// <summary>
+        /// Saves the Latest values of a list of models as a new update against that model.
+        /// </summary>
+        public Task SaveModelLatest(List<T> models);
+
+
     }
 
 

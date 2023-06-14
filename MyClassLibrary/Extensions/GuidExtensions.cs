@@ -8,6 +8,7 @@ namespace MyClassLibrary.Extensions
 {
     public static class GuidExtensions
     {
+        
         public static List<Guid> GenerateList(this Guid guid,int quantity)
         {
             List<Guid> output = new List<Guid>();
