@@ -35,6 +35,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
             actual = actual.SortByCreated();
 
             //Assert
+            Assert.True(expected.Count() > 0, "Test Error - no test updates provided.");
+            Assert.True(actual.Count > 0, "Nothing returned.");
             Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
 
 
@@ -65,6 +67,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Services
 
 
             //Assert
+            Assert.True(expected.Count() > 0, "Test Error - no test updates provided.");
+            Assert.True(actual.Count > 0, "Nothing returned.");
             Assert.Equal(JsonSerializer.Serialize(expected), JsonSerializer.Serialize(actual));
 
 
