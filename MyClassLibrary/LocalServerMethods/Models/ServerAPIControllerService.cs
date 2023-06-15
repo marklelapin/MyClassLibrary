@@ -16,11 +16,13 @@ namespace MyClassLibrary.LocalServerMethods.Models
 
         private readonly IServerDataAccess<T> _serverDataAccess;
         private readonly ILogger<T> _logger;
+        private readonly ISampleDataProvider<T> _sampleDataProvider;
 
-        public ServerAPIControllerService(IServerDataAccess<T> serverDataAccess,ILogger<T> logger)
+        public ServerAPIControllerService(IServerDataAccess<T> serverDataAccess,ILogger<T> logger,ISampleDataProvider<T> sampleDataProvider)
         {
             _serverDataAccess = serverDataAccess;
             _logger = logger;
+            _sampleDataProvider = sampleDataProvider;
         }
 
         public async Task<(HttpStatusCode statusCode, string result)> GetUpdates(string? ids,bool latestOnly)
@@ -173,6 +175,26 @@ namespace MyClassLibrary.LocalServerMethods.Models
                 return APIErrorResponse(ex);
             };
         }
+
+
+
+        public async Task<(HttpStatusCode statusCode, string result)> ResetSampleData()
+        {
+            try
+            {
+                List<T> sampleUpdates = _sampleDataProvider.GetServerStartingSampleData();
+                List<ServerSyncLog> sampleServerSyncLog = _sampleDataProvider.GetServerSyncLogSampleData();
+
+                await _serverDataAccess.ResetSampleData(sampleUpdates,sampleServerSyncLog);
+
+                return (HttpStatusCode.OK, "Sample Data successfully reset.");
+            }
+            catch (Exception ex)
+            {
+                return APIErrorResponse(ex);
+            }
+        }
+
 
 
         //public async Task<(HttpStatusCode statusCode, string result)> PostDeleteUpdates(List<T> updates)

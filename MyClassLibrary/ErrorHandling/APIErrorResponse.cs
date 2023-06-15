@@ -28,7 +28,8 @@ namespace MyClassLibrary.ErrorHandling
         {
             get
             {
-                return JsonSerializer.Serialize(this);
+                string output = $"Message: {Message}\nDetail: {Detail}.";
+                return output;
             }
         }
 
@@ -36,7 +37,10 @@ namespace MyClassLibrary.ErrorHandling
         {
             _logger = logger;
 
-            if (exception.GetType() == new IdentifiedException().GetType())
+            string exceptionType = exception.GetType().ToString();
+            string identifiedExceptionType = new IdentifiedException().GetType().ToString();    
+
+            if (exceptionType == identifiedExceptionType)
             {
                 IdentifiedException identifiedException = (IdentifiedException)exception;
 
@@ -51,7 +55,7 @@ namespace MyClassLibrary.ErrorHandling
             {
                 StatusCode = HttpStatusCode.InternalServerError;
 
-                Message = $"An error of type {exception.GetType().ToString()} has occured.";
+                Message = $"An error of type {exceptionType} has occured.";
                 Detail = exception.Message;
 
                 InnerException = exception;

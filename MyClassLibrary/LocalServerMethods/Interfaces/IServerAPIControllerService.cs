@@ -34,6 +34,11 @@ namespace MyClassLibrary.LocalServerMethods.Interfaces
         /// </summary>
         public Task<(HttpStatusCode statusCode, string result)> PutClearConflicts(string ids);
 
+        /// <summary>
+        /// Deletes all updates marked as IsSample for given update type. Adds back in the fixed Initial Sample Data.
+        /// </summary>
+        /// <returns></returns>
+        public Task<(HttpStatusCode statusCode, string result)> ResetSampleData();
 
 
       //  Task<(HttpStatusCode statusCode, string result)> PostDeleteUpdates(List<T> updates);

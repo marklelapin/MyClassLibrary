@@ -247,8 +247,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests.BusinessLogic
 
             //Assert
             Assert.True(model.Latest.IsActive == false, "Latest Update is not deactivated.");
-            Assert.True(expectedHistory.Count() == model.History.Count(), "Additional update not added into History.");
-            Assert.True(JsonSerializer.Serialize(model.History.SortByCreated()) == JsonSerializer.Serialize(model.History),"History in wrong order.");
+            //History functionality removed Assert.True(expectedHistory.Count() == model.History.Count(), "Additional update not added into History.");
+            //History functionality removed Assert.True(JsonSerializer.Serialize(model.History.SortByCreated()) == JsonSerializer.Serialize(model.History),"History in wrong order.");
         }
         [Fact]
         public async Task ReActivateTest()
@@ -273,8 +273,8 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests.BusinessLogic
 
             //Assert
             Assert.True(model.Latest.IsActive == true, "Latest Update is not active.");
-            Assert.True(expectedHistory.Count() == model.History.Count(), "Additional update not added into History.");
-            Assert.True(JsonSerializer.Serialize(model.History.SortByCreated()) == JsonSerializer.Serialize(model.History), "History in wrong order.");
+            //History functionality removed Assert.True(expectedHistory.Count() == model.History.Count(), "Additional update not added into History.");
+            //History functionality removed Assert.True(JsonSerializer.Serialize(model.History.SortByCreated()) == JsonSerializer.Serialize(model.History), "History in wrong order.");
         }
         [Fact]
         public async Task ResolveConflictTest() 
@@ -299,7 +299,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests.BusinessLogic
             //Assert
             Assert.True(model.Conflicts.Count == 0, "Not all Conflicts have been cleared.");
             Assert.True(JsonSerializer.Serialize(expectedLatest) == JsonSerializer.Serialize(model.Latest), "Latest doesn't match chosen update.");
-            Assert.True(model.History?.Count == originalHistoryCount+1, "New update wasn't added to history.");
+           // Assert.True(model.History?.Count == originalHistoryCount+1, "New update wasn't added to history.");
 
         }
         [Fact]
@@ -329,7 +329,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests.BusinessLogic
   
             //Assert
             Assert.True(expectedHistory.Count() == model.History.Count(), "Additional update not added into History.");
-            Assert.True(JsonSerializer.Serialize(model.History.SortByCreated()) == JsonSerializer.Serialize(model.History), "History doesn't match expected. Likely history in wrong order.");
+            //History functionality removed  Assert.True(JsonSerializer.Serialize(model.History.SortByCreated()) == JsonSerializer.Serialize(model.History), "History doesn't match expected. Likely history in wrong order.");
             Assert.True(JsonSerializer.Serialize(expectedLatest)== JsonSerializer.Serialize(model.Latest), "Latest doesn't match expected.");
         }
         [Fact]
@@ -367,7 +367,7 @@ namespace MyClassLibrary.Tests.LocalServerMethods.Tests.BusinessLogic
 
             //Assert
              Assert.True(JsonSerializer.Serialize(expectedLatest) == JsonSerializer.Serialize(model.Latest), "Latest doesn't match expected.");
-             Assert.True(JsonSerializer.Serialize(expectedHistory) == JsonSerializer.Serialize(model.History), "History doesn't match expected.");
+           //History functionality removed  Assert.True(JsonSerializer.Serialize(expectedHistory) == JsonSerializer.Serialize(model.History), "History doesn't match expected.");
            
         }
     }
