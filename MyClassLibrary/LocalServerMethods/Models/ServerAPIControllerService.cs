@@ -18,29 +18,20 @@ namespace MyClassLibrary.LocalServerMethods.Models
         private readonly ILogger<T> _logger;
         private readonly ISampleDataProvider<T> _sampleDataProvider;
 
-        public ServerAPIControllerService(IServerDataAccess<T> serverDataAccess,ILogger<T> logger,ISampleDataProvider<T> sampleDataProvider)
+        public ServerAPIControllerService(IServerDataAccess<T> serverDataAccess, ILogger<T> logger, ISampleDataProvider<T> sampleDataProvider)
         {
             _serverDataAccess = serverDataAccess;
             _logger = logger;
             _sampleDataProvider = sampleDataProvider;
         }
 
-        public async Task<(HttpStatusCode statusCode, string result)> GetUpdates(string? ids,bool latestOnly)
+        public async Task<(HttpStatusCode statusCode, string result)> GetUpdates(string? ids, bool latestOnly)
         {
             try
             {
-                List<Guid>? guids;
+                List<Guid>? guids = ConvertIdsStringToListGuid(ids);
 
-                if ((ids ?? "all").ToLower() == "all")
-                {
-                    guids = null;
-                } else
-                {
-                    guids = ids?.ToListGuid();
-                }
-                
-
-                List<T> updates = await _serverDataAccess.GetUpdatesFromServer(guids,latestOnly);
+                List<T> updates = await _serverDataAccess.GetUpdatesFromServer(guids, latestOnly);
 
                 if (updates.Count == 0)
                 {
@@ -87,16 +78,7 @@ namespace MyClassLibrary.LocalServerMethods.Models
         {
             try
             {
-                List<Guid>? guids;
-
-                if ((ids ?? "all").ToLower() == "all")
-                {
-                    guids = null;
-                }
-                else
-                {
-                    guids = ids?.ToListGuid();
-                }
+                List<Guid>? guids = ConvertIdsStringToListGuid(ids);
 
                 List<T> updates = await _serverDataAccess.GetConflictedUpdatesFromServer(guids);
 
@@ -117,13 +99,13 @@ namespace MyClassLibrary.LocalServerMethods.Models
         }
 
 
-        public async Task<(HttpStatusCode statusCode, string result)> PostUpdates(List<T> updates,Guid copyId)
+        public async Task<(HttpStatusCode statusCode, string result)> PostUpdates(List<T> updates, Guid copyId)
         {
             try
             {
                 List<ServerToLocalPostBack> result;
 
-                result = await _serverDataAccess.SaveUpdatesToServer(updates,copyId);
+                result = await _serverDataAccess.SaveUpdatesToServer(updates, copyId);
 
                 string resultJson = JsonSerializer.Serialize(result);
 
@@ -136,11 +118,11 @@ namespace MyClassLibrary.LocalServerMethods.Models
 
         }
 
-        public async Task<(HttpStatusCode statusCode,string result)> PutPostBackToServer(List<LocalToServerPostBack> postBacks,Guid copyID)
+        public async Task<(HttpStatusCode statusCode, string result)> PutPostBackToServer(List<LocalToServerPostBack> postBacks, Guid copyID)
         {
             try
             {
-               await _serverDataAccess.LocalPostBackToServer(postBacks,copyID);
+                await _serverDataAccess.LocalPostBackToServer(postBacks, copyID);
 
                 return (HttpStatusCode.OK, "Post Back from Local to Server was Successful.");
             }
@@ -163,7 +145,7 @@ namespace MyClassLibrary.LocalServerMethods.Models
             {
                 return APIErrorResponse(ex);
             }
-            
+
             try
             {
                 await _serverDataAccess.ClearConflictsFromServer(guids);
@@ -185,7 +167,7 @@ namespace MyClassLibrary.LocalServerMethods.Models
                 List<T> sampleUpdates = _sampleDataProvider.GetServerStartingSampleData();
                 List<ServerSyncLog> sampleServerSyncLog = _sampleDataProvider.GetServerSyncLogSampleData();
 
-                await _serverDataAccess.ResetSampleData(sampleUpdates,sampleServerSyncLog);
+                await _serverDataAccess.ResetSampleData(sampleUpdates, sampleServerSyncLog);
 
                 return (HttpStatusCode.OK, "Sample Data successfully reset.");
             }
@@ -217,15 +199,32 @@ namespace MyClassLibrary.LocalServerMethods.Models
 
 
 
-
+        //Helpe methods...................
 
         private (HttpStatusCode statusCode, string result) APIErrorResponse(Exception ex)
         {
-            ApiErrorResponse<T> error = new ApiErrorResponse<T>(ex,_logger);
+            ApiErrorResponse<T> error = new ApiErrorResponse<T>(ex, _logger);
             return (error.StatusCode, error.Body);
         }
 
-        
+
+        private List<Guid>? ConvertIdsStringToListGuid(string? ids)
+        {
+            List<Guid>? guids;
+
+            if ((ids ?? "all").ToLower() == "all")
+            {
+                guids = null;
+            }
+            else
+            {
+                guids = ids?.ToListGuid();
+
+            }
+
+            return guids;
+
+        }
     }
 }
     
