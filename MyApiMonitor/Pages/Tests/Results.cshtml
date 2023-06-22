@@ -13,11 +13,13 @@
         <table>
             <thead>
                 <tr>
+                    <th>DateTime Ran</th>
                     <th>Test Title</th>
                     <th>Result</th>
                     <th>Failure Message</th>
                     <th>Expected Result</th>
                     <th>Actual Result</th>
+                    <th>Speed</th>
                 </tr>
             </thead>
             <tbody>
@@ -26,6 +28,7 @@
                 {
 
                 <tr>
+                    <td>@test.TestDateTime</td>
                     <td>@test.TestTitle</td>
                     <td>@if(test.WasSuccessful == true) {
                                     @: &#10004 @*tick*@
@@ -42,6 +45,7 @@
                     </td>
                     <td>@test.ExpectedResult</td>
                     <td>@test.ActualResult</td>
+                    <td>@test.TimeToComplete ms</td>
                 </tr>
                 }
                 

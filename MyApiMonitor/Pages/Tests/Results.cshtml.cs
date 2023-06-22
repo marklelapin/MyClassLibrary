@@ -48,6 +48,8 @@ public class ResultsModel : PageModel
 
         if (TestResults.Count == 0) { TestResults = new List<ApiTestData>(); };
 
+        TestResults = TestResults.OrderByDescending(x => x.TestDateTime).ToList();
+
         DateFrom = dateFrom.ToString() ?? string.Empty;
         DateTo = dateTo.ToString() ?? string.Empty;
         CollectionTitle = (TestResults.Count == 0) ? "" : TestResults.First().CollectionTitle;
