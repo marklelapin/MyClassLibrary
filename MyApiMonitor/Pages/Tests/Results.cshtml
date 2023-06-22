@@ -1,0 +1,53 @@
+﻿@page
+@model MyApiMonitor.Pages.Tests.ResultsModel
+@{
+}
+<h1>ApiTestResults</h1>
+<body>
+ @{if (Model.TestResults.Count == 0) {
+        <h2>No Test Results Found.</h2>
+    } else
+    {
+         <h2>@Model.CollectionTitle</h2>
+        <h3>@Model.TestDateTime</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Test Title</th>
+                    <th>Result</th>
+                    <th>Failure Message</th>
+                    <th>Expected Result</th>
+                    <th>Actual Result</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var test in Model.TestResults)
+                {
+
+                <tr>
+                    <td>@test.TestTitle</td>
+                    <td>@if(test.WasSuccessful == true) {
+                                    @: &#10004 @*tick*@
+                        } else {
+                                    @: &#10006 @*cross*@
+                        }
+                    </td>
+                    <td>@if(test.WasSuccessful == true)
+                        {
+                            @: <span>Success</span> 
+                        } else {
+                            @test.FailureMessage
+                         }
+                    </td>
+                    <td>@test.ExpectedResult</td>
+                    <td>@test.ActualResult</td>
+                </tr>
+                }
+                
+            </tbody>
+        </table>
+    }
+}
+</body>
+<td>{% if variable == True %}&#10004;{% else %}&times;{% endif %}</td>
