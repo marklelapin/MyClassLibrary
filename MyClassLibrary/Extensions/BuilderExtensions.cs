@@ -33,13 +33,16 @@ namespace MyClassLibrary.Extensions
         /// "ResetPasswordPolicyId": "B2C_1_reset", <br/>
         /// "EditProfilePolicyId": "B2C_1_edit" <br/>
         /// } 
+        /// <br/>
+        /// 
+        /// You will aslo need to add to Program.cs <br/>
+        ///
+        ///  app.UseCookiePolicy(); (above UseRouting) <br/>
+        ///    app.UseAuthorization(); (above UseAuthentication)
         /// </remarks>
-        public static void ConfigureWebAuthentication_AzureAdB2C(this WebApplicationBuilder builder)
+        public static void ConfigureMicrosoftIdentityWebAuthenticationAndUI(this WebApplicationBuilder builder,string identityConfigurationSection)
         {
-            //// Get the scopes from the configuration (appsettings.json)
-            //var initialScopes = Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ');
-
-
+           
             //configures cookie options
             builder.Services.Configure<CookiePolicyOptions>(options =>
             {
@@ -50,9 +53,11 @@ namespace MyClassLibrary.Extensions
 
             //Configure authentication using AzureAdB2C and set this as the fallback policy
             builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAdB2C"));
-            
-            builder.Services.AddAuthorization(options =>
+                .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection(identityConfigurationSection))
+                .EnableTokenAcquisitionToCallDownstreamApi()
+                .AddInMemoryTokenCaches();
+
+           builder.Services.AddAuthorization(options =>
             {
                 options.FallbackPolicy = options.DefaultPolicy;
             });
@@ -60,35 +65,7 @@ namespace MyClassLibrary.Extensions
             //Setups up UI for accessing and loging into AzureAdB2c 
             builder.Services.AddControllersWithViews()
             .AddMicrosoftIdentityUI();
-
-
-            //// Add the possibility of acquiring a token to call a protected web API
-            //.EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
-
-            //// Enables controllers and pages to get GraphServiceClient by dependency injection
-            //    // And use an in memory token cache
-            //    .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
-            //    .AddInMemoryTokenCaches();
-
-
-
-           
-            //"Show": {
-            //    "ShowScope": "https://thewhaddonentertainers.onmicrosoft.com/show-api/show.write",
-            //    "ShowBaseAddress": "https://localhost:44332"
-            //}
-
-
-
-            //ADD to Program.cs
-
-            // app.UseCookiePolicy(); (above UseRouting)
-            // app.UseAuthorization(); (above UseAuthentication)
-
-
         }
-
-
 
 
         public static void ConfigureWebAPIAuthentication_AzureAdB2C(this WebApplicationBuilder builder)

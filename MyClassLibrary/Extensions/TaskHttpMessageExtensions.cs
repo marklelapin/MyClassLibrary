@@ -95,7 +95,7 @@ public static class TaskHttpMessageExtensions
         try
         {        
             requestUri = responseMessage.Result.RequestMessage!.RequestUri!.OriginalString;
-            requestMessage = await responseMessage.Result.RequestMessage!.Content!.ReadAsStringAsync();
+            requestMessage = await responseMessage.Result.RequestMessage.Content!.ReadAsStringAsync();
         } catch 
         {
             requestMessage = "Request Message not available";
