@@ -11,9 +11,7 @@ namespace MyApiMonitorService.Models
         {
             List<ApiTestCollection> output = new List<ApiTestCollection>();
 
-            var testCollection = new TestCollectionSetup_WhaddonShowApi().GetTestCollection();
-
-            output.Add(testCollection);
+            output.Add(new TestCollectionSetup_WhaddonShowApi().TestCollection);
 
             return output;
         }

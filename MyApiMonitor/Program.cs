@@ -12,37 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddSingleton<IMongoDBDataAccess, MongoDBDataAccess>();
-builder.Services.AddSingleton<IApiTestingDataAccess, ApiTestingMongoDataAccess > ();
-//TODO - Add in regular refresh of page - probably simpler way of doing this.
-//builder.Services.AddQuartz(opts =>
-//{
-//    opts.UseMicrosoftDependencyInjectionJobFactory();
-//});
-//builder.Services.AddQuartzHostedService(opts =>
-//{
-//    opts.WaitForJobsToComplete = true;
-//});
-
+builder.Services.AddTransient<IMongoDBDataAccess, MongoDBDataAccess>();
+builder.Services.AddTransient<IApiTestDataAccess, ApiTestMongoDataAccess>();
+builder.Services.AddTransient<IApiTestDataProcessor, ApiTestDataProcessor>();
 var app = builder.Build();
-
-//TODO - add in regular refresh of page - probably simpler way of doing this.
-//var schedulerFactory = app.Services.GetRequiredService<ISchedulerFactory>();
-//var scheduler = await schedulerFactory.GetScheduler();
-
-//var job = JobBuilder.Create<ApiTestJob>()
-//    .WithIdentity("TestJob")
-//    .Build();
-
-//var trigger = TriggerBuilder.Create()
-//    .WithIdentity("TestJobTrigger")
-//    .StartNow()
-//    .WithSimpleSchedule(x=>x
-//        .WithIntervalInMinutes(5)
-//        .RepeatForever())
-//    .Build();
-
-//await scheduler.ScheduleJob(job, trigger);
 
 
 

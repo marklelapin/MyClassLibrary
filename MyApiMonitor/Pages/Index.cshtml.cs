@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MyApiMonitor.Pages
 {
@@ -12,9 +11,8 @@ namespace MyApiMonitor.Pages
             _logger = logger;
         }
 
-        public void OnGet()
-        {
 
-        }
+
+
     }
 }

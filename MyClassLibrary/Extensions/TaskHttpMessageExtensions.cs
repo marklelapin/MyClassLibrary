@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,15 +82,18 @@ public static class TaskHttpMessageExtensions
 
 
     public static async Task<(string responseBody, HttpStatusCode statusCode)> GetResponseDataAsync(this Task<HttpResponseMessage> responseMessage)
-    { 
-        string responseBody = await responseMessage.Result.Content.ReadAsStringAsync();
-        HttpStatusCode statusCode = responseMessage.Result.StatusCode;
-         
-        return (responseBody, statusCode);
+    {
+        using var response = await responseMessage;
+        string body = await response.Content.ReadAsStringAsync();
+        HttpStatusCode statusCode = response.StatusCode;
+        
+        return (body, statusCode);
     }
 
+    //TODO - re think TaskHttpMessageExtensions. GetResponseDataAsync above does what the others should be doing.
     public static async Task<(string requestUri, string requestMessage)> GetRequestDataAsync(this Task<HttpResponseMessage> responseMessage)
     {
+
         string requestMessage;
         string requestUri;
         try

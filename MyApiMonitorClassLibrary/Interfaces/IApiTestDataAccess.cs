@@ -6,7 +6,7 @@ namespace MyApiMonitorClassLibrary.Interfaces
     /// <summary>
     /// Provides the method for saving API Tests to a database.
     /// </summary>
-    public interface IApiTestingDataAccess
+    public interface IApiTestDataAccess
     {
         /// <summary>
         /// Saves a testCollection to database.
@@ -37,7 +37,7 @@ namespace MyApiMonitorClassLibrary.Interfaces
         /// </summary>
         /// <param name="startDate"></param>
         /// <param name="endDate"></param>
-        public List<ApiTestData> GetAllBetweenDates(Guid testCollectionID, DateTime startDate, DateTime endDate);
+        public List<ApiTestData> GetAllBetweenDates(Guid testCollectionID, DateTime? startDate, DateTime? endDate);
 
 
 

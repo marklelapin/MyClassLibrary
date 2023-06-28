@@ -57,10 +57,11 @@ namespace MyApiMonitorClassLibrary.Models
                                                 , test.Title
                                                 , TestDateTime
                                                 , test.TestResult?.WasSuccessful ?? throw new ArgumentNullException("WasSuccessul", "Can't convert to APITestData until tests have been ran.")
+                                                , test.TestResult.TimeToComplete
                                                 , test.TestResult.FailureMessage
                                                 , test.TestResult.ExpectedResult
                                                 , test.TestResult.ActualResult
-                                                );
+                                                ) ;
 
                 output.Add(data);
             });

@@ -1,22 +1,22 @@
-﻿
-using Azure;
-using Microsoft.Identity.Abstractions;
-using MongoDB.Bson;
-using MyApiMonitorClassLibrary.Interfaces;
+﻿using MyApiMonitorClassLibrary.Interfaces;
+using MyClassLibrary.Extensions;
 using System.Diagnostics;
-
+using System.Net;
+using System.Text;
 
 namespace MyApiMonitorClassLibrary.Models
 {
-    internal class APITestRunner : IApiTestRunner
+    public class ApiTestRunner : IApiTestRunner
     {
-        private readonly IApiTestingDataAccess _dataAccess;
-        private readonly IDownstreamApi _downstreamAPI;
+        private readonly IApiTestDataAccess _dataAccess;
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly HttpClient _client;
 
-        public APITestRunner(IApiTestingDataAccess dataAccess, IDownstreamApi downstreamApi)
+        public ApiTestRunner(IApiTestDataAccess dataAccess, IHttpClientFactory clientFactory)
         {
             _dataAccess = dataAccess;
-            _downstreamAPI = downstreamApi;
+            _clientFactory = clientFactory;
+            _client = _clientFactory.CreateClient("DownstreamApi");
         }
 
 
@@ -36,9 +36,9 @@ namespace MyApiMonitorClassLibrary.Models
                 tests.ForEach((test) =>
                 {
 
-                    GetAndTimeApiResponse(test, response);
+                    (string responseMessage, HttpStatusCode statusCode) = GetAndTimeApiResponse(test);
 
-                    PerformTests(test, response);
+                    PerformTests(test, responseMessage, statusCode);
 
                 });
             });
@@ -58,48 +58,63 @@ namespace MyApiMonitorClassLibrary.Models
 
 
 
-        private void GetAndTimeApiResponse(ApiTest test, HttpResponseMessage? response)
+        private (string responseMessage, HttpStatusCode statusCode) GetAndTimeApiResponse(ApiTest test)
         {
             Stopwatch stopwatch = new Stopwatch();
+            (string responseMessage, HttpStatusCode statusCode) output;
+
             try
             {
                 //TODO - allo fow different API's to be called. Also fix this call.
                 stopwatch.Start();
-                var task = _downstreamAPI.CallApiForAppAsync("apserviceName from configuration");
-                task.Wait();
+
+                HttpRequestMessage request = new HttpRequestMessage(test.RequestMethod, test.RequestUri);
+
+                request.Content = new StringContent(test.RequestBody ?? "", Encoding.UTF8, "application/json");
+
+                var taskCall = _client.SendAsync(request);
+
+
+
+                taskCall.Wait();
                 stopwatch.Stop();
-                response = task.Result;
+                output = taskCall.GetResponseDataAsync().Result;
+
+                return output;
             }
             catch (Exception ex)
             {
                 test.TestResult.WasSuccessful = false;
-                test.TestResult.FailureMessage = "Application Error.";
+                test.TestResult.FailureMessage = "Monitor Error.";
                 test.TestResult.ActualResult = ex.Message;
+                output = ("Monitor Error.", HttpStatusCode.InternalServerError);
             }
 
 
             test.TestResult.TimeToComplete = (int)stopwatch.Elapsed.TotalMilliseconds;
+
+            return output;
         }
 
 
-        private void PerformTests(ApiTest test, HttpResponseMessage? response)
+        private void PerformTests(ApiTest test, string response, HttpStatusCode statusCode)
         {
             //set inital success result to true
             test.TestResult.WasSuccessful = true;
 
-            if (response == null)
+            if (response == "Monitor Error.")
             {
                 test.TestResult.WasSuccessful = false;
-                test.TestResult.FailureMessage = "Application error. Response is null.";
+                test.TestResult.FailureMessage = "Monitor error. Response is null.";
             }
             else
             {
-                //Run test to trun was successful into false if they fail.
-                if (TestStatusCode(test, response) == true)
+                //Run test to turn was successful into false if they fail.
+                if (TestStatusCode(test, statusCode, response) == true)
                 {
                     if (TestResponseMessage(test, response) == true)
                     {
-                        if (TestResponseTime(test, response) == true)
+                        if (TestResponseTime(test) == true)
                         {
                             test.TestResult.WasSuccessful = true;
                         };
@@ -112,14 +127,14 @@ namespace MyApiMonitorClassLibrary.Models
 
 
         //Helper methods
-        private bool TestStatusCode(ApiTest test, HttpResponseMessage response)
+        private bool TestStatusCode(ApiTest test, HttpStatusCode actualstatusCode, string response)
         {
-            if (test.ExpectedStatusCode != response.StatusCode)
+            if (test.ExpectedStatusCode != actualstatusCode)
             {
                 test.TestResult.WasSuccessful = false;
-                test.TestResult.FailureMessage = "Incorred HttpStatusCode.";
-                test.TestResult.ExpectedResult = test.ExpectedStatusCode.ToString();
-                test.TestResult.ActualResult = response.StatusCode.ToString();
+                test.TestResult.FailureMessage = "Incorrect HttpStatusCode.";
+                test.TestResult.ExpectedResult = $"{(int)test.ExpectedStatusCode}({test.ExpectedStatusCode})";
+                test.TestResult.ActualResult = $"{(int)actualstatusCode}({actualstatusCode}):\n{response}";
                 return false;
             }
 
@@ -127,21 +142,21 @@ namespace MyApiMonitorClassLibrary.Models
         }
 
 
-        private bool TestResponseMessage(ApiTest test, HttpResponseMessage response)
+        private bool TestResponseMessage(ApiTest test, string response)
         {
-            if (test.ExpectedResponseMessage != null && test.ExpectedResponseMessage != response.Content.ToString()) //TODO = check if this can realte to HTTPResponseMessage extensions in MyLibrary
+            if (test.ExpectedResponseMessage != null && test.ExpectedResponseMessage != response) //TODO = check if this can realte to HTTPResponseMessage extensions in MyLibrary
             {
                 test.TestResult.WasSuccessful = false;
                 test.TestResult.FailureMessage = "Response Message didn't match expected.";
                 test.TestResult.ExpectedResult = test.ExpectedResponseMessage;
-                test.TestResult.ActualResult = response.Content.ToString();
+                test.TestResult.ActualResult = response;
                 return false;
             }
 
             return true;
         }
 
-        private bool TestResponseTime(ApiTest test, HttpResponseMessage response)
+        private bool TestResponseTime(ApiTest test)
         {
             if (test.ExpectedResponseTime != null && test.ExpectedResponseTime < test.TestResult.TimeToComplete)
             {

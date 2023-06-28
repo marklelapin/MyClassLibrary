@@ -11,7 +11,10 @@ namespace MyApiMonitorClassLibrary.Models
         {
             List<ApiTestCollection> output = new List<ApiTestCollection>();
 
-            output.Add(new TestCollectionSetup_WhaddonShowApi().TestCollection);
+            //TODO - remove this 'hardcoded' section if developed further for future apis managed through database etc.
+            var testCollection = new TestCollectionSetup_WhaddonShowApi().GenerateTestCollection();
+
+            output.Add(testCollection);
 
             return output;
         }

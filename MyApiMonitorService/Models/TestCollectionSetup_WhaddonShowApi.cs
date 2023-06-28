@@ -14,16 +14,20 @@ namespace MyApiMonitorService.Models
         }
 
 
-        public ApiTestCollection GetTestCollection()
+        public ApiTestCollection TestCollection
         {
-            ApiTestCollection output = new ApiTestCollection(Guid.Parse("05b0adac-6ee4-4390-a83b-092ca92b040d"), "The Whaddon Show API Test", DateTime.Now);
+            get
+            {
+                ApiTestCollection output = new ApiTestCollection(Guid.Parse("05b0adac-6ee4-4390-a83b-092ca92b040d"), "The Whaddon Show API Test", DateTime.Now);
 
-            GenerateTests(output);
+                GenerateTests(output);
 
+                return output;
 
-            return output;
-
+            }
         }
+
+
 
 
         private readonly static string baseUri = "https://thewhaddonshowdev.azurewebsites.net/api/v2/";
@@ -36,33 +40,33 @@ namespace MyApiMonitorService.Models
 
         private void GenerateTests(ApiTestCollection testCollection)
         {
-            testCollection.Tests.Add(ResetPartSampleData);
+            TestCollection.Tests.Add(ResetPartSampleData);
 
-            testCollection.Tests.Add(new ApiTest(Guid.Parse("572aaa9f-de31-4862-b06c-e07a6ef8da3e")
+            TestCollection.Tests.Add(new ApiTest(Guid.Parse("572aaa9f-de31-4862-b06c-e07a6ef8da3e")
                                                         , "Part - Latest"
                                                         , HttpMethod.Get
-                                                        , baseUri + "Part/latest/?ids=68417C12-80C3-48BC-8EBE-3F3F2A91B8E5%2C17822466-DD66-4F2D-B4A9-F7EAAD6EB08B%2CF380FD46-6E6E-450D-AD3E-23EEC0B6A75E"
+                                                        , baseUri + "Part/latest?ids=68417C12-80C3-48BC-8EBE-3F3F2A91B8E5%2C17822466-DD66-4F2D-B4A9-F7EAAD6EB08B%2CF380FD46-6E6E-450D-AD3E-23EEC0B6A75E"
                                                         , HttpStatusCode.OK));
 
-            testCollection.Tests.Add(new ApiTest(Guid.Parse("6bb17865-ce95-4afc-95f2-d65a42d27a11")
-                                                        , "Part - History
+            TestCollection.Tests.Add(new ApiTest(Guid.Parse("6bb17865-ce95-4afc-95f2-d65a42d27a11")
+                                                        , "Part - Latest"
                                                         , HttpMethod.Get
-                                                        , baseUri + "Part/History/?ids=68417C12-80C3-48BC-8EBE-3F3F2A91B8E5%2C17822466-DD66-4F2D-B4A9-F7EAAD6EB08B%2CF380FD46-6E6E-450D-AD3E-23EEC0B6A75E"
+                                                        , baseUri + "Part/latest?ids=68417C12-80C3-48BC-8EBE-3F3F2A91B8E5%2C17822466-DD66-4F2D-B4A9-F7EAAD6EB08B%2CF380FD46-6E6E-450D-AD3E-23EEC0B6A75E"
                                                         , HttpStatusCode.OK));
 
-            testCollection.Tests.Add(new ApiTest(Guid.Parse("c9a45c3f-9f3b-44d2-b8d0-df53730b1675")
-                                                        , "Part - Unsynced"
+            TestCollection.Tests.Add(new ApiTest(Guid.Parse("c9a45c3f-9f3b-44d2-b8d0-df53730b1675")
+                                                        , "Part - Latest"
                                                         , HttpMethod.Get
-                                                        , baseUri + "Part/Unsynced/27fc9657-3c92-6758-16a6-b9f82ca696b3"
+                                                        , baseUri + "Part/latest?ids=68417C12-80C3-48BC-8EBE-3F3F2A91B8E5%2C17822466-DD66-4F2D-B4A9-F7EAAD6EB08B%2CF380FD46-6E6E-450D-AD3E-23EEC0B6A75E"
                                                         , HttpStatusCode.OK));
 
-            testCollection.Tests.Add(new ApiTest(Guid.Parse("bd5401fa-9a9b-448b-b0a4-ec176f45a6c0")
-                                                        , "Part - Conflicts"
+            TestCollection.Tests.Add(new ApiTest(Guid.Parse("bd5401fa-9a9b-448b-b0a4-ec176f45a6c0")
+                                                        , "Part - Latest"
                                                         , HttpMethod.Get
-                                                        , baseUri + "Part/conflicts/?ids=68417C12-80C3-48BC-8EBE-3F3F2A91B8E5,17822466-DD66-4F2D-B4A9-F7EAAD6EB08B,F380FD46-6E6E-450D-AD3E-23EEC0B6A75E"
+                                                        , baseUri + "Part/latest?ids=68417C12-80C3-48BC-8EBE-3F3F2A91B8E5%2C17822466-DD66-4F2D-B4A9-F7EAAD6EB08B%2CF380FD46-6E6E-450D-AD3E-23EEC0B6A75E"
                                                         , HttpStatusCode.OK));
 
-            testCollection.Tests.Add(ResetPartSampleData);
+            TestCollection.Tests.Add(ResetPartSampleData);
         }
 
     }

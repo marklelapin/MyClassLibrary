@@ -1,0 +1,41 @@
+﻿@page
+
+@model MyApiMonitor.Pages.DashboardModel
+@{
+}
+<head>
+    <h1>The Whaddon Show Api Monitor</h1>
+</head>
+
+<div class="container.col-2">
+    <div>
+        <h1>Description</h1>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam explicabo veritatis incidunt animi repellendus veniam, porro itaque velit, excepturi corrupti architecto. Incidunt aliquam dolores sed nisi doloribus libero quaerat repellat consectetur laborum eaque nam atque, delectus quae soluta sit necessitatibus! Debitis assumenda exercitationem atque animi odio sunt voluptatem! Quia similique dolor illum sapiente nulla odit impedit ut, est amet, nisi magnam esse, exercitationem quam saepe veritatis! Magnam at, distinctio maxime facere hic labore. Minima esse nulla quae beatae officia ut autem, non numquam dolores aspernatur corporis cumque, id ea. Minus et beatae facere itaque dolorum doloribus mollitia ratione vitae atque, aut assumenda asperiores praesentium distinctio blanditiis voluptate quae repellendus explicabo sed corrupti. Voluptate, quam eum maxime esse ipsa sapiente incidunt animi dolorum in sequi quis magni non et perspiciatis tempora veniam neque consectetur nostrum, quisquam quos, blanditiis rerum cumque? Modi voluptate qui veritatis, tenetur dicta numquam. Sit commodi eveniet vero.</p>
+        <a href="https://github.com/marklelapin/TheWhaddonShowApp/tree/master/TheWhaddonShowAPI">Check out the code.</a>
+    </div>
+    <div>
+        <h1>Documentation</h1>
+        <img src="/images/TheWhaddonShowApiDocumentationImage.png" width="100%" />
+    </div>
+    <div width ="1000px">
+        <h1>TestResults</h1>
+        <canvas id ="resultChart"></canvas>
+    </div>
+    <div width ="1000px">
+        <h1>Performance</h1>
+        <canvas id= "speedChart"></canvas>
+    </div>
+</div>
+ <script>
+                document.addEventListener('DOMContentLoaded',(event)=>{
+
+                    var ctx = document.getElementById('resultChart').getContext('2d');
+                    var resultChart = new Chart(ctx, @Html.Raw(Model.ResultChartConfiguration))
+
+                    var ctx2 = document.getElementById('speedChart').getContext('2d');
+                    var speedChart = new Chart(ctx2,@Html.Raw(Model.SpeedChartConfiguration))
+
+                })
+                
+    
+</script>

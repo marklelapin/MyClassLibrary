@@ -11,7 +11,6 @@ namespace MyApiMonitorService.Models
         public ApiTestJob(IApiTestRunner testRunner, IApiTestCollectionFactory testCollectionFactory)
         {
             _testRunner = testRunner;
-            _testCollectionFactory = testCollectionFactory;
         }
 
 

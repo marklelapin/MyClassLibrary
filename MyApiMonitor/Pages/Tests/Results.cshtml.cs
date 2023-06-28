@@ -7,9 +7,9 @@ namespace MyApiMonitor.Pages.Tests;
 
 public class ResultsModel : PageModel
 {
-    private readonly IApiTestingDataAccess _dataAccess;
+    private readonly IApiTestDataAccess _dataAccess;
 
-    public ResultsModel(IApiTestingDataAccess dataAccess)
+    public ResultsModel(IApiTestDataAccess dataAccess)
     {
         _dataAccess = dataAccess;
     }

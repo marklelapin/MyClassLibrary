@@ -6,21 +6,19 @@ using MyApiMonitorService.Interfaces;
 using System.Diagnostics;
 using System.Drawing.Text;
 using System.Linq.Expressions;
-using System.Net.Http.Json;
-using System.Text;
 using System.Timers;
 
 namespace MyApiMonitorService.Models
 {
-    internal class ApiTestRunner : IApiTestRunner
+    internal class APITestRunner : IApiTestRunner
     {
         private readonly IApiTestingDataAccess _dataAccess;
-        private readonly IDownstreamApi _downstreamApi;
+        private readonly IDownstreamApi _downstreamAPI;
 
-        public ApiTestRunner(IApiTestingDataAccess dataAccess, IDownstreamApi downstreamApi)
+        public APITestRunner(IApiTestingDataAccess dataAccess, IDownstreamApi downstreamApi)
         {
             _dataAccess = dataAccess;
-            _downstreamApi = downstreamApi;
+            _downstreamAPI = downstreamApi;
         }
 
 
@@ -69,20 +67,10 @@ namespace MyApiMonitorService.Models
             {
                 //TODO - allo fow different API's to be called. Also fix this call.
                 stopwatch.Start();
-
-                HttpContent? content = (test.RequestBody==null) ? null : new StringContent(test.RequestBody,Encoding.UTF8,"application/json");
-
-               var callTask = _downstreamApi.CallApiForAppAsync( "DownstreamApi"
-                                                               , options =>
-                                                               {
-                                                                   options.HttpMethod = test.RequestMethod;
-                                                                   options.RelativePath = test.RequestUrl;
-                                                               }
-                                                               , content
-                                                                );
-                callTask.Wait();
+                var task = _downstreamAPI.CallApiForAppAsync("apserviceName from configuration");
+                task.Wait();
                 stopwatch.Stop();
-                response = callTask.Result;
+                response = task.Result;
             }
             catch (Exception ex)
             {

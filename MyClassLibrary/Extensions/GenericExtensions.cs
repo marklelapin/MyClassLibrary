@@ -1,12 +1,4 @@
-﻿using MyClassLibrary.Interfaces;
-using MyClassLibrary.LocalServerMethods;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MyClassLibrary.Extensions
+﻿namespace MyClassLibrary.Extensions
 {
     public static class GenericExtensions
     {
@@ -38,7 +30,10 @@ namespace MyClassLibrary.Extensions
 
         }
 
-      
+        public static List<object> ToListObject<T>(this List<T> list)
+        {
+            return list.ConvertAll<object>(x => x!);
+        }
     }
 
 }

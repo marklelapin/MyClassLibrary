@@ -29,7 +29,7 @@ namespace MyApiMonitorClassLibrary.Models
         /// <summary>
         /// The url to be used by the test api call.
         /// </summary>
-        public string RequestUrl { get; set; }
+        public string RequestUri { get; set; }
         /// <summary>
         /// The request body to be used by the test api call (if required).
         /// </summary>
@@ -66,7 +66,7 @@ namespace MyApiMonitorClassLibrary.Models
             Id = id;
             Title = title;
             RequestMethod = reqeustMethod;
-            RequestUrl = requestUri;
+            RequestUri = requestUri;
             RequestBody = requestBody;
             ExpectedStatusCode = expectedStatusCode;
             ExpectedResponseMessage = expectedResponseMessage;
@@ -78,7 +78,7 @@ namespace MyApiMonitorClassLibrary.Models
             Id = id;
             Title = title;
             RequestMethod = requestMethod;
-            RequestUrl = requestUri;
+            RequestUri = requestUri;
             ExpectedStatusCode = expectedStatusCode;
         }
 
@@ -87,7 +87,7 @@ namespace MyApiMonitorClassLibrary.Models
             Id = id;
             Title = title;
             RequestMethod = requestMethod;
-            RequestUrl = requestUri;
+            RequestUri = requestUri;
             ExpectedStatusCode = expectedStatusCode;
             ExpectedResponseTime = expectedResponseTime;
         }
@@ -97,7 +97,7 @@ namespace MyApiMonitorClassLibrary.Models
             Id = id;
             Title = title;
             RequestMethod = requestMethod;
-            RequestUrl = requestUri;
+            RequestUri = requestUri;
             ExpectedStatusCode = expectedStatusCode;
             ExpectedResponseMessage = expectedResponseMessage;
         }
@@ -107,7 +107,7 @@ namespace MyApiMonitorClassLibrary.Models
             Id = id;
             Title = title;
             RequestMethod = requestMethod;
-            RequestUrl = requestUri;
+            RequestUri = requestUri;
             ExpectedStatusCode = expectedStatusCode;
             ExpectedResponseMessage = expectedResponseMessage;
             ExpectedResponseTime = expectedResponseTime;
@@ -118,7 +118,7 @@ namespace MyApiMonitorClassLibrary.Models
             Id = id;
             Title = title;
             RequestMethod = requestMethod;
-            RequestUrl = requestUri;
+            RequestUri = requestUri;
             RequestBody = requestBody;
             ExpectedStatusCode = expectedStatusCode;
         }
@@ -128,7 +128,7 @@ namespace MyApiMonitorClassLibrary.Models
             Id = id;
             Title = title;
             RequestMethod = requestMethod;
-            RequestUrl = requestUri;
+            RequestUri = requestUri;
             RequestBody = requestBody;
             ExpectedStatusCode = expectedStatusCode;
             ExpectedResponseTime = expectedResponseTime;
@@ -139,7 +139,7 @@ namespace MyApiMonitorClassLibrary.Models
             Id = id;
             Title = title;
             RequestMethod = requestMethod;
-            RequestUrl = requestUri;
+            RequestUri = requestUri;
             RequestBody = requestBody;
             ExpectedStatusCode = expectedStatusCode;
             ExpectedResponseMessage = expectedResponseMessage;
@@ -151,7 +151,7 @@ namespace MyApiMonitorClassLibrary.Models
             Id = id;
             Title = title;
             RequestMethod = requestMethod;
-            RequestUrl = requestUri;
+            RequestUri = requestUri;
             RequestBody = requestBody;
             ExpectedStatusCode = expectedStatusCode;
             ExpectedResponseMessage = expectedResponseMessage;

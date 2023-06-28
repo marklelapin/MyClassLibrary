@@ -9,6 +9,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using MongoDB.Driver;
+using MongoDB.Driver.Core.WireProtocol.Messages;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace MyClassLibrary.Extensions
 {
@@ -125,6 +129,46 @@ namespace MyClassLibrary.Extensions
             });
         }
 
-    
+
+
+
+       public static string GetTokenFromAzureAdB2cClientCredentialsFlow(this WebApplicationBuilder builder, string configurationSection = "AzureAdB2C:ClientCredentials:")
+        {
+            var task = GetTokenFromAzureAdB2cClientCredentialsFlowAsync(builder, configurationSection);
+            task.Wait();
+            return task.Result;
+        }
+
+
+
+       public static async Task<string> GetTokenFromAzureAdB2cClientCredentialsFlowAsync(this WebApplicationBuilder builder, string configurationSection)
+        {
+            string requestUri = builder.Configuration.GetValue<string>(configurationSection + "RequestUri");
+
+            var client = new HttpClient();
+
+            var request = new HttpRequestMessage(
+                                    HttpMethod.Post
+                                    , requestUri);
+            var collection = new List<KeyValuePair<string, string>>();
+            collection.Add(new("grant_type", "client_credentials"));
+            collection.Add(new("scope", builder.Configuration.GetValue<string>(configurationSection + "DefaultScope")));
+            collection.Add(new("client_id", builder.Configuration.GetValue<string>(configurationSection + "ClientId")));
+            collection.Add(new("client_secret", builder.Configuration.GetValue<string>(configurationSection+ "ClientSecret")));
+
+            var content = new FormUrlEncodedContent(collection);
+            request.Content = content;
+
+            using var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            
+            string authenticationResponse = await response.Content.ReadAsStringAsync();
+
+            string token = (string)JsonObject.Parse(authenticationResponse)?["access_token"]!;
+             
+            return token ;
+
+
+        }
     }
 }

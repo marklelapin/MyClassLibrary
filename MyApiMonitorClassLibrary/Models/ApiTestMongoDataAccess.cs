@@ -5,17 +5,21 @@ using MyClassLibrary.DataAccessMethods;
 
 namespace MyApiMonitorClassLibrary.Models
 {
-    public class ApiTestingMongoDataAccess : IApiTestingDataAccess
+    public class ApiTestMongoDataAccess : IApiTestDataAccess
     {
         private readonly IMongoDBDataAccess _mongoDBDataAccess;
 
-        public ApiTestingMongoDataAccess(IMongoDBDataAccess mongoDBDataAccess)
+        public ApiTestMongoDataAccess(IMongoDBDataAccess mongoDBDataAccess)
         {
             _mongoDBDataAccess = mongoDBDataAccess;
         }
 
-        public List<ApiTestData> GetAllBetweenDates(Guid testCollectionID, DateTime startDate, DateTime endDate)
+        public List<ApiTestData> GetAllBetweenDates(Guid testCollectionID, DateTime? startDate, DateTime? endDate)
         {
+            startDate = startDate ?? DateTime.MinValue;
+            endDate = endDate ?? DateTime.MaxValue;
+
+
             var builder = Builders<ApiTestData>.Filter;
             var filter = builder.Gte(t => t.TestDateTime, startDate) & builder.Lte(t => t.TestDateTime, endDate) & builder.Eq(t => t.CollectionId, testCollectionID);
             var output = _mongoDBDataAccess.Find<ApiTestData>("Tests", filter);
