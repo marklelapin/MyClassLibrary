@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Net;
 
 namespace MyApiMonitorClassLibrary.Models
 {
+
     /// <summary>
     /// Carries the congfiguration information required for IAPITestRunner
     /// </summary>
@@ -25,20 +21,26 @@ namespace MyApiMonitorClassLibrary.Models
         /// <summary>
         /// The HttpMethod to be used by the test api call.
         /// </summary>
-        public HttpMethod RequestMethod { get; set; }
+        public HttpMethod? RequestMethod { get; set; }
         /// <summary>
-        /// The url to be used by the test api call.
+        /// The url to be used by the test api call.strin
         /// </summary>
-        public string RequestUri { get; set; }
+        public string? RequestUri { get; set; }
         /// <summary>
         /// The request body to be used by the test api call (if required).
         /// </summary>
         public string? RequestBody { get; set; } = null;
 
         /// <summary>
+        /// If set to true will remove authentication from the HttpMessageRequest to test unauthorized access.
+        /// </summary>
+        public bool? RemoveAuthentication { get; set; } = false;
+
+
+        /// <summary>
         /// The response code expected from running the api test.
         /// </summary>
-        public HttpStatusCode ExpectedStatusCode { get; set; }
+        public HttpStatusCode? ExpectedStatusCode { get; set; }
 
         /// <summary>
         /// The expected response message to test against from the api call.
@@ -61,101 +63,21 @@ namespace MyApiMonitorClassLibrary.Models
         /// </summary>
         public APITestResult TestResult { get; set; } = new APITestResult();
 
-        public ApiTest(Guid id, string title, HttpMethod reqeustMethod, string requestUri, string? requestBody, HttpStatusCode expectedStatusCode, string? expectedResponseMessage = null, int? expectedResponseTime = null)
+
+
+        public ApiTest(Guid id, string title)
         {
             Id = id;
             Title = title;
-            RequestMethod = reqeustMethod;
-            RequestUri = requestUri;
-            RequestBody = requestBody;
-            ExpectedStatusCode = expectedStatusCode;
-            ExpectedResponseMessage = expectedResponseMessage;
-            ExpectedResponseTime = expectedResponseTime;
         }
 
-        public ApiTest(Guid id, string title, HttpMethod requestMethod, string requestUri, HttpStatusCode expectedStatusCode)
+        public ApiTest(string id, string title)
         {
-            Id = id;
+            Id = Guid.Parse(id);
             Title = title;
-            RequestMethod = requestMethod;
-            RequestUri = requestUri;
-            ExpectedStatusCode = expectedStatusCode;
         }
 
-        public ApiTest(Guid id, string title, HttpMethod requestMethod, string requestUri, HttpStatusCode expectedStatusCode, int expectedResponseTime)
-        {
-            Id = id;
-            Title = title;
-            RequestMethod = requestMethod;
-            RequestUri = requestUri;
-            ExpectedStatusCode = expectedStatusCode;
-            ExpectedResponseTime = expectedResponseTime;
-        }
-
-        public ApiTest(Guid id, string title, HttpMethod requestMethod, string requestUri, HttpStatusCode expectedStatusCode, string expectedResponseMessage)
-        {
-            Id = id;
-            Title = title;
-            RequestMethod = requestMethod;
-            RequestUri = requestUri;
-            ExpectedStatusCode = expectedStatusCode;
-            ExpectedResponseMessage = expectedResponseMessage;
-        }
-
-        public ApiTest(Guid id, string title, HttpMethod requestMethod, string requestUri, HttpStatusCode expectedStatusCode, string expectedResponseMessage, int expectedResponseTime)
-        {
-            Id = id;
-            Title = title;
-            RequestMethod = requestMethod;
-            RequestUri = requestUri;
-            ExpectedStatusCode = expectedStatusCode;
-            ExpectedResponseMessage = expectedResponseMessage;
-            ExpectedResponseTime = expectedResponseTime;
-        }
-
-        public ApiTest(Guid id, string title, HttpMethod requestMethod, string requestUri, string? requestBody, HttpStatusCode expectedStatusCode)
-        {
-            Id = id;
-            Title = title;
-            RequestMethod = requestMethod;
-            RequestUri = requestUri;
-            RequestBody = requestBody;
-            ExpectedStatusCode = expectedStatusCode;
-        }
-
-        public ApiTest(Guid id, string title, HttpMethod requestMethod, string requestUri, string? requestBody, HttpStatusCode expectedStatusCode, int expectedResponseTime)
-        {
-            Id = id;
-            Title = title;
-            RequestMethod = requestMethod;
-            RequestUri = requestUri;
-            RequestBody = requestBody;
-            ExpectedStatusCode = expectedStatusCode;
-            ExpectedResponseTime = expectedResponseTime;
-        }
-
-        public ApiTest(Guid id, string title, HttpMethod requestMethod, string requestUri, string? requestBody, HttpStatusCode expectedStatusCode, string expectedResponseMessage)
-        {
-            Id = id;
-            Title = title;
-            RequestMethod = requestMethod;
-            RequestUri = requestUri;
-            RequestBody = requestBody;
-            ExpectedStatusCode = expectedStatusCode;
-            ExpectedResponseMessage = expectedResponseMessage;
-        }
-
-
-        public ApiTest(Guid id, string title, HttpMethod requestMethod, string requestUri, string? requestBody, HttpStatusCode expectedStatusCode, string expectedResponseMessage, int expectedResponseTime)
-        {
-            Id = id;
-            Title = title;
-            RequestMethod = requestMethod;
-            RequestUri = requestUri;
-            RequestBody = requestBody;
-            ExpectedStatusCode = expectedStatusCode;
-            ExpectedResponseMessage = expectedResponseMessage;
-            ExpectedResponseTime = expectedResponseTime;
-        }
     }
+
+
 }
