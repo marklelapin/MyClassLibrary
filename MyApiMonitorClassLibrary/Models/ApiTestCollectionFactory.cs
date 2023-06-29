@@ -4,8 +4,14 @@ namespace MyApiMonitorClassLibrary.Models
 {
     public class ApiTestCollectionFactory : IApiTestCollectionFactory
     {
+        private IApiTestRunner _runner;
 
-        public ApiTestCollectionFactory() { }
+        public ApiTestCollectionFactory(IApiTestRunner testRunner)
+        {
+            _runner = testRunner;
+        }
+
+
 
         public List<ApiTestCollection> GenerateTestCollections()
         {
@@ -17,6 +23,22 @@ namespace MyApiMonitorClassLibrary.Models
             output.Add(testCollection);
 
             return output;
+        }
+
+
+
+        public async Task ExecuteTestCollections(List<ApiTestCollection> testCollections)
+        {
+
+            await Task.Run(() =>
+            {
+
+                testCollections.ForEach(async (testCollection) =>
+                {
+                    await _runner.RunTestAndSave(testCollection);
+                });
+            });
+
         }
     }
 }

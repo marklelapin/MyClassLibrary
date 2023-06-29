@@ -70,6 +70,8 @@ namespace MyApiMonitorClassLibrary.Models
 
                 HttpRequestMessage request = new HttpRequestMessage(test.RequestMethod, test.RequestUri);
 
+
+
                 request.Content = new StringContent(test.RequestBody ?? "", Encoding.UTF8, "application/json");
 
                 var taskCall = _client.SendAsync(request);
