@@ -1,12 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MyClassLibrary.DataAccessMethods
 {
@@ -15,15 +8,12 @@ namespace MyClassLibrary.DataAccessMethods
 
         private IMongoDatabase db;
 
-        public MongoDBDataAccess(IConfiguration config)
+        public MongoDBDataAccess(string databaseName, string connectionString)
         {
-            string dbName = config.GetValue<string>("MongoDatabase:DatabaseName");
-            string connectionString = config.GetValue<string>("MongoDatabase:ConnectionString");
-
             var settings = MongoClientSettings.FromConnectionString(connectionString);
             settings.ServerApi = new ServerApi(ServerApiVersion.V1);
             var client = new MongoClient(settings);
-            db = client.GetDatabase(dbName);
+            db = client.GetDatabase(databaseName);
         }
 
         public async Task InsertOneAsync<T>(string collectionName, T record)
@@ -72,7 +62,7 @@ namespace MyClassLibrary.DataAccessMethods
 
         public List<T> Find<T>(string collectionName, FilterDefinition<T>? filter = null)
         {
-           var collection = db.GetCollection<T>(collectionName);
+            var collection = db.GetCollection<T>(collectionName);
             if (filter == null)
             {
                 filter = Builders<T>.Filter.Empty;
@@ -81,6 +71,38 @@ namespace MyClassLibrary.DataAccessMethods
             return collection.Find(filter).ToList();
 
         }
+
+        public async Task<(List<T> paginatedRecords, int totalRecords)> FindPaginatedAsync<T>(string collectionName, int skip, int limit, FilterDefinition<T>? filter = null)
+        {
+            var collection = db.GetCollection<T>(collectionName);
+            if (filter == null)
+            {
+                filter = Builders<T>.Filter.Empty;
+            }
+            var query = collection.Find(filter);
+
+            var countTask = query.CountDocumentsAsync();
+            var recordsTask = query.Skip(skip).Limit(limit).ToListAsync();
+            await Task.WhenAll(countTask, recordsTask);
+            return (recordsTask.Result, (int)countTask.Result);
+        }
+
+        public (List<T> paginatedRecords, int totalRecords) FindPaginated<T>(string collectionName, int skip, int limit, FilterDefinition<T>? filter = null)
+        {
+            var collection = db.GetCollection<T>(collectionName);
+            if (filter == null)
+            {
+                filter = Builders<T>.Filter.Empty;
+            }
+            var query = collection.Find(filter);
+
+            var count = query.CountDocuments();
+            var records = query.Skip(skip).Limit(limit).ToList();
+
+            return (records, (int)count);
+        }
+
+
 
 
 
@@ -142,10 +164,7 @@ namespace MyClassLibrary.DataAccessMethods
             collection.DeleteOneAsync(filter);
 
         }
-    
-    
-    
-    
-    
+
+
     }
 }
