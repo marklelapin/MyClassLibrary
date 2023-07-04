@@ -47,7 +47,7 @@ namespace MyClassLibrary.DataAccessMethods
 
 
 
-        public async Task<List<T>> FindAsync<T>(string collectionName, FilterDefinition<T>? filter = null)
+        public async Task<List<T>> FindAsync<T>(string collectionName, FilterDefinition<T>? filter = null, SortDefinition<T>? sortBy = null)
         {
             var collection = db.GetCollection<T>(collectionName);
             if (filter == null)
@@ -55,12 +55,21 @@ namespace MyClassLibrary.DataAccessMethods
                 filter = Builders<T>.Filter.Empty;
             }
 
-            return await collection.Find(filter).ToListAsync();
+            if (sortBy == null)
+            {
+
+                return await collection.Find(filter).ToListAsync();
+            }
+            else
+            {
+                return await collection.Find(filter).Sort(sortBy).ToListAsync();
+            }
+
 
         }
 
 
-        public List<T> Find<T>(string collectionName, FilterDefinition<T>? filter = null)
+        public List<T> Find<T>(string collectionName, FilterDefinition<T>? filter = null, SortDefinition<T>? sortBy = null)
         {
             var collection = db.GetCollection<T>(collectionName);
             if (filter == null)
@@ -68,33 +77,45 @@ namespace MyClassLibrary.DataAccessMethods
                 filter = Builders<T>.Filter.Empty;
             }
 
-            return collection.Find(filter).ToList();
+            if (sortBy == null)
+            {
+
+                return collection.Find(filter).ToList();
+            }
+            else
+            {
+                return collection.Find(filter).Sort(sortBy).ToList();
+            }
 
         }
 
-        public async Task<(List<T> paginatedRecords, int totalRecords)> FindPaginatedAsync<T>(string collectionName, int skip, int limit, FilterDefinition<T>? filter = null)
+        public async Task<(List<T> paginatedRecords, int totalRecords)> FindPaginatedAsync<T>(string collectionName, int skip, int limit, FilterDefinition<T>? filter = null, SortDefinition<T>? sortBy = null)
         {
             var collection = db.GetCollection<T>(collectionName);
             if (filter == null)
             {
                 filter = Builders<T>.Filter.Empty;
             }
-            var query = collection.Find(filter);
+
+            var query = (sortBy == null) ? collection.Find(filter) : collection.Find(filter).Sort(sortBy);
+
+
 
             var countTask = query.CountDocumentsAsync();
+
             var recordsTask = query.Skip(skip).Limit(limit).ToListAsync();
             await Task.WhenAll(countTask, recordsTask);
             return (recordsTask.Result, (int)countTask.Result);
         }
 
-        public (List<T> paginatedRecords, int totalRecords) FindPaginated<T>(string collectionName, int skip, int limit, FilterDefinition<T>? filter = null)
+        public (List<T> paginatedRecords, int totalRecords) FindPaginated<T>(string collectionName, int skip, int limit, FilterDefinition<T>? filter = null, SortDefinition<T>? sortBy = null)
         {
             var collection = db.GetCollection<T>(collectionName);
             if (filter == null)
             {
                 filter = Builders<T>.Filter.Empty;
             }
-            var query = collection.Find(filter);
+            var query = (sortBy == null) ? collection.Find(filter) : collection.Find(filter).Sort(sortBy);
 
             var count = query.CountDocuments();
             var records = query.Skip(skip).Limit(limit).ToList();

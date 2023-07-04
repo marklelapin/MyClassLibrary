@@ -12,7 +12,7 @@ namespace MyClassLibrary.DataAccessMethods
         /// <summary>
         /// Finds all records asynchronously from the Collection with optional filter applied.
         /// </summary>
-        public Task<List<T>> FindAsync<T>(string collectionName, FilterDefinition<T>? filter = null);
+        public Task<List<T>> FindAsync<T>(string collectionName, FilterDefinition<T>? filter = null, SortDefinition<T>? sortBy = null);
         /// <summary>
         /// Finds all records synchronously from the Collection with optional filter applied.
         /// </summary>
@@ -27,7 +27,7 @@ namespace MyClassLibrary.DataAccessMethods
         /// int skip = the no of records to skip.
         /// int limit = the no of records to return.
         /// </remarks>
-        public Task<(List<T> paginatedRecords, int totalRecords)> FindPaginatedAsync<T>(string collectionName, int skip, int limit, FilterDefinition<T>? filter = null);
+        public Task<(List<T> paginatedRecords, int totalRecords)> FindPaginatedAsync<T>(string collectionName, int skip, int limit, FilterDefinition<T>? filter = null, SortDefinition<T>? sortBy = null);
 
         /// <summary>
         /// Finds paginated records asynchronously from the Collection with optional filter applied.
@@ -39,13 +39,13 @@ namespace MyClassLibrary.DataAccessMethods
         /// int skip = the no of records to skip.
         /// int limit = the no of records to return.
         /// </remarks>
-        public (List<T> paginatedRecords, int totalRecords) FindPaginated<T>(string collectionName, int skip, int limit, FilterDefinition<T>? filter = null);
+        public (List<T> paginatedRecords, int totalRecords) FindPaginated<T>(string collectionName, int skip, int limit, FilterDefinition<T>? filter = null, SortDefinition<T>? sortBy = null);
 
         public Task InsertManyAsync<T>(string collectionName, List<T> records);
         public Task InsertOneAsync<T>(string collectionName, T record);
         public Task UpsertAsync<T>(string collectionName, Guid id, T record);
         public void DeleteRecord<T>(string collectionName, Guid id);
-        public List<T> Find<T>(string collectionName, FilterDefinition<T>? filter = null);
+        public List<T> Find<T>(string collectionName, FilterDefinition<T>? filter = null, SortDefinition<T>? sortBy = null);
         public T? FindById<T>(string collectionName, Guid id);
         public void InsertMany<T>(string collectionName, List<T> records);
         public void InsertOne<T>(string collectionName, T record);
