@@ -1,6 +1,6 @@
 ﻿namespace MyApiMonitorClassLibrary.Models
 {
-    public class ChartData_TestDateTimeSpeed
+    public class ChartData_SpeedsByDateTime
     {
         /// <summary>
         /// The Date and Time the Tests were run.
@@ -10,21 +10,21 @@
         /// <summary>
         /// The average speed in milliseconds of tests run at TestDateTime
         /// </summary>
-        public int AvgSpeed { get; set; }
+        public int? AvgSpeed { get; set; }
 
         /// <summary>
         /// The maximum speed in milliseconds of tests run at TestDateTime
         /// </summary>
-        public int MaxSpeed { get; set; }
+        public int? MaxSpeed { get; set; }
 
         /// <summary>
         /// The min speed in milliseconds of tests run at TestDateTime
         /// </summary>
-        public int MinSpeed { get; set; }
+        public int? MinSpeed { get; set; }
 
 
 
-        public ChartData_TestDateTimeSpeed(DateTime testDateTime, int avgSpeed, int maxSpeed, int minSpeed)
+        public ChartData_SpeedsByDateTime(DateTime testDateTime, int? avgSpeed, int? maxSpeed, int? minSpeed)
         {
             TestDateTime = testDateTime;
             AvgSpeed = avgSpeed;

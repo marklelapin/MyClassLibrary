@@ -1,6 +1,6 @@
 ﻿namespace MyApiMonitorClassLibrary.Models
 {
-    public class ChartData_TestDateTimeSuccessFailure
+    public class ChartData_ResultByDateTime
     {
         /// <summary>
         /// The time the set of tests were run.
@@ -19,7 +19,7 @@
         /// </summary>
         public int FailedTests { get; set; }
 
-        public ChartData_TestDateTimeSuccessFailure(DateTime testDateTime, int successfulTests, int failedTests)
+        public ChartData_ResultByDateTime(DateTime testDateTime, int successfulTests, int failedTests)
         {
             TestDateTime = testDateTime;
             SuccessfulTests = successfulTests;

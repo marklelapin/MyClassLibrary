@@ -1,6 +1,6 @@
 ﻿namespace MyApiMonitorClassLibrary.Models
 {
-    public class ChartData_ControllerTestResultSpeed
+    public class ChartData_ResultAndSpeedByTest
 
     {
         /// <summary>
@@ -35,7 +35,7 @@
 
 
 
-        public ChartData_ControllerTestResultSpeed(string controller, string test, double averageResult, bool latestResult, int averageTimeToComplete, int latestTimeToComplete)
+        public ChartData_ResultAndSpeedByTest(string controller, string test, double averageResult, bool latestResult, int averageTimeToComplete, int latestTimeToComplete)
         {
             Controller = controller;
             Test = test;

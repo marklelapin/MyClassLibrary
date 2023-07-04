@@ -10,14 +10,16 @@ namespace MyApiMonitorClassLibrary.Models
         {
             _dataAccess = dataAccess;
         }
-        public List<ChartData_TestDateTimeSpeed> SpeedsByDateTime(Guid collectionId, DateTime? startDate, DateTime? endDate, int skip, int limit)
+
+
+        public List<ChartData_SpeedsByDateTime> SpeedsByDateTime(Guid collectionId, DateTime? startDate, DateTime? endDate, int skip, int limit)
         {
 
-            List<ChartData_TestDateTimeSpeed> output;
+            List<ChartData_SpeedsByDateTime> output;
 
             (List<ApiTestData> records, int totalRecords) = _dataAccess.GetAllBetweenDates(collectionId, startDate, endDate, skip, limit);
 
-            output = records.GroupBy(g => g.TestDateTime).Select(g => new ChartData_TestDateTimeSpeed(
+            output = records.GroupBy(g => g.TestDateTime).Select(g => new ChartData_SpeedsByDateTime(
                 g.Key
                 , (int?)g.Average(x => x.TimeToComplete) ?? 0
                 , (int?)g.Max(x => x.TimeToComplete) ?? 0
@@ -27,13 +29,13 @@ namespace MyApiMonitorClassLibrary.Models
             return output;
         }
 
-        public List<ChartData_TestDateTimeSuccessFailure> SuccessOrFailureByDateTime(Guid collectionId, DateTime? startDate, DateTime? endDate, int skip, int limit)
+        public List<ChartData_ResultByDateTime> ResultByDateTime(Guid collectionId, DateTime? startDate, DateTime? endDate, int skip, int limit)
         {
-            List<ChartData_TestDateTimeSuccessFailure> output;
+            List<ChartData_ResultByDateTime> output;
 
             (List<ApiTestData> records, int totalRecords) = _dataAccess.GetAllBetweenDates(collectionId, startDate, endDate, skip, limit);
 
-            output = records.GroupBy(g => g.TestDateTime).Select(g => new ChartData_TestDateTimeSuccessFailure(
+            output = records.GroupBy(g => g.TestDateTime).Select(g => new ChartData_ResultByDateTime(
                 g.Key
                 , g.Sum(x => (x.WasSuccessful) ? 1 : 0)
                 , g.Sum(x => (x.WasSuccessful) ? 0 : 1)
@@ -43,9 +45,9 @@ namespace MyApiMonitorClassLibrary.Models
 
         }
 
-        public List<ChartData_ControllerTestResultSpeed> ResultAndSpeedByControllerTest(Guid collectionId, DateTime? startDate, DateTime? endDate, int skip, int limit)
+        public List<ChartData_ResultAndSpeedByTest> ResultAndSpeedByTest(Guid collectionId, DateTime? startDate, DateTime? endDate, int skip, int limit)
         {
-            List<ChartData_ControllerTestResultSpeed> output;
+            List<ChartData_ResultAndSpeedByTest> output;
 
             (List<ApiTestData> records, int totalRecords) = _dataAccess.GetAllBetweenDates(collectionId, startDate, endDate, skip, limit);
 
@@ -71,7 +73,7 @@ namespace MyApiMonitorClassLibrary.Models
                 LatestResult = records.Where(x => x.TestDateTime == g.LatestTestDateTime && x.TestTitle == g.TestTitle).Select(x => x.WasSuccessful).FirstOrDefault()
                 ,
                 LatestTimeToComplete = (int)(records.Where(x => x.TestDateTime == g.LatestTestDateTime && x.TestTitle == g.TestTitle).Select(x => x.TimeToComplete).FirstOrDefault() ?? 0)
-            }).Select(g => new ChartData_ControllerTestResultSpeed(
+            }).Select(g => new ChartData_ResultAndSpeedByTest(
                   g.TestTitle
                   , g.TestTitle
                   , g.AverageResult
@@ -83,6 +85,17 @@ namespace MyApiMonitorClassLibrary.Models
             return output;
 
         }
+
+        public List<ChartData_SpeedsByDateTime> AvailabilityByDateTime(Guid collectionId, DateTime? startDate, DateTime? endDate, int skip, int limit)
+        {
+            List<ChartData_SpeedsByDateTime> output;
+            (List<ApiTestData> records, int totalRecords) = _dataAccess.GetAllBetweenDates(collectionId, startDate, endDate, skip, limit);
+
+            output = records.Select(x => new ChartData_SpeedsByDateTime(x.TestDateTime, x.TimeToComplete, null, null)).ToList();
+
+            return output;
+        }
+
 
     }
 }
