@@ -4,36 +4,88 @@
 @{
 }
 <head>
-    <h1>The Whaddon Show Api Monitor</h1>
+    
 </head>
 
-<div class="container.col-2">
-    <div>
-        <h1>Description</h1>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam explicabo veritatis incidunt animi repellendus veniam, porro itaque velit, excepturi corrupti architecto. Incidunt aliquam dolores sed nisi doloribus libero quaerat repellat consectetur laborum eaque nam atque, delectus quae soluta sit necessitatibus! Debitis assumenda exercitationem atque animi odio sunt voluptatem! Quia similique dolor illum sapiente nulla odit impedit ut, est amet, nisi magnam esse, exercitationem quam saepe veritatis! Magnam at, distinctio maxime facere hic labore. Minima esse nulla quae beatae officia ut autem, non numquam dolores aspernatur corporis cumque, id ea. Minus et beatae facere itaque dolorum doloribus mollitia ratione vitae atque, aut assumenda asperiores praesentium distinctio blanditiis voluptate quae repellendus explicabo sed corrupti. Voluptate, quam eum maxime esse ipsa sapiente incidunt animi dolorum in sequi quis magni non et perspiciatis tempora veniam neque consectetur nostrum, quisquam quos, blanditiis rerum cumque? Modi voluptate qui veritatis, tenetur dicta numquam. Sit commodi eveniet vero.</p>
-        <a href="https://github.com/marklelapin/TheWhaddonShowApp/tree/master/TheWhaddonShowAPI">Check out the code.</a>
+<h1>The Whaddon Show Api</h1>
+
+    <p>The Whaddon Show Api is a REST Api providing access to The Whaddon Show's central SQL Database. It is primarily used by the <a href="/Not yet Implemented">The Whaddon Show App</a> as part of its server side data access layer but public access is also available for GET requests. (POST,PUT and DELETE requests require Authentication through Azure AdB2C)</p>
+    <h2>Performance & Monitoring</h2>
+    <p>The availability and performance of the API is regularly monitored with live results summarised below.<p>
+<div class="container">
+        <div class="row">
+        <div class="col">
+                <h4>Testing</h4><a display ="inline" href="/Tests/Results?collectionId=@Model.CollectionId">   (get all data)</a>
+            <canvas id="testChart"></canvas>
+        </div>
+        <div class="col">
+            <h4>Speed</h4>
+            <canvas id="speedChart"></canvas>
+        </div>
     </div>
-    <div>
-        <h1>Documentation</h1>
-        <img src="/images/TheWhaddonShowApiDocumentationImage.png" width="100%" />
+    <div class="row">
+        <div class="col">
+            <h4>Activity</h4>
+            <canvas id="activityChart"></canvas>
+        </div>
+        <div class="col">
+            <h4>Availability</h4>
+            <canvas id="availabilityChart"></canvas>
+        </div>
     </div>
-    <div width ="1000px">
-        <h1>TestResults</h1>
-        <canvas id ="resultChart"></canvas>
-    </div>
-    <div width ="1000px">
-        <h1>Performance</h1>
-        <canvas id= "speedChart"></canvas>
-    </div>
+
+    
 </div>
+    <h2>Documentation</h2>
+<p>
+    Swagger(Open Api) has been used to produced the documentation for this API.
+    The example ids given within the comments for each call should all return results for GET Calls if you wish to try them out.
+    Post, Put and Patch calls will all return Not Authorized.
+    Please note that the API is version controlled and the latest version is V2.
+</p>
+<a href="https://thewhaddonshowdev.azurewebsites.net/index.html"><img src="/images/TheWhaddonShowApiDocumentationImage.png"></a>
+<h2>Code</h2>
+<p>All code for this Api Monitor and The Whaddon Show API has been written using C# in .Net by myself.
+    The Code demonstrates solid use of Dependency Injection, Generics and the use of recognised coding techniques such as the Builder Pattern for the creation of complex classes.
+    It also makes use of centralised class libraries to avoid duplication of code across projects and solutions.</p>
+<h4>TheWhaddonShowApi</h4>
+<p>
+
+    A second (daemon) api running a range of typical Http requests and recording the outcomes of these to a NoSQL Database (MongoDB).
+
+    An Azure Function then calls this second Api every 67 mins to trigger a test run.
+   
+    OAUTH2 Authentication has been set up with an AzureAdB2C tenant that also allows daemon access for the API monitor via the Client Credentials UserFlow.
+    Extensive use of XML comments has been made to add detail to the Swagger documentation and to give a clear sense of my class library methods at point.
+</p>
+<a href="add further links">Check out the API Code</a> <a href="sfsfsdf">Check out the API Monitoring Code.</a>
+<h2>Code Improvements</h2>
+<h4>The Whaddon Show Api</h4>
+<p>
+    The Api make use of generics to standardize Api data access for all types of component being updated (as part of a wider use of generics in the Client App itself to manage syncing).
+    A potential improvement would be to extend this further within the Api to reduce the number of controllers to one.
+    The effect that this would have on data validation within the controllers needs to be considered fully before embarking on this.
+</p>
+<h4>My Api Monitor</h4>
+<p>Due to time contraints the setup and ordering of tests is currently 'hardcoded' within a TestCollectionSetup_WhaddonShowApi class.</p>
+<p>The app has the potential to monitor a wide variety of APIs and if further developed would need database storage of test setups and a basic UI for setup being developed next.</p>
+
+
+   
  <script>
                 document.addEventListener('DOMContentLoaded',(event)=>{
 
-                    var ctx = document.getElementById('resultChart').getContext('2d');
-                    var resultChart = new Chart(ctx, @Html.Raw(Model.ResultChartConfiguration))
+                    var ctx = document.getElementById('testChart').getContext('2d');
+                    var testChart = new Chart(ctx, @Html.Raw(Model.TestChartConfiguration))
 
                     var ctx2 = document.getElementById('speedChart').getContext('2d');
                     var speedChart = new Chart(ctx2,@Html.Raw(Model.SpeedChartConfiguration))
+
+                    var ctx3 = document.getElementById('activityChart').getContext('2d');
+                    var activityChart = new Chart(ctx3, @Html.Raw(Model.TestChartConfiguration))
+
+                    var ctx4 = document.getElementById('availabilityChart').getContext('2d');
+                    var availabilityChart = new Chart(ctx4, @Html.Raw(Model.SpeedChartConfiguration))
 
                 })
                 

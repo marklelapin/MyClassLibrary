@@ -9,19 +9,20 @@ namespace MyApiMonitor.Pages
 {
     public class DashboardModel : PageModel
     {
-        private readonly IApiTestDataProcessor _dataProcessor;
+        private readonly IChartDataProcessor _dataProcessor;
 
-        public DashboardModel(IApiTestDataProcessor dataProcessor)
+        public DashboardModel(IChartDataProcessor dataProcessor)
         {
             _dataProcessor = dataProcessor;
         }
 
-        public string ResultChartConfiguration { get; set; }
+        public string CollectionId { get; set; }
+        public string TestChartConfiguration { get; set; }
         public string SpeedChartConfiguration { get; set; }
 
-        public List<TestDateTimeSuccessFailure> TestDateTimeSuccessFailures { get; set; }
+        public List<ChartData_TestDateTimeSuccessFailure> TestDateTimeSuccessFailures { get; set; }
 
-        public List<TestDateTimeSpeed> TestDateTimeSpeeds { get; set; }
+        public List<ChartData_TestDateTimeSpeed> TestDateTimeSpeeds { get; set; }
 
 
         public void OnGet([FromQuery] Guid collectionId, DateTime? startDate, DateTime? endDate)
@@ -29,6 +30,8 @@ namespace MyApiMonitor.Pages
             TestDateTimeSuccessFailures = _dataProcessor.SuccessOrFailureByDateTime(collectionId, startDate, endDate);
 
             TestDateTimeSpeeds = _dataProcessor.SpeedsByDateTime(collectionId, startDate, endDate);
+
+            CollectionId = collectionId.ToString();
 
             ConfigureResultChart();
 
@@ -56,20 +59,47 @@ namespace MyApiMonitor.Pages
                                 .AddOrder(2);
                     });
 
-            ResultChartConfiguration = builder.BuildJson();
+            TestChartConfiguration = builder.BuildJson();
         }
 
 
         private void ConfigureSpeedChart()
         {
-            var builder = new ChartBuilder("bar");
+            var builder = new ChartBuilder("line");
             builder.AddLabels(TestDateTimeSpeeds.Select(x => x.TestDateTime.ToString()).ToArray())
-                   .AddDataset("Average Speed", options =>
+                   //.AddDefaultLineStyle(3, Color.Orange, Color.Transparent)
+                   .AddDefaultPointStyle(options =>
+                   {
+                       options.AddStyleAndRadius("circle", 0);
+                   })
+                   .ConfigureYAxis(options =>
+                   {
+                       options.AddTitle("Time To Complete (ms)")
+                                .AddAbsoluteScaleLimits(0, 500);
+                   })
+                   .AddDataset("Min Time To Complete", options =>
+                   {
+                       options.AddValues(TestDateTimeSpeeds.Select(x => x.MinSpeed).ToList())
+                               .AddArea("+1", 0, Color.AliceBlue, Color.AliceBlue)
+                               .AddOrder(1)
+                               .SpecifyYAxisID("yAxis");
+                   })
+                   .AddDataset("Avg Time To Complete", options =>
                     {
                         options.AddValues(TestDateTimeSpeeds.Select(x => x.AvgSpeed).ToList())
-                                .AddFormating(Color.Transparent, Color.Black)
-                                .AddOrder(1);
-                    });
+                                .AddLine(3, Color.Black, Color.Transparent)
+                                .AddOrder(2)
+                                .SpecifyYAxisID("yAxis");
+                    })
+                   .AddDataset("Max Time To Complete", options =>
+                   {
+                       options.AddValues(TestDateTimeSpeeds.Select(x => x.MaxSpeed).ToList())
+                               .AddArea("-1", 0, Color.OrangeRed, Color.Transparent)
+                               .AddOrder(3)
+                               .SpecifyYAxisID("yAxis");
+                   });
+
+
 
             SpeedChartConfiguration = builder.BuildJson();
         }

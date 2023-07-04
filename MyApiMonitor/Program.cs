@@ -14,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddTransient<IMongoDBDataAccess, MongoDBDataAccess>();
 builder.Services.AddTransient<IApiTestDataAccess, ApiTestMongoDataAccess>();
-builder.Services.AddTransient<IApiTestDataProcessor, ApiTestDataProcessor>();
+builder.Services.AddTransient<IChartDataProcessor, ChartDataProcessor>();
 var app = builder.Build();
 
 
