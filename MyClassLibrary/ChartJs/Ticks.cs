@@ -1,7 +1,6 @@
 ﻿namespace MyClassLibrary.ChartJs
 {
-    public class Axes
+    public class Ticks
     {
-
     }
 }

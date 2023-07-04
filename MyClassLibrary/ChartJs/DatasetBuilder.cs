@@ -43,6 +43,12 @@ namespace MyClassLibrary.ChartJs
 
         }
 
+        public DatasetBuilder SpecifyYAxisID(string scaleID)
+        {
+            _dataset.yAxisID = scaleID;
+            return this;
+        }
+
         public DatasetBuilder AddFormating(Color borderColor, Color backgroundColor, bool hidden = false)
         {
             AddFormating(borderColor.ToHex(), backgroundColor.ToHex(), hidden);
@@ -57,6 +63,26 @@ namespace MyClassLibrary.ChartJs
             return this;
         }
 
+
+        public DatasetBuilder AddLine(int borderWidth, Color borderColor, Color backgroundColor, int[]? borderDash = null)
+        {
+            _dataset.type = "line";
+            _dataset.borderWidth = borderWidth;
+            _dataset.borderColor = borderColor.ToHex();
+            _dataset.backgroundColor = backgroundColor.ToHex();
+            _dataset.borderDash = borderDash;
+            return this;
+        }
+
+        public DatasetBuilder AddArea(string fillTo, int borderWidth, Color borderColor, Color backgroundColor, int[]? borderDash = null)
+        {
+            _dataset.type = "line";
+            _dataset.borderWidth = borderWidth;
+            _dataset.borderColor = borderColor.ToHex();
+            _dataset.backgroundColor = backgroundColor.ToHex();
+            _dataset.fill = fillTo;
+            return this;
+        }
 
         public Dataset Build()
         {

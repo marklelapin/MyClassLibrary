@@ -1,5 +1,4 @@
-﻿
-using MyClassLibrary.ErrorHandling;
+﻿using MyClassLibrary.ErrorHandling;
 
 namespace MyExtensions
 {
@@ -32,33 +31,35 @@ namespace MyExtensions
             {"nope", false },
             {"0", false}
         };
-        
+
         /// <summary>
         /// Converts string to boolean from a broad range of strings. Returns null if can't convert.
         /// </summary>
         /// <param name="str">A string such as "y", "yes", "nope","0","1" etc.</param>
         /// <returns></returns>
-        public static bool? ToBool(this string str) 
+        public static bool? ToBool(this string str)
         {
-            if (stringBooleans.ContainsKey(str) ) return stringBooleans[str];
+            if (stringBooleans.ContainsKey(str)) return stringBooleans[str];
             return null;
         }
 
-        public static List<Guid> ToListGuid(this string str,string separator = ",")
+        public static List<Guid> ToListGuid(this string str, string separator = ",")
         {
             List<Guid> output;
-            
+
             try
             {
                 output = str.Split(separator).Select(s => Guid.Parse(s)).ToList();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 throw new IdentifiedException("Can't convert string to List<Guid> as the list contains Guids that aren't valid.");
             }
-        
+
             return output;
-        
+
         }
+
+
     }
 }

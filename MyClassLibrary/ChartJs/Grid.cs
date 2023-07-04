@@ -1,6 +1,6 @@
 ﻿namespace MyClassLibrary.ChartJs
 {
-    public class Scale
+    public class Grid
     {
 
     }

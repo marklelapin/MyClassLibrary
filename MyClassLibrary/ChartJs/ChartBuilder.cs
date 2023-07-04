@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Drawing;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MyClassLibrary.ChartJs
 {
@@ -44,6 +46,74 @@ namespace MyClassLibrary.ChartJs
         }
 
 
+        public ChartBuilder AddDefaultLineStyle(int borderWidth, Color borderColor, Color backgroundColor, int[]? borderDash = null)
+        {
+            var line = new LineBuilder().AddBasicDetails(borderWidth, borderColor, backgroundColor, borderDash).Build();
+            _chart.options.elements.line = line;
+
+            return this;
+
+        }
+
+
+        public ChartBuilder AddDefaultPointStyle(Action<PointBuilder> builderActions)
+        {
+            var pointBuilder = new PointBuilder();
+            builderActions(pointBuilder);
+            _chart.options.elements.point = pointBuilder.Build();
+            return this;
+        }
+
+
+
+        //Axis Configuration
+        public ChartBuilder ConfigureXAxis(Action<CartesianAxisBuilder> builderActions)
+        {
+            var axis = CreateCartesianAxis(builderActions);
+            axis.axis = "x";
+            _chart.options.scales.xAxis = axis;
+
+            return this;
+        }
+
+        public ChartBuilder ConfigureYAxis(Action<CartesianAxisBuilder> builderActions)
+        {
+            var axis = CreateCartesianAxis(builderActions);
+            axis.axis = "y";
+            _chart.options.scales.yAxis = axis;
+            return this;
+        }
+
+        public ChartBuilder ConfigureSecondaryXAxis(Action<CartesianAxisBuilder> builderActions)
+        {
+            var axis = CreateCartesianAxis(builderActions);
+            axis.axis = "x";
+            _chart.options.scales.secondaryXAxis = axis;
+            return this;
+        }
+
+        public ChartBuilder ConfigureSecondyYAxis(Action<CartesianAxisBuilder> builderActions)
+        {
+            var axis = CreateCartesianAxis(builderActions);
+            axis.axis = "y";
+            _chart.options.scales.secondaryYAxis = axis;
+            return this;
+        }
+
+
+
+        private CartesianAxis CreateCartesianAxis(Action<CartesianAxisBuilder> builderActions)
+        {
+            var axisBuilder = new CartesianAxisBuilder();
+            builderActions(axisBuilder);
+            CartesianAxis newAxis = axisBuilder.Build();
+
+            return newAxis;
+        }
+
+
+
+
 
         public Chart Build()
         {
@@ -52,12 +122,13 @@ namespace MyClassLibrary.ChartJs
 
         public string BuildJson()
         {
-
-
-            return JsonSerializer.Serialize(_chart, new JsonSerializerOptions
+            string json = JsonSerializer.Serialize(_chart, new JsonSerializerOptions
             {
-                // DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
+
+            return json;
         }
+
     }
 }
