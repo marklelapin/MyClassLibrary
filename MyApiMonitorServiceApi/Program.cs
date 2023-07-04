@@ -49,20 +49,58 @@ app.UseHttpsRedirection();
 
 app.MapGet("/runtestcollections", (IApiTestCollectionFactory factory) =>
 {
+
+    (bool wasSuccessfull, Exception? exception) testOutcome;
+
     try
     {
         List<ApiTestCollection> testCollections = factory.GenerateTestCollections();
 
-        factory.ExecuteTestCollections(testCollections);
+        testOutcome = factory.ExecuteTestCollections(testCollections);
     }
     catch (Exception ex)
     {
-        Results.Problem(ex.Message, null, 500);
+        return Results.Problem(ex.Message, null, 500);
     }
 
-    Results.Ok("Test Collections Ran To Completion.");
-
+    if (testOutcome.wasSuccessfull)
+    {
+        return Results.Ok("Test Collections Ran To Completion.");
+    }
+    else
+    {
+        return Results.Problem(testOutcome.exception?.Message, null, 500);
+    }
 })
 .WithName("RunTestCollections");
+
+app.MapGet("/runavailabilitytests", (IApiTestCollectionFactory factory) =>
+{
+    (bool wasSuccessfull, Exception? exception) testOutcome;
+
+    try
+    {
+        List<ApiTestCollection> testCollections = factory.GenerateAvailabilityTestCollections();
+
+        testOutcome = factory.ExecuteTestCollections(testCollections);
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message, null, 500);
+    }
+
+    if (testOutcome.wasSuccessfull)
+    {
+        return Results.Ok("Availability Tests Ran To Completion");
+    }
+    else
+    {
+        return Results.Problem(testOutcome.exception?.Message, null, 500);
+    }
+}).WithName("RunAvailabilityTests");
+
+
+
+
 
 app.Run();
