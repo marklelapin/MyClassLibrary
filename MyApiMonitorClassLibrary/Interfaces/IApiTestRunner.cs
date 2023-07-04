@@ -16,13 +16,13 @@ namespace MyApiMonitorClassLibrary.Interfaces
         /// <returns>
         /// True if all tests were successful.
         /// </returns>
-        public Task RunTest(List<ApiTest> tests);
+        public void RunTest(List<ApiTest> tests);
 
 
         /// <summary>
         /// Saves a Test Collection to database
         /// </summary>
-        public Task Save(ApiTestCollection testCollection);
+        public void Save(ApiTestCollection testCollection);
 
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace MyApiMonitorClassLibrary.Interfaces
         /// </summary>
         /// <param name="tests"></param>
         /// <returns></returns>
-        public Task RunTestAndSave(ApiTestCollection testCollection);
+        public void RunTestAndSave(ApiTestCollection testCollection);
 
 
     }

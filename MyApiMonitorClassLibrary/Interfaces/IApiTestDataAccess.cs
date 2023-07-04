@@ -11,7 +11,7 @@ namespace MyApiMonitorClassLibrary.Interfaces
         /// <summary>
         /// Saves a testCollection to database.
         /// </summary>
-        public Task Save(ApiTestCollection testCollection);
+        public void Save(ApiTestCollection testCollection);
 
         /// <summary>
         /// Returns all tests on the database with a given testCollectionId.

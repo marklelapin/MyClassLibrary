@@ -26,19 +26,34 @@ namespace MyApiMonitorClassLibrary.Models
         }
 
 
-
-        public async Task ExecuteTestCollections(List<ApiTestCollection> testCollections)
+        public List<ApiTestCollection> GenerateAvailabilityTestCollections()
         {
+            List<ApiTestCollection> output = new List<ApiTestCollection>();
 
-            await Task.Run(() =>
+            //TODO - remove this 'hardcoded' section if developed further for future apis managed through database etc.
+            var testCollection = new TestCollectionSetup_WhaddonShowApi().GenerateAvailabilityTestCollection();
+
+            output.Add(testCollection);
+
+            return output;
+        }
+
+
+        public (bool wasSuccessfull, Exception? exception) ExecuteTestCollections(List<ApiTestCollection> testCollections)
+        {
+            try
             {
+                testCollections.ForEach((testCollection) =>
+                                {
+                                    _runner.RunTestAndSave(testCollection);
+                                });
+            }
+            catch (Exception ex)
+            {
+                return (false, ex);
+            }
 
-                testCollections.ForEach(async (testCollection) =>
-                {
-                    await _runner.RunTestAndSave(testCollection);
-                });
-            });
-
+            return (true, null);
         }
     }
 }

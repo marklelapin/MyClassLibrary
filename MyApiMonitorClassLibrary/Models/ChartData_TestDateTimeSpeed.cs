@@ -1,6 +1,6 @@
 ﻿namespace MyApiMonitorClassLibrary.Models
 {
-    public class TestDateTimeSpeed
+    public class ChartData_TestDateTimeSpeed
     {
         /// <summary>
         /// The Date and Time the Tests were run.
@@ -24,7 +24,7 @@
 
 
 
-        public TestDateTimeSpeed(DateTime testDateTime, int avgSpeed, int maxSpeed, int minSpeed)
+        public ChartData_TestDateTimeSpeed(DateTime testDateTime, int avgSpeed, int maxSpeed, int minSpeed)
         {
             TestDateTime = testDateTime;
             AvgSpeed = avgSpeed;

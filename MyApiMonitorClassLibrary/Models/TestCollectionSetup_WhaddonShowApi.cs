@@ -24,6 +24,20 @@ namespace MyApiMonitorClassLibrary.Models
         }
 
 
+        public ApiTestCollection GenerateAvailabilityTestCollection()
+        {
+            ApiTestCollection output = new ApiTestCollection(Guid.Parse("c8ecdb94-36a9-4dbb-a5db-e6e036bbba0f"), "The Whaddon Show API Availablity Test", DateTime.Now);
+
+            output.Tests.Add(new ApiTestBuilder("f8b3bdfa-3558-4371-8564-bdda7ab27410", "Availability")
+            .AddRequest(HttpMethod.Get
+                        , "Person/latest?ids=545A9495-DB58-44EC-BA47-FD0B7E478D4A,2B3FA075-D0B5-49AB-B897-DAB1428CA500")
+            .ExpectedStatusCode(HttpStatusCode.OK)
+            .Build());
+
+            return output;
+        }
+
+
 
         //Repeated Tests
         private ApiTest ResetPartSampleData = new ApiTestBuilder("25df31f5-3b9c-40c3-9d83-883dcb21a9e8", "Part - ResetSampleData")

@@ -35,7 +35,7 @@ namespace MyApiMonitorClassLibrary.Models
         /// Whether or not the test was successfull.
         /// </summary>
         public bool WasSuccessful { get; set; }
-        
+
         /// <summary>
         /// The time in milliseconds to run the api call.
         /// </summary>
@@ -56,10 +56,10 @@ namespace MyApiMonitorClassLibrary.Models
         /// </summary>
         public string? ActualResult { get; set; } = "";
 
-        
 
 
-        public ApiTestData(Guid collectionId, string collectionTitle, Guid testId, string testTitle, DateTime testDateTime, bool wasSuccessful,int? timeToComplete = null, string? failureMessage = null, string? expectedResult = null, string? actualResult = null)
+
+        public ApiTestData(Guid collectionId, string collectionTitle, Guid testId, string testTitle, DateTime testDateTime, bool wasSuccessful, int? timeToComplete = null, string? failureMessage = null, string? expectedResult = null, string? actualResult = null)
         {
             CollectionId = collectionId;
             CollectionTitle = collectionTitle;

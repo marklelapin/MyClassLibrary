@@ -20,40 +20,35 @@ namespace MyApiMonitorClassLibrary.Models
         }
 
 
-        public async Task RunTest(ApiTest test)
+        public void RunTest(ApiTest test)
         {
-            await RunTest(new List<ApiTest> { test });
+            RunTest(new List<ApiTest> { test });
         }
 
-        public async Task RunTest(List<ApiTest> tests)
+        public void RunTest(List<ApiTest> tests)
         {
             HttpResponseMessage? response = null;
 
-            await Task.Run(() =>
-            {
+            tests.ForEach((test) =>
+              {
 
+                  (string responseMessage, HttpStatusCode statusCode) = GetAndTimeApiResponse(test);
 
-                tests.ForEach((test) =>
-                {
+                  PerformTests(test, responseMessage, statusCode);
 
-                    (string responseMessage, HttpStatusCode statusCode) = GetAndTimeApiResponse(test);
-
-                    PerformTests(test, responseMessage, statusCode);
-
-                });
-            });
+              });
         }
 
 
-        public async Task Save(ApiTestCollection testCollection)
+        public void Save(ApiTestCollection testCollection)
         {
-            await _dataAccess.Save(testCollection);
+            _dataAccess.Save(testCollection);
         }
 
-        public async Task RunTestAndSave(ApiTestCollection testCollection)
+        public void RunTestAndSave(ApiTestCollection testCollection)
         {
-            await RunTest(testCollection.Tests);
-            await Save(testCollection);
+            RunTest(testCollection.Tests);
+            Save(testCollection);
         }
 
 
@@ -79,10 +74,9 @@ namespace MyApiMonitorClassLibrary.Models
 
 
                 taskCall.Wait();
-                stopwatch.Stop();
                 output = taskCall.GetResponseDataAsync().Result;
+                stopwatch.Stop();
 
-                return output;
             }
             catch (Exception ex)
             {

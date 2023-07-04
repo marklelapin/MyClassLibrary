@@ -51,10 +51,10 @@ namespace MyApiMonitorClassLibrary.Models
 
         }
 
-        public async Task Save(ApiTestCollection testCollection)
+        public void Save(ApiTestCollection testCollection)
         {
             var listTests = testCollection.CreateApiTestData();
-            await _mongoDBDataAccess.InsertManyAsync("Tests", listTests);
+            _mongoDBDataAccess.InsertManyAsync("Tests", listTests).Wait();
         }
     }
 }
