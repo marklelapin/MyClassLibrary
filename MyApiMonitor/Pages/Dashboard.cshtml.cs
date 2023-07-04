@@ -25,11 +25,14 @@ namespace MyApiMonitor.Pages
         public List<ChartData_TestDateTimeSpeed> TestDateTimeSpeeds { get; set; }
 
 
-        public void OnGet([FromQuery] Guid collectionId, DateTime? startDate, DateTime? endDate)
+        public void OnGet([FromQuery] Guid collectionId, DateTime? startDate, DateTime? endDate, int? skip, int? limit)
         {
-            TestDateTimeSuccessFailures = _dataProcessor.SuccessOrFailureByDateTime(collectionId, startDate, endDate);
+            skip = skip ?? 0;
+            limit = limit ?? 1000;
 
-            TestDateTimeSpeeds = _dataProcessor.SpeedsByDateTime(collectionId, startDate, endDate);
+            TestDateTimeSuccessFailures = _dataProcessor.SuccessOrFailureByDateTime(collectionId, startDate, endDate, (int)skip, (int)limit);
+
+            TestDateTimeSpeeds = _dataProcessor.SpeedsByDateTime(collectionId, startDate, endDate, (int)skip, (int)limit);
 
             CollectionId = collectionId.ToString();
 

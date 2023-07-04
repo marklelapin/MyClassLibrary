@@ -30,20 +30,20 @@ public class ResultsModel : PageModel
     [BindProperty]
     public string TestDateTime { get; set; }
 
-    public void OnGet([FromQuery] Guid collectionId, [FromQuery] DateTime? dateFrom = null, [FromQuery] DateTime? dateTo = null)
+    public void OnGet([FromQuery] Guid collectionId, DateTime? dateFrom = null, DateTime? dateTo = null, int skip = 0, int limit = 1000)
     {
 
         if (dateFrom == null)
         {
-            TestResults = _dataAccess.GetAllByTestCollectionId(collectionId);
+            (TestResults, int totalRecords) = _dataAccess.GetAllByTestCollectionId(collectionId, skip, limit);
         }
         else if (dateTo == null)
         {
-            TestResults = _dataAccess.GetAllByDateTime(collectionId, (DateTime)dateFrom);
+            (TestResults, int totalRecords) = _dataAccess.GetAllByDateTime(collectionId, (DateTime)dateFrom);
         }
         else
         {
-            TestResults = _dataAccess.GetAllBetweenDates(collectionId, (DateTime)dateFrom, (DateTime)dateTo);
+            (TestResults, int totalRecords) = _dataAccess.GetAllBetweenDates(collectionId, (DateTime)dateFrom, (DateTime)dateTo);
         }
 
         if (TestResults.Count == 0) { TestResults = new List<ApiTestData>(); };
