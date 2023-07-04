@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "MyApiMonitorFunctions": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7027",
+      "launchBrowser": false
+    }
+  }
+}
