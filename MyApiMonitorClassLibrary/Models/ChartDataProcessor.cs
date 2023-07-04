@@ -10,14 +10,14 @@ namespace MyApiMonitorClassLibrary.Models
         {
             _dataAccess = dataAccess;
         }
-        public List<ChartData_TestDateTimeSpeed> SpeedsByDateTime(Guid collectionId, DateTime? startDate, DateTime? endDate)
+        public List<ChartData_TestDateTimeSpeed> SpeedsByDateTime(Guid collectionId, DateTime? startDate, DateTime? endDate, int skip, int limit)
         {
 
             List<ChartData_TestDateTimeSpeed> output;
 
-            List<ApiTestData> rawData = _dataAccess.GetAllBetweenDates(collectionId, startDate, endDate);
+            (List<ApiTestData> records, int totalRecords) = _dataAccess.GetAllBetweenDates(collectionId, startDate, endDate, skip, limit);
 
-            output = rawData.GroupBy(g => g.TestDateTime).Select(g => new ChartData_TestDateTimeSpeed(
+            output = records.GroupBy(g => g.TestDateTime).Select(g => new ChartData_TestDateTimeSpeed(
                 g.Key
                 , (int?)g.Average(x => x.TimeToComplete) ?? 0
                 , (int?)g.Max(x => x.TimeToComplete) ?? 0
@@ -27,13 +27,13 @@ namespace MyApiMonitorClassLibrary.Models
             return output;
         }
 
-        public List<ChartData_TestDateTimeSuccessFailure> SuccessOrFailureByDateTime(Guid collectionId, DateTime? startDate, DateTime? endDate)
+        public List<ChartData_TestDateTimeSuccessFailure> SuccessOrFailureByDateTime(Guid collectionId, DateTime? startDate, DateTime? endDate, int skip, int limit)
         {
             List<ChartData_TestDateTimeSuccessFailure> output;
 
-            List<ApiTestData> rawData = _dataAccess.GetAllBetweenDates(collectionId, startDate, endDate);
+            (List<ApiTestData> records, int totalRecords) = _dataAccess.GetAllBetweenDates(collectionId, startDate, endDate, skip, limit);
 
-            output = rawData.GroupBy(g => g.TestDateTime).Select(g => new ChartData_TestDateTimeSuccessFailure(
+            output = records.GroupBy(g => g.TestDateTime).Select(g => new ChartData_TestDateTimeSuccessFailure(
                 g.Key
                 , g.Sum(x => (x.WasSuccessful) ? 1 : 0)
                 , g.Sum(x => (x.WasSuccessful) ? 0 : 1)
@@ -43,13 +43,14 @@ namespace MyApiMonitorClassLibrary.Models
 
         }
 
-        public List<ChartData_ControllerTestResultSpeed> ResultAndSpeedByControllerTest(Guid collectionId, DateTime? startDate, DateTime? endDate)
+        public List<ChartData_ControllerTestResultSpeed> ResultAndSpeedByControllerTest(Guid collectionId, DateTime? startDate, DateTime? endDate, int skip, int limit)
         {
             List<ChartData_ControllerTestResultSpeed> output;
 
-            List<ApiTestData> rawData = _dataAccess.GetAllBetweenDates(collectionId, startDate, endDate);
+            (List<ApiTestData> records, int totalRecords) = _dataAccess.GetAllBetweenDates(collectionId, startDate, endDate, skip, limit);
 
-            output = rawData.GroupBy(x => x.TestTitle).Select(g => new
+
+            output = records.GroupBy(x => x.TestTitle).Select(g => new
             {
                 TestTitle = g.Key
                ,
@@ -67,9 +68,9 @@ namespace MyApiMonitorClassLibrary.Models
                 ,
                 AverageTimeToComplete = g.AverageTimeToComplete
                 ,
-                LatestResult = rawData.Where(x => x.TestDateTime == g.LatestTestDateTime && x.TestTitle == g.TestTitle).Select(x => x.WasSuccessful).FirstOrDefault()
+                LatestResult = records.Where(x => x.TestDateTime == g.LatestTestDateTime && x.TestTitle == g.TestTitle).Select(x => x.WasSuccessful).FirstOrDefault()
                 ,
-                LatestTimeToComplete = (int)(rawData.Where(x => x.TestDateTime == g.LatestTestDateTime && x.TestTitle == g.TestTitle).Select(x => x.TimeToComplete).FirstOrDefault() ?? 0)
+                LatestTimeToComplete = (int)(records.Where(x => x.TestDateTime == g.LatestTestDateTime && x.TestTitle == g.TestTitle).Select(x => x.TimeToComplete).FirstOrDefault() ?? 0)
             }).Select(g => new ChartData_ControllerTestResultSpeed(
                   g.TestTitle
                   , g.TestTitle
