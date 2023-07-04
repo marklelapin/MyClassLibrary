@@ -14,7 +14,7 @@ namespace MyApiMonitorClassLibrary.Models
             _mongoDBDataAccess = mongoDBDataAccess;
         }
 
-        public List<ApiTestData> GetAllBetweenDates(Guid testCollectionID, DateTime? startDate, DateTime? endDate)
+        public (List<ApiTestData> records, int total) GetAllBetweenDates(Guid testCollectionID, DateTime? startDate, DateTime? endDate, int skip = 0, int limit = 10000)
         {
             startDate = startDate ?? DateTime.MinValue;
             endDate = endDate ?? DateTime.MaxValue;
@@ -22,31 +22,43 @@ namespace MyApiMonitorClassLibrary.Models
 
             var builder = Builders<ApiTestData>.Filter;
             var filter = builder.Gte(t => t.TestDateTime, startDate) & builder.Lte(t => t.TestDateTime, endDate) & builder.Eq(t => t.CollectionId, testCollectionID);
-            var output = _mongoDBDataAccess.Find<ApiTestData>("Tests", filter);
+
+            var sort = Builders<ApiTestData>.Sort.Descending("TestDateTime");
+
+            var output = _mongoDBDataAccess.FindPaginated<ApiTestData>("Tests", skip, limit, filter, sort);
             return output;
         }
 
-        public List<ApiTestData> GetAllByDateTime(Guid testCollectionId, DateTime testDateTime)
+        public (List<ApiTestData> records, int total) GetAllByDateTime(Guid testCollectionId, DateTime testDateTime, int skip = 0, int limit = 10000)
         {
             var builder = Builders<ApiTestData>.Filter;
             var filter = builder.Eq(t => t.TestDateTime, testDateTime) & builder.Eq(t => t.CollectionId, testCollectionId);
-            var output = _mongoDBDataAccess.Find<ApiTestData>("Tests", filter);
+
+            var sort = Builders<ApiTestData>.Sort.Descending("TestDateTime");
+
+            var output = _mongoDBDataAccess.FindPaginated<ApiTestData>("Tests", skip, limit, filter, sort);
             return output;
         }
 
-        public List<ApiTestData> GetAllByTestCollectionId(Guid testCollectionId)
+        public (List<ApiTestData> records, int total) GetAllByTestCollectionId(Guid testCollectionId, int skip = 0, int limit = 10000)
         {
             var builder = Builders<ApiTestData>.Filter;
             var filter = builder.Eq(t => t.CollectionId, testCollectionId);
-            var output = _mongoDBDataAccess.Find<ApiTestData>("Tests", filter);
+
+            var sort = Builders<ApiTestData>.Sort.Descending("TestDateTime");
+
+            var output = _mongoDBDataAccess.FindPaginated<ApiTestData>("Tests", skip, limit, filter, sort);
             return output;
         }
 
-        public List<ApiTestData> GetAllByTestId(Guid testId)
+        public (List<ApiTestData> records, int total) GetAllByTestId(Guid testId, int skip = 0, int limit = 10000)
         {
             var builder = Builders<ApiTestData>.Filter;
             var filter = builder.Eq(t => t.TestId, testId);
-            var output = _mongoDBDataAccess.Find<ApiTestData>("Tests", filter);
+
+            var sort = Builders<ApiTestData>.Sort.Descending("TestDateTime");
+
+            var output = _mongoDBDataAccess.FindPaginated<ApiTestData>("Tests", skip, limit, filter, sort);
             return output;
 
         }
