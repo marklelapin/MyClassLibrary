@@ -127,6 +127,9 @@ namespace MyClassLibrary.ChartJs
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
 
+            json.Replace("\"false\"", "false");
+            json.Replace("\"true\"", "true");
+
             return json;
         }
 

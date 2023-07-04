@@ -17,7 +17,7 @@ namespace MyClassLibrary.ChartJs
             return this;
         }
 
-        public CartesianAxisBuilder AddAbsoluteScaleLimits(Double min, Double max)
+        public CartesianAxisBuilder AddAbsoluteScaleLimits(Double? min, Double? max)
         {
             _axis.min = min;
             _axis.max = max;
@@ -31,6 +31,11 @@ namespace MyClassLibrary.ChartJs
             return this;
         }
 
+        public CartesianAxisBuilder Stacked(string stacked)
+        {
+            _axis.stacked = stacked;
+            return this;
+        }
 
 
         public CartesianAxisBuilder AddGrid()
