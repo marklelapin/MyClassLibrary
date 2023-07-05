@@ -33,7 +33,7 @@ namespace MyApiMonitor.Pages
         public void OnGet([FromQuery] Guid collectionId, DateTime? startDate, DateTime? endDate, int? skip, int? limit)
         {
             skip = skip ?? 0;
-            limit = limit ?? 1000;
+            limit = limit ?? 1014;
 
             Guid availabilityCollectionId = Guid.Parse("c8ecdb94-36a9-4dbb-a5db-e6e036bbba0f");
 
