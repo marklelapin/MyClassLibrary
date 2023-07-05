@@ -26,6 +26,8 @@ namespace MyApiMonitorClassLibrary.Models
             var sort = Builders<ApiTestData>.Sort.Descending("TestDateTime");
 
             var output = _mongoDBDataAccess.FindPaginated<ApiTestData>("Tests", skip, limit, filter, sort);
+
+            output.paginatedRecords = output.paginatedRecords.OrderBy(t => t.TestDateTime).ToList();
             return output;
         }
 

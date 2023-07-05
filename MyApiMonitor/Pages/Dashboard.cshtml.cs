@@ -62,15 +62,17 @@ namespace MyApiMonitor.Pages
         {
             var builder = new ChartBuilder("bar");
 
-            builder.AddLabels(ResultByDateTime.Select(x => x.TestDateTime.ToString()).ToArray())
+            builder.AddLabels(ResultByDateTime.Select(x => x.TestDateTime.ToString("MMM-dd HH:mm:ss")).ToArray())
                    .ConfigureYAxis(options =>
                    {
-                       options.Stacked("true");
+                       options.Stacked("true")
+                       .AddTitle("No of Tests");
                    })
                    .ConfigureXAxis(options =>
                    {
                        options.Stacked("true");
                    })
+                   .HideLegend()
                    .AddDataset("Successes", options =>
                     {
                         options.AddValues(ResultByDateTime.Select(x => x.SuccessfulTests).ToList())
@@ -108,8 +110,7 @@ namespace MyApiMonitor.Pages
             {
                 options.AddTitle("Time");
             })
-            //    options.AddType("time");
-            //})
+            .HideLegend()
             .AddDataset("Availability", options =>
             {
                 options.AddCoordinates(AvailabilityByDateTime.Select(x => new Coordinate(x.TestDateTime, (double)x.AvgSpeed!)).ToList())
@@ -136,6 +137,7 @@ namespace MyApiMonitor.Pages
                                 .AddAbsoluteScaleLimits(0, null);
 
                    })
+                   .HideLegend()
                    .AddDataset("Min Time To Complete", options =>
                    {
                        options.AddValues(SpeedByDateTime.Select(x => x.MinSpeed).ToList())
@@ -182,7 +184,8 @@ namespace MyApiMonitor.Pages
                 .ConfigureYAxis(options =>
                 {
                     options.AddAbsoluteScaleLimits(0, 4);
-                });
+                })
+                .HideLegend();
 
             ResultAndSpeedChartConfiguration = builder.BuildJson();
 

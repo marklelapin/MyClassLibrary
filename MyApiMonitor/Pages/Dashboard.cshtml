@@ -15,8 +15,18 @@
 <div class="container">
         <div class="row">
         <div class="col">
-                <h4>Reliability</h4><a display ="inline" href="/Tests/Results?collectionId=@Model.CollectionId">   (get all data)</a>
-            <canvas id="resultsChart"></canvas>
+            <div class ="row">
+                <div class="col">
+                        <h4>Reliability</h4>
+                </div>
+                <div class="col">
+                        <a href="/Tests/Results?collectionId=@Model.CollectionId">(get all data)</a>
+                </div>
+            </div>
+            <div class="row">
+                    <canvas id="resultsChart"></canvas>
+            </div>
+            
         </div>
         <div class="col">
             <h4>Speed</h4>

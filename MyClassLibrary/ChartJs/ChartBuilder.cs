@@ -25,7 +25,11 @@ namespace MyClassLibrary.ChartJs
             return this;
         }
 
-
+        public ChartBuilder HideLegend()
+        {
+            _chart.options.plugins.legend.display = false;
+            return this;
+        }
 
         public ChartBuilder AddDataset(string label, Action<DatasetBuilder> builderActions)
         {
