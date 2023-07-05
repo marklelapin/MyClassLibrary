@@ -74,8 +74,8 @@ namespace MyApiMonitorClassLibrary.Models
                 ,
                 LatestTimeToComplete = (int)(records.Where(x => x.TestDateTime == g.LatestTestDateTime && x.TestTitle == g.TestTitle).Select(x => x.TimeToComplete).FirstOrDefault() ?? 0)
             }).Select(g => new ChartData_ResultAndSpeedByTest(
-                  g.TestTitle
-                  , g.TestTitle
+                  g.TestTitle.Split('-')[0].Trim()
+                  , g.TestTitle.Split("-")[1].Trim()
                   , g.AverageResult
                   , g.LatestResult
                   , g.AverageTimeToComplete

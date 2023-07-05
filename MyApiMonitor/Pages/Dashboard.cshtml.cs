@@ -17,8 +17,10 @@ namespace MyApiMonitor.Pages
         }
 
         public string CollectionId { get; set; }
-        public string TestChartConfiguration { get; set; }
+        public string ResultChartConfiguration { get; set; }
         public string SpeedChartConfiguration { get; set; }
+        public string AvailabilityChartConfiguration { get; set; }
+        public string ResultAndSpeedChartConfiguration { get; set; }
 
         private List<ChartData_ResultByDateTime> ResultByDateTime { get; set; }
 
@@ -41,13 +43,17 @@ namespace MyApiMonitor.Pages
 
             ResultAndSpeedByTest = _dataProcessor.ResultAndSpeedByTest(collectionId, startDate, endDate, (int)skip, (int)limit);
 
-            AvailabilityByDateTime = _dataProcessor.AvailabilityByDateTime(availabilityCollectionId, DateTime.UtcNow, DateTime.UtcNow.AddHours(-4), 0, 1440);
+            AvailabilityByDateTime = _dataProcessor.AvailabilityByDateTime(availabilityCollectionId, DateTime.UtcNow.AddHours(-4), DateTime.UtcNow, 0, 60);
 
             CollectionId = collectionId.ToString();
 
             ConfigureResultChart();
 
+            ConfigureAvailabilityChart();
+
             ConfigureSpeedChart();
+
+            ConfigureResultAndSpeedChart();
 
         }
 
@@ -61,29 +67,65 @@ namespace MyApiMonitor.Pages
                    {
                        options.Stacked("true");
                    })
+                   .ConfigureXAxis(options =>
+                   {
+                       options.Stacked("true");
+                   })
                    .AddDataset("Successes", options =>
                     {
                         options.AddValues(ResultByDateTime.Select(x => x.SuccessfulTests).ToList())
                                 .AddFormating(Color.Transparent, Color.OliveDrab)
-                                .AddOrder(1);
+                                .AddOrder(1)
+                                .SpecifyAxes(null, "y");
+
                     })
 
                     .AddDataset("Failures", options =>
                     {
                         options.AddValues(ResultByDateTime.Select(x => x.FailedTests).ToList())
                                 .AddFormating(Color.Transparent, Color.OrangeRed)
-                                .AddOrder(2);
+                                .AddOrder(2)
+                                .SpecifyAxes(null, "y");
                     });
 
-            TestChartConfiguration = builder.BuildJson();
+            ResultChartConfiguration = builder.BuildJson();
         }
 
+
+        private void ConfigureAvailabilityChart()
+        {
+            var builder = new ChartBuilder("scatter");
+            builder.AddDefaultPointStyle(options =>
+            {
+                options.AddStyleAndRadius("circle", 0);
+            })
+            .AddDefaultLineStyle(3, Color.Orange, Color.Orange)
+            .ConfigureYAxis(options =>
+            {
+                options.AddTitle("Time to Complete Basic Get Request (ms)");
+            })
+            .ConfigureXAxis(options =>
+            {
+                options.AddTitle("Time");
+            })
+            //    options.AddType("time");
+            //})
+            .AddDataset("Availability", options =>
+            {
+                options.AddCoordinates(AvailabilityByDateTime.Select(x => new Coordinate(x.TestDateTime, (double)x.AvgSpeed!)).ToList())
+                .ShowLine()
+                ;
+
+            });
+
+            AvailabilityChartConfiguration = builder.BuildJson();
+        }
 
         private void ConfigureSpeedChart()
         {
             var builder = new ChartBuilder("line");
             builder.AddLabels(SpeedByDateTime.Select(x => x.TestDateTime.ToString()).ToArray())
-                   //.AddDefaultLineStyle(3, Color.Orange, Color.Transparent)
+
                    .AddDefaultPointStyle(options =>
                    {
                        options.AddStyleAndRadius("circle", 0);
@@ -99,21 +141,21 @@ namespace MyApiMonitor.Pages
                        options.AddValues(SpeedByDateTime.Select(x => x.MinSpeed).ToList())
                                .AddArea("+1", 1, Color.AliceBlue, Color.Orange)
                                .AddOrder(1)
-                               .SpecifyYAxisID("yAxis");
+                               .SpecifyAxes(null, "yAxis");
                    })
                    .AddDataset("Avg Time To Complete", options =>
                     {
                         options.AddValues(SpeedByDateTime.Select(x => x.AvgSpeed).ToList())
                                 .AddLine(3, Color.Black, Color.Transparent)
                                 .AddOrder(2)
-                                .SpecifyYAxisID("yAxis");
+                                .SpecifyAxes(null, "yAxis");
                     })
                    .AddDataset("Max Time To Complete", options =>
                    {
                        options.AddValues(SpeedByDateTime.Select(x => x.MaxSpeed).ToList())
                                .AddArea("-1", 1, Color.OrangeRed, Color.Orange)
                                .AddOrder(3)
-                               .SpecifyYAxisID("yAxis");
+                               .SpecifyAxes(null, "yAxis");
                    });
 
 
@@ -121,5 +163,29 @@ namespace MyApiMonitor.Pages
             SpeedChartConfiguration = builder.BuildJson();
         }
 
+
+
+        private void ConfigureResultAndSpeedChart()
+        {
+
+            var categoryCoordinates = ResultAndSpeedByTest.Select(x => new CategoryCoordinate(x.Test, x.Controller, x.AverageTimeToComplete)).ToList();
+
+            var bubbleData = new CategoryBubbleChartData(categoryCoordinates, 30);
+
+
+            var builder = new ChartBuilder("bubble");
+
+            builder.AddDataset("ResultAndSpeed", options =>
+                {
+                    options.AddCoordinates(bubbleData.coordinates);
+                })
+                .ConfigureYAxis(options =>
+                {
+                    options.AddAbsoluteScaleLimits(0, 4);
+                });
+
+            ResultAndSpeedChartConfiguration = builder.BuildJson();
+
+        }
     }
 }

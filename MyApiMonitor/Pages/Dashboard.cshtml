@@ -15,8 +15,8 @@
 <div class="container">
         <div class="row">
         <div class="col">
-                <h4>Testing</h4><a display ="inline" href="/Tests/Results?collectionId=@Model.CollectionId">   (get all data)</a>
-            <canvas id="testChart"></canvas>
+                <h4>Reliability</h4><a display ="inline" href="/Tests/Results?collectionId=@Model.CollectionId">   (get all data)</a>
+            <canvas id="resultsChart"></canvas>
         </div>
         <div class="col">
             <h4>Speed</h4>
@@ -25,11 +25,11 @@
     </div>
     <div class="row">
         <div class="col">
-            <h4>Activity</h4>
-            <canvas id="activityChart"></canvas>
+            <h4>Spead and Reliability Breakdown</h4>
+            <canvas id="resultsAndSpeedChart"></canvas>
         </div>
         <div class="col">
-            <h4>Availability</h4>
+            <h4>Current Availability</h4>
             <canvas id="availabilityChart"></canvas>
         </div>
     </div>
@@ -75,17 +75,17 @@
  <script>
                 document.addEventListener('DOMContentLoaded',(event)=>{
 
-                    var ctx = document.getElementById('testChart').getContext('2d');
-                    var testChart = new Chart(ctx, @Html.Raw(Model.TestChartConfiguration))
+                    var ctx = document.getElementById('resultsChart').getContext('2d');
+                    var resultsChart = new Chart(ctx, @Html.Raw(Model.ResultChartConfiguration))
 
                     var ctx2 = document.getElementById('speedChart').getContext('2d');
                     var speedChart = new Chart(ctx2,@Html.Raw(Model.SpeedChartConfiguration))
 
-                    var ctx3 = document.getElementById('activityChart').getContext('2d');
-                    var activityChart = new Chart(ctx3, @Html.Raw(Model.TestChartConfiguration))
+                    var ctx3 = document.getElementById('resultsAndSpeedChart').getContext('2d');
+                    var resultsAndSpeedChart = new Chart(ctx3, @Html.Raw(Model.ResultAndSpeedChartConfiguration))
 
                     var ctx4 = document.getElementById('availabilityChart').getContext('2d');
-                    var availabilityChart = new Chart(ctx4, @Html.Raw(Model.SpeedChartConfiguration))
+                    var availabilityChart = new Chart(ctx4, @Html.Raw(Model.AvailabilityChartConfiguration))
 
                 })
                 
