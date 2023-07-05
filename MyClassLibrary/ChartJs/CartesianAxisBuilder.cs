@@ -6,9 +6,10 @@ namespace MyClassLibrary.ChartJs
     {
         private CartesianAxis _axis;
 
-        public CartesianAxisBuilder()
+        public CartesianAxisBuilder(string? type = null)
         {
             _axis = new CartesianAxis();
+            _axis.type = type;
         }
 
         public CartesianAxisBuilder AddTitle(string title, string align = "center", Color? color = null, Font? font = null)
@@ -17,14 +18,27 @@ namespace MyClassLibrary.ChartJs
             return this;
         }
 
-        public CartesianAxisBuilder AddAbsoluteScaleLimits(Double? min, Double? max)
+        public CartesianAxisBuilder AddType(string type)
+        {
+            _axis.type = type
+             ; return this;
+        }
+
+        public CartesianAxisBuilder AddAbsoluteScaleLimits(double? min, double? max)
+        {
+            _axis.min = min.ToString();
+            _axis.max = max.ToString();
+            return this;
+        }
+
+        public CartesianAxisBuilder AddAbsoluteScaleLimits(string? min, string? max)
         {
             _axis.min = min;
             _axis.max = max;
             return this;
         }
 
-        public CartesianAxisBuilder AddSuggestedScaleLimts(Double suggestedMin, Double suggestedMax)
+        public CartesianAxisBuilder AddSuggestedScaleLimts(string? suggestedMin, string? suggestedMax)
         {
             _axis.suggestedMin = suggestedMin;
             _axis.suggestedMax = suggestedMax;
@@ -36,6 +50,8 @@ namespace MyClassLibrary.ChartJs
             _axis.stacked = stacked;
             return this;
         }
+
+
 
 
         public CartesianAxisBuilder AddGrid()

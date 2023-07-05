@@ -100,8 +100,14 @@
         /// </summary>
         public bool? spanGaps { get; set; }
 
+
         /// <summary>
-        /// The ScaleId of the y axis this chart is using.
+        /// The ScaleId of the x axis to use for this dataset.
+        /// </summary>
+        public string? xAxisID { get; set; }
+
+        /// <summary>
+        /// The ScaleId of the y axis to use for this dataset.
         /// </summary>
         public string? yAxisID { get; set; }
 
@@ -154,6 +160,9 @@
         /// </summary>
         public string? type { get; set; }
 
-
+        /// <summary>
+        /// Determines whether line is drawn between points.
+        /// </summary>
+        public bool? showLine { get; set; }
     }
 }

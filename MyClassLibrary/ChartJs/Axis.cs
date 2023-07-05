@@ -32,19 +32,19 @@
         /// </summary>
         public Grid? grid { get; set; }
 
-        public Double? min { get; set; }
+        public string? min { get; set; }
 
-        public Double? max { get; set; }
+        public string? max { get; set; }
 
         /// <summary>
         /// Adjustment used when calculating the maximum value. the axes will use this if values do not exceed the max.
         /// </summary>
-        public Double? suggestedMax { get; set; }
+        public string? suggestedMax { get; set; }
 
         /// <summary>
         /// Adjustment used when calculating the minimum value. The axes will not go below this minimum value.
         /// </summary>
-        public Double? suggestedMin { get; set; }
+        public string? suggestedMin { get; set; }
 
         /// <summary>
         /// Reverses the Scale
@@ -73,6 +73,13 @@
         }
 
         public Axis(Double min, Double max)
+        {
+            this.min = min.ToString();
+            this.max = max.ToString();
+
+        }
+
+        public Axis(string min, string max)
         {
             this.min = min;
             this.max = max;

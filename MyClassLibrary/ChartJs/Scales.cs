@@ -2,9 +2,9 @@
 {
     public class Scales
     {
-        public CartesianAxis? xAxis { get; set; }
+        public CartesianAxis? x { get; set; }
 
-        public CartesianAxis? yAxis { get; set; }
+        public CartesianAxis? y { get; set; }
 
         public CartesianAxis? secondaryXAxis { get; set; }
 

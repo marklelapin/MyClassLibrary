@@ -60,6 +60,20 @@ namespace MyExtensions
 
         }
 
+        /// <summary>
+        /// Converts a string of a utc date to JavaScriptTimeStamp
+        /// </summary>
+        /// <param name="strUtcDate"></param>
+        /// <returns></returns>
+        public static double ToJavascriptTimeStamp(this string strUtcDate)
+        {
+            DateTime.TryParse(strUtcDate, out DateTime dt);
+
+            double output = dt.Subtract(new DateTime(19070, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+
+            return output;
+        }
+
 
     }
 }

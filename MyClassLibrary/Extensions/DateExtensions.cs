@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MyExtensions
+﻿namespace MyExtensions
 {
-    public static class DateExtensions 
+    public static class DateExtensions
     {
-        public static int DateDiff (this DateTime date1, DateTime date2,string datePart)
+        public static int DateDiff(this DateTime date1, DateTime date2, string datePart)
         {
             TimeSpan diff = date1 - date2;
 
@@ -20,7 +13,7 @@ namespace MyExtensions
                         int diffYears = date1.Year - date2.Year;
                         if (date1.AddYears(-diffYears) < date2) diffYears--;
                         Console.WriteLine(diffYears);
-                       
+
                         Console.WriteLine(date1.AddYears(-diffYears));
                         Console.WriteLine(date2);
                         return diffYears;
@@ -41,6 +34,16 @@ namespace MyExtensions
             }
 
         }
+
+        /// <summary>
+        /// Converts a UTC DateTime to Javascript TimeStamp
+        /// </summary>
+        public static double ToJavascriptTimeStamp(this DateTime utcDate)
+        {
+            return utcDate.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+        }
+
+
 
     }
 }

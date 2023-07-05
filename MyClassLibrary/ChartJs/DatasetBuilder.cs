@@ -30,6 +30,12 @@ namespace MyClassLibrary.ChartJs
             return this;
         }
 
+        public DatasetBuilder AddCoordinates(List<Coordinate> coordinates)
+        {
+            _dataset.data = coordinates.ToArray();
+            return this;
+        }
+
         public DatasetBuilder AddOrder(int orderNo)
         {
             _dataset.order = orderNo;
@@ -43,9 +49,22 @@ namespace MyClassLibrary.ChartJs
 
         }
 
-        public DatasetBuilder SpecifyYAxisID(string scaleID)
+        public DatasetBuilder SpecifyAxes(string? xscaleId, string? yScaleId)
         {
-            _dataset.yAxisID = scaleID;
+            _dataset.xAxisID = xscaleId;
+            _dataset.yAxisID = yScaleId;
+            return this;
+        }
+
+        public DatasetBuilder ShowLine()
+        {
+            _dataset.showLine = true;
+            return this;
+        }
+
+        public DatasetBuilder HideLine()
+        {
+            _dataset.showLine = false;
             return this;
         }
 

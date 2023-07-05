@@ -71,7 +71,7 @@ namespace MyClassLibrary.ChartJs
         {
             var axis = CreateCartesianAxis(builderActions);
             axis.axis = "x";
-            _chart.options.scales.xAxis = axis;
+            _chart.options.scales.x = axis;
 
             return this;
         }
@@ -80,7 +80,7 @@ namespace MyClassLibrary.ChartJs
         {
             var axis = CreateCartesianAxis(builderActions);
             axis.axis = "y";
-            _chart.options.scales.yAxis = axis;
+            _chart.options.scales.y = axis;
             return this;
         }
 
@@ -105,7 +105,7 @@ namespace MyClassLibrary.ChartJs
         private CartesianAxis CreateCartesianAxis(Action<CartesianAxisBuilder> builderActions)
         {
             var axisBuilder = new CartesianAxisBuilder();
-            builderActions(axisBuilder);
+            if (builderActions != null) { builderActions(axisBuilder); };
             CartesianAxis newAxis = axisBuilder.Build();
 
             return newAxis;

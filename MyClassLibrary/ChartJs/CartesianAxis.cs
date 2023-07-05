@@ -44,5 +44,12 @@
         ///  The Title object associated with the axis.
         /// </summary>
         public Title? title { get; set; }
+
+
+        /// <summary>
+        /// Configuration of time options for time scale.
+        /// </summary>
+        public Time? time { get; set; }
+
     }
 }

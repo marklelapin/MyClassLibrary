@@ -8,7 +8,7 @@ namespace MyClassLibrary.ChartJs
         /// <summary>
         /// Wether or not to display the title.
         /// </summary>
-        public bool display { get; set; }
+        public bool? display { get; set; } = true;
 
         /// <summary>
         /// The Title alignment ('start','center','end')
