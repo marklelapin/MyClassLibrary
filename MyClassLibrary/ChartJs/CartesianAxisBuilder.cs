@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Text.RegularExpressions;
 
 namespace MyClassLibrary.ChartJs
 {
@@ -51,8 +52,26 @@ namespace MyClassLibrary.ChartJs
             return this;
         }
 
+        public CartesianAxisBuilder AddLabels(List<string> labels)
+        {
+            _axis.labels = labels.ToArray();
+            return this;
+        }
 
 
+        public CartesianAxisBuilder AddTickCategoryLabels(Dictionary<string, int> labelDictionary)
+        {
+            string dp = string.Empty;
+            var labels = labelDictionary.ToList();
+
+            for (int i = 0; i < labels.Count; i++)
+            {
+                dp = dp + Regex.Unescape($@"case {labels[i].Value}: return '{labels[i].Key}'; break; ");
+            }
+
+            _axis.ticks.callback = $"callbackfunction.UseTickLabels({dp}).";
+            return this;
+        }
 
         public CartesianAxisBuilder AddGrid()
         {

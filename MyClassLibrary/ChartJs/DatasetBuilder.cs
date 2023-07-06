@@ -68,13 +68,13 @@ namespace MyClassLibrary.ChartJs
             return this;
         }
 
-        public DatasetBuilder AddFormating(Color borderColor, Color backgroundColor, bool hidden = false)
+        public DatasetBuilder AddBorderAndBackgroundColor(Color borderColor, Color backgroundColor, bool hidden = false)
         {
-            AddFormating(borderColor.ToHex(), backgroundColor.ToHex(), hidden);
+            AddBorderAndBackgroundColor(borderColor.ToHex(), backgroundColor.ToHex(), hidden);
             return this;
         }
 
-        public DatasetBuilder AddFormating(string borderColor, string backgroundColor, bool hidden = false)
+        public DatasetBuilder AddBorderAndBackgroundColor(string borderColor, string backgroundColor, bool hidden = false)
         {
             _dataset.borderColor = borderColor;
             _dataset.backgroundColor = backgroundColor;
@@ -83,22 +83,18 @@ namespace MyClassLibrary.ChartJs
         }
 
 
-        public DatasetBuilder AddLine(int borderWidth, Color borderColor, Color backgroundColor, int[]? borderDash = null)
+        public DatasetBuilder AddLine(int borderWidth, int[]? borderDash = null)
         {
             _dataset.type = "line";
             _dataset.borderWidth = borderWidth;
-            _dataset.borderColor = borderColor.ToHex();
-            _dataset.backgroundColor = backgroundColor.ToHex();
             _dataset.borderDash = borderDash;
             return this;
         }
 
-        public DatasetBuilder AddArea(string fillTo, int borderWidth, Color borderColor, Color backgroundColor, int[]? borderDash = null)
+        public DatasetBuilder AddArea(string fillTo, int borderWidth, int[]? borderDash = null)
         {
             _dataset.type = "line";
             _dataset.borderWidth = borderWidth;
-            _dataset.borderColor = borderColor.ToHex();
-            _dataset.backgroundColor = backgroundColor.ToHex();
             _dataset.fill = fillTo;
             return this;
         }

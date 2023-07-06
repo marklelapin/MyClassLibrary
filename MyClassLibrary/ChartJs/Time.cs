@@ -21,7 +21,7 @@
         /// <summary>
         /// The formats to be used for different time units.
         /// </summary>
-        public DisplayFormats? displayformats { get; set; }
+        public DisplayFormats displayformats { get; set; } = new DisplayFormats();
 
         /// <summary>
         /// The time format to use in tooltips.

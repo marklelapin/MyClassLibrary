@@ -30,6 +30,7 @@ namespace MyClassLibrary.ChartJs
         /// </summary>
         public string? text { get; set; }
 
+        public Title() { }
 
         public Title(string text, string? align, Color? color = null, Font? font = null)
         {

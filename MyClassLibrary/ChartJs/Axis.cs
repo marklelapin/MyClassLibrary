@@ -20,7 +20,7 @@
         /// <summary>
         /// Border Configuration
         /// </summary>
-        public Border? border { get; set; }
+        public Border border { get; set; } = new Border();
 
         /// <summary>
         /// Whether or not to display the axis. ('true','false' or 'auto'). Auto displays if values exist. 
@@ -30,7 +30,7 @@
         /// <summary>
         /// Grid Configuration
         /// </summary>
-        public Grid? grid { get; set; }
+        public Grid? grid { get; set; } = new Grid();
 
         public string? min { get; set; }
 
@@ -59,7 +59,7 @@
         /// <summary>
         /// Tick Configuration
         /// </summary>
-        public Ticks? ticks { get; set; }
+        public Ticks ticks { get; set; } = new Ticks();
 
         /// <summary>
         /// The weight used to sort the axis. Higher weights are further away from the chart area.

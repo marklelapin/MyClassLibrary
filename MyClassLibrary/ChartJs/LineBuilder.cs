@@ -12,15 +12,27 @@ namespace MyClassLibrary.ChartJs
             _line = new Line();
         }
 
-        public LineBuilder AddBasicDetails(int borderWidth, Color borderColor, Color backgroundColor, int[]? borderDash = null)
+        public LineBuilder AddLineStyle(int borderWidth, int[]? borderDash = null)
         {
             _line.borderWidth = borderWidth;
-            _line.borderColor = borderColor.ToHex();
-            _line.backgroundColor = backgroundColor.ToHex();
             _line.borderDash = borderDash;
 
             return this;
         }
+
+        public LineBuilder AddBorderAndBackGroundColor(Color borderColor, Color backgroundColor)
+        {
+            _line.borderColor = borderColor.ToHex();
+            _line.backgroundColor = backgroundColor.ToHex();
+            return this;
+        }
+        public LineBuilder AddBorderAndBackGroundColor(string borderColor, string backgroundColor)
+        {
+            _line.borderColor = borderColor;
+            _line.backgroundColor = backgroundColor;
+            return this;
+        }
+
 
         public Line Build()
         {

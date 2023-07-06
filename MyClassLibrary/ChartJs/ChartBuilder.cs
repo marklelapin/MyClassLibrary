@@ -1,6 +1,6 @@
-﻿using System.Drawing;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace MyClassLibrary.ChartJs
 {
@@ -50,10 +50,11 @@ namespace MyClassLibrary.ChartJs
         }
 
 
-        public ChartBuilder AddDefaultLineStyle(int borderWidth, Color borderColor, Color backgroundColor, int[]? borderDash = null)
+        public ChartBuilder AddDefaultLineStyle(Action<LineBuilder> builderActions)
         {
-            var line = new LineBuilder().AddBasicDetails(borderWidth, borderColor, backgroundColor, borderDash).Build();
-            _chart.options.elements.line = line;
+            var lineBuilder = new LineBuilder();
+            builderActions(lineBuilder);
+            _chart.options.elements.line = lineBuilder.Build();
 
             return this;
 
@@ -131,9 +132,21 @@ namespace MyClassLibrary.ChartJs
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
 
+            //Chart.Js doesn't use json exactly so following further adjustments need to be made:
             json.Replace("\"false\"", "false");
             json.Replace("\"true\"", "true");
 
+            //This adjustments puts call back functions from the CallbackFunctionLibrary into the string.
+            //These are invalid json when serializing above.
+
+            var callbackLibrary = new CallBackFunctionLibrary();
+
+            json = Regex.Replace(json, callbackLibrary.CallBackPattern, match =>
+            {
+                return callbackLibrary.GetCallBackFunction(match.ToString());
+            });
+
+            json = Regex.Unescape(json);
             return json;
         }
 

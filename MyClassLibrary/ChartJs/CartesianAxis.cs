@@ -43,13 +43,18 @@
         /// <summary>
         ///  The Title object associated with the axis.
         /// </summary>
-        public Title? title { get; set; }
+        public Title title { get; set; } = new Title();
 
 
         /// <summary>
         /// Configuration of time options for time scale.
         /// </summary>
-        public Time? time { get; set; }
+        public Time time { get; set; } = new Time();
 
+
+        /// <summary>
+        /// String array of category labels associated with axis.
+        /// </summary>
+        public string[] labels { get; set; }
     }
 }
