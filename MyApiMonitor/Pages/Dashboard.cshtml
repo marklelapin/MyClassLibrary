@@ -29,18 +29,46 @@
             
         </div>
         <div class="col">
-            <h4>Speed</h4>
-            <canvas id="speedChart"></canvas>
+            <div class="row">
+                <div class="col">
+                        <h4>Speed</h4>
+                </div>
+                <div class="col">
+                        <a href="/Tests/Results?collectionId=@Model.CollectionId">(get all data)</a>
+                </div>
+            </div>
+            <div class="row">
+                    <canvas id="speedChart"></canvas>
+            </div>
+            
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <h4>Spead and Reliability Breakdown</h4>
-            <canvas id="resultsAndSpeedChart"></canvas>
+                <div class="row">
+                    <div class="col">
+                        <h4>Spead and Reliability Breakdown</h4>
+                    </div>
+                    <div class="col">
+                        <a href="/Tests/Results?collectionId=@Model.CollectionId">(get all data)</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <canvas id="resultsAndSpeedChart"></canvas>
+                </div>
         </div>
         <div class="col">
-            <h4>Current Availability</h4>
-            <canvas id="availabilityChart"></canvas>
+                <div class="row">
+                    <div class="col">
+                        <h4>Current Availability</h4>
+                    </div>
+                    <div class="col">
+                        <a href="/Tests/Results?collectionId=@Model.CollectionId">(get all data)</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <canvas id="availabilityChart"></canvas>
+                </div>
         </div>
     </div>
 
@@ -49,7 +77,7 @@
     <h2>Documentation</h2>
 <p>
     Swagger(Open Api) has been used to produced the documentation for this API.
-    The example ids given within the comments for each call should all return results for GET Calls if you wish to try them out.
+    The example ids given within the comments for each call should return results for GET Calls if you wish to try them out.
     Post, Put and Patch calls will all return Not Authorized.
     Please note that the API is version controlled and the latest version is V2.
 </p>
@@ -60,13 +88,16 @@
     It also makes use of centralised class libraries to avoid duplication of code across projects and solutions.</p>
 <h4>TheWhaddonShowApi</h4>
 <p>
-
     A second (daemon) api running a range of typical Http requests and recording the outcomes of these to a NoSQL Database (MongoDB).
 
     An Azure Function then calls this second Api every 67 mins to trigger a test run.
    
     OAUTH2 Authentication has been set up with an AzureAdB2C tenant that also allows daemon access for the API monitor via the Client Credentials UserFlow.
     Extensive use of XML comments has been made to add detail to the Swagger documentation and to give a clear sense of my class library methods at point.
+</p>
+<h4>MyApiMonitor</h4>
+<p>
+    MyApiMonitor shows the results o 
 </p>
 <a href="add further links">Check out the API Code</a> <a href="sfsfsdf">Check out the API Monitoring Code.</a>
 <h2>Code Improvements</h2>

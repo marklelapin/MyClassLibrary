@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using MyApiMonitorClassLibrary.Interfaces;
 using MyApiMonitorClassLibrary.Models;
 using MyClassLibrary.ChartJs;
+using MyClassLibrary.Colors;
 using System.Drawing;
 
 namespace MyApiMonitor.Pages
@@ -30,20 +31,22 @@ namespace MyApiMonitor.Pages
 
         private List<ChartData_SpeedsByDateTime> AvailabilityByDateTime { get; set; }
 
-        public void OnGet([FromQuery] Guid collectionId, DateTime? startDate, DateTime? endDate, int? skip, int? limit)
+        private MyColors MyColors { get; set; } = new MyColors();
+
+        public async Task OnGet([FromQuery] Guid collectionId, DateTime? startDate, DateTime? endDate, int? skip, int? limit)
         {
             skip = skip ?? 0;
             limit = limit ?? 1014;
 
             Guid availabilityCollectionId = Guid.Parse("c8ecdb94-36a9-4dbb-a5db-e6e036bbba0f");
 
-            ResultByDateTime = _dataProcessor.ResultByDateTime(collectionId, startDate, endDate, (int)skip, (int)limit);
+            ResultByDateTime = await _dataProcessor.ResultByDateTime(collectionId, startDate, endDate, (int)skip, (int)limit);
 
-            SpeedByDateTime = _dataProcessor.SpeedsByDateTime(collectionId, startDate, endDate, (int)skip, (int)limit);
+            SpeedByDateTime = await _dataProcessor.SpeedsByDateTime(collectionId, startDate, endDate, (int)skip, (int)limit);
 
-            ResultAndSpeedByTest = _dataProcessor.ResultAndSpeedByTest(collectionId, startDate, endDate, (int)skip, (int)limit);
+            ResultAndSpeedByTest = await _dataProcessor.ResultAndSpeedByTest(collectionId, startDate, endDate, (int)skip, (int)limit);
 
-            AvailabilityByDateTime = _dataProcessor.AvailabilityByDateTime(availabilityCollectionId, DateTime.UtcNow.AddHours(-4), DateTime.UtcNow, 0, 60);
+            AvailabilityByDateTime = await _dataProcessor.AvailabilityByDateTime(availabilityCollectionId, DateTime.UtcNow.AddHours(-4), DateTime.UtcNow, 0, 60);
 
             CollectionId = collectionId.ToString();
 
@@ -76,7 +79,7 @@ namespace MyApiMonitor.Pages
                    .AddDataset("Successes", options =>
                     {
                         options.AddValues(ResultByDateTime.Select(x => x.SuccessfulTests).ToList())
-                                .AddFormating(Color.Transparent, Color.OliveDrab)
+                                .AddBorderAndBackgroundColor(MyColors.Transparent(), MyColors.TrafficGreen(0.75))
                                 .AddOrder(1)
                                 .SpecifyAxes(null, "y");
 
@@ -85,7 +88,7 @@ namespace MyApiMonitor.Pages
                     .AddDataset("Failures", options =>
                     {
                         options.AddValues(ResultByDateTime.Select(x => x.FailedTests).ToList())
-                                .AddFormating(Color.Transparent, Color.OrangeRed)
+                                .AddBorderAndBackgroundColor(MyColors.Transparent(), MyColors.TrafficOrangeRed(0.755))
                                 .AddOrder(2)
                                 .SpecifyAxes(null, "y");
                     });
@@ -101,7 +104,11 @@ namespace MyApiMonitor.Pages
             {
                 options.AddStyleAndRadius("circle", 0);
             })
-            .AddDefaultLineStyle(3, Color.Orange, Color.Orange)
+            .AddDefaultLineStyle(options =>
+            {
+                options.AddLineStyle(3, null)
+                .AddBorderAndBackGroundColor(MyColors.TrafficGreen(), MyColors.TrafficGreen(0.5));
+            })
             .ConfigureYAxis(options =>
             {
                 options.AddTitle("Time to Complete Basic Get Request (ms)");
@@ -125,7 +132,7 @@ namespace MyApiMonitor.Pages
         private void ConfigureSpeedChart()
         {
             var builder = new ChartBuilder("line");
-            builder.AddLabels(SpeedByDateTime.Select(x => x.TestDateTime.ToString()).ToArray())
+            builder.AddLabels(SpeedByDateTime.Select(x => x.TestDateTime.ToString("MMM-dd HH:mm:ss")).ToArray())
 
                    .AddDefaultPointStyle(options =>
                    {
@@ -133,33 +140,35 @@ namespace MyApiMonitor.Pages
                    })
                    .ConfigureYAxis(options =>
                    {
-                       options.AddTitle("Time To Complete (ms)")
-                                .AddAbsoluteScaleLimits(0, null);
+                       options.AddTitle("Time To Complete (ms)");
 
                    })
                    .HideLegend()
                    .AddDataset("Min Time To Complete", options =>
                    {
                        options.AddValues(SpeedByDateTime.Select(x => x.MinSpeed).ToList())
-                               .AddArea("+1", 1, Color.AliceBlue, Color.Orange)
+                               .AddArea("+1", 1)
+                               .AddBorderAndBackgroundColor(MyColors.TrafficGreen(), MyColors.TrafficGreen(0.5))
                                .AddOrder(1)
-                               .SpecifyAxes(null, "yAxis");
+                               .SpecifyAxes(null, "y");
                    })
                    .AddDataset("Avg Time To Complete", options =>
                     {
                         options.AddValues(SpeedByDateTime.Select(x => x.AvgSpeed).ToList())
-                                .AddLine(3, Color.Black, Color.Transparent)
+                                .AddLine(3)
+                                .AddBorderAndBackgroundColor(Color.Black, Color.Transparent)
                                 .AddOrder(2)
-                                .SpecifyAxes(null, "yAxis");
+                                .SpecifyAxes("x", "y");
+
                     })
                    .AddDataset("Max Time To Complete", options =>
                    {
                        options.AddValues(SpeedByDateTime.Select(x => x.MaxSpeed).ToList())
-                               .AddArea("-1", 1, Color.OrangeRed, Color.Orange)
+                               .AddArea("-1", 1)
+                               .AddBorderAndBackgroundColor(MyColors.TrafficGreen(), MyColors.TrafficGreen(0.5))
                                .AddOrder(3)
-                               .SpecifyAxes(null, "yAxis");
+                                .SpecifyAxes(null, "y");
                    });
-
 
 
             SpeedChartConfiguration = builder.BuildJson();
@@ -183,12 +192,27 @@ namespace MyApiMonitor.Pages
                 })
                 .ConfigureYAxis(options =>
                 {
-                    options.AddAbsoluteScaleLimits(0, 4);
+                    options.AddTitle("Controller")
+                    .AddAbsoluteScaleLimits(0, bubbleData.yLabels.Count + 1)
+                    .AddTickCategoryLabels(bubbleData.yLabels);
+
+                })
+                .ConfigureXAxis(options =>
+                {
+                    options.AddTitle("Test")
+                    .AddAbsoluteScaleLimits(0, bubbleData.xLabels.Count + 1)
+                    .AddTickCategoryLabels(bubbleData.xLabels);
                 })
                 .HideLegend();
+
+
 
             ResultAndSpeedChartConfiguration = builder.BuildJson();
 
         }
+
+
+
+
     }
 }
