@@ -73,7 +73,7 @@ namespace MyApiMonitor.Pages
         {
             var builder = new ChartBuilder("bar");
 
-            builder.AddLabels(ResultByDateTime.Select(x => x.TestDateTime.ToString("MMM-dd HH:mm:ss")).ToArray())
+            builder.AddLabels(ResultByDateTime.Select(x => x.TestDateTime.ToString("MMM-dd HH:mm")).ToArray())
                    .ConfigureYAxis(options =>
                    {
                        options.Stacked("true")
@@ -84,21 +84,24 @@ namespace MyApiMonitor.Pages
                        options.Stacked("true");
                    })
                    .HideLegend()
+                   .AddClickEventHandler("resultChartClickHandler")
                    .AddDataset("Successes", options =>
                     {
                         options.AddValues(ResultByDateTime.Select(x => x.SuccessfulTests).ToList())
-                                .AddColors(new ColorSet(MyColors.Transparent(), MyColors.TrafficGreen(0.75), "sdfsd"))
+                                .AddColors(new ColorSet(MyColors.TrafficGreen(), MyColors.TrafficGreen(0.6)))
                                 .AddOrder(1)
-                                .SpecifyAxes(null, "y");
+                                .SpecifyAxes(null, "y")
+                                .AddHoverFormat(new ColorSet(MyColors.TrafficGreen(), MyColors.TrafficGreen()));
 
                     })
 
                     .AddDataset("Failures", options =>
                     {
                         options.AddValues(ResultByDateTime.Select(x => x.FailedTests).ToList())
-                                .AddColors(new ColorSet(MyColors.Transparent(), MyColors.TrafficOrangeRed(0.755)))
+                                .AddColors(new ColorSet(MyColors.TrafficOrangeRed(), MyColors.TrafficOrangeRed(0.6)))
                                 .AddOrder(2)
-                                .SpecifyAxes(null, "y");
+                                .SpecifyAxes(null, "y")
+                                .AddHoverFormat(new ColorSet(MyColors.TrafficOrangeRed(), MyColors.TrafficOrangeRed()));
                     });
 
             ResultChartConfiguration = builder.BuildJson();
@@ -142,16 +145,19 @@ namespace MyApiMonitor.Pages
         private void ConfigureSpeedChart()
         {
             var builder = new ChartBuilder("line");
-            builder.AddLabels(SpeedByDateTime.Select(x => x.TestDateTime.ToString("MMM-dd HH:mm:ss")).ToArray())
+            builder.AddLabels(SpeedByDateTime.Select(x => x.TestDateTime.ToString("MMM-dd HH:mm")).ToArray())
 
                    .AddDefaultPointStyle(options =>
                    {
-                       options.AddStyleAndRadius("circle", 0);
+                       options.AddStyleAndRadius("circle", 0)
+                       .AddColors(new ColorSet(MyColors.TrafficGreen(), MyColors.TrafficGreen()))
+                       .AddHover(6, 6)
+                       .AddHit(15);
                    })
+                   .AddClickEventHandler("speedChartClickHandler")
                    .ConfigureYAxis(options =>
                    {
                        options.AddTitle("Time To Complete (ms)");
-
                    })
                    .HideLegend()
                    .AddDataset("Min Time To Complete", options =>
@@ -231,7 +237,8 @@ namespace MyApiMonitor.Pages
                     .AddAbsoluteScaleLimits(0, bubbleData.XLabels.Count + 1)
                     .AddTickCategoryLabels(bubbleData.XLabels);
                 })
-                .HideLegend();
+                .HideLegend()
+                .AddClickEventHandler("resultAndSpeedChartClickHandler");
 
 
 

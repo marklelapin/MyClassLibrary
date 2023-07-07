@@ -6,73 +6,43 @@
 <head>
     
 </head>
+<body>
+
 
 <h1>The Whaddon Show Api</h1>
 
     <p>The Whaddon Show Api is a REST Api providing access to The Whaddon Show's central SQL Database. It is primarily used by the <a href="/Not yet Implemented">The Whaddon Show App</a> as part of its server side data access layer but public access is also available for GET requests. (POST,PUT and DELETE requests require Authentication through Azure AdB2C)</p>
     <h2>Performance & Monitoring</h2>
     <p>The availability and performance of the API is regularly monitored with live results summarised below.<p>
+    <a href="/Tests/Results?collectionId=@Model.CollectionId">(get all data)</a>
 <div class="container">
-        <div class="row">
-        <div class="col">
-            <div class ="row">
-                <div class="col">
-                        <h4>Reliability</h4>
-                </div>
-                <div class="col">
-                        <a href="/Tests/Results?collectionId=@Model.CollectionId">(get all data)</a>
-                </div>
-            </div>
-            <div class="row">
-                    <canvas id="resultsChart"></canvas>
-            </div>
-            
-        </div>
-        <div class="col">
-            <div class="row">
-                <div class="col">
-                        <h4>Speed</h4>
-                </div>
-                <div class="col">
-                        <a href="/Tests/Results?collectionId=@Model.CollectionId">(get all data)</a>
-                </div>
-            </div>
-            <div class="row">
-                    <canvas id="speedChart"></canvas>
-            </div>
-            
-        </div>
-    </div>
     <div class="row">
-        <div class="col">
-                <div class="row">
-                    <div class="col-8">
-                        <h4>Spead and Reliability Breakdown</h4>
-                    </div>
-                    <div class="col-4">
-                        <a href="/Tests/Results?collectionId=@Model.CollectionId">(get all data)</a>
-                    </div>
-                </div>
-                <div class="row">
-                    <canvas id="resultsAndSpeedChart"></canvas>
-                </div>
+            
+        <div class="col-md-6">
+            <h4>Reliability</h4>
+            <canvas id="resultsChart"></canvas>
+            </div>
+
+
+            <div class="col-md-6">
+            <h4>Speed</h4>
+            <canvas id="speedChart"></canvas>
         </div>
-        <div class="col">
-                <div class="row">
-                    <div class="col">
-                        <h4>Current Availability</h4>
-                    </div>
-                    <div class="col">
-                        <a href="/Tests/Results?collectionId=@Model.CollectionId">(get all data)</a>
-                    </div>
-                </div>
-                <div class="row">
-                    <canvas id="availabilityChart"></canvas>
-                </div>
-        </div>
+            
+    </div>
+    
+    <div class="row">
+            <div class="col-md-6">
+               <h4>Spead and Reliability Breakdown</h4>
+                <canvas id="resultsAndSpeedChart"></canvas>
+         </div>
+
+            <div class="col-md-6">
+               <h4>Current Availability</h4>
+               <canvas id="availabilityChart"></canvas>
+       </div>
     </div>
 
-    
 </div>
     <h2>Documentation</h2>
 <p>
@@ -111,24 +81,59 @@
 <p>Due to time contraints the setup and ordering of tests is currently 'hardcoded' within a TestCollectionSetup_WhaddonShowApi class.</p>
 <p>The app has the potential to monitor a wide variety of APIs and if further developed would need database storage of test setups and a basic UI for setup being developed next.</p>
 
-
+</body>
    
  <script>
+                var resultChart;
+                var speedChart;
+                var resultAndSpeedChart;
+                var availabilityChart;
+
                 document.addEventListener('DOMContentLoaded',(event)=>{
 
                     var ctx = document.getElementById('resultsChart').getContext('2d');
-                    var resultsChart = new Chart(ctx, @Html.Raw(Model.ResultChartConfiguration))
+                    resultChart = new Chart(ctx, @Html.Raw(Model.ResultChartConfiguration))
 
                     var ctx2 = document.getElementById('speedChart').getContext('2d');
-                    var speedChart = new Chart(ctx2,@Html.Raw(Model.SpeedChartConfiguration))
+                   speedChart = new Chart(ctx2,@Html.Raw(Model.SpeedChartConfiguration))
 
                     var ctx3 = document.getElementById('resultsAndSpeedChart').getContext('2d');
-                    var resultsAndSpeedChart = new Chart(ctx3, @Html.Raw(Model.ResultAndSpeedChartConfiguration))
+                    resultAndSpeedChart = new Chart(ctx3, @Html.Raw(Model.ResultAndSpeedChartConfiguration))
 
                     var ctx4 = document.getElementById('availabilityChart').getContext('2d');
-                    var availabilityChart = new Chart(ctx4, @Html.Raw(Model.AvailabilityChartConfiguration))
+                    availabilityChart = new Chart(ctx4, @Html.Raw(Model.AvailabilityChartConfiguration))
 
                 })
                 
-    
+                function resultChartClickHandler(event){
+                    
+                    const activeElements = resultChart.getElementsAtEventForMode(event,'nearest', {intersect: true}, true)
+
+                    if (activeElements.length) {
+                        const firstElement = activeElements[0];
+                        const dateTime = resultChart.data.datasets[firstElement.datasetIndex].data[firstElement.index];
+
+            window.location.href = "/Tests/Results?collectionId=@Model.CollectionId"//"/Tests/Results?collectionId=@Model.CollectionId&testDateTime=" + dateTime.ToString();
+                    }
+
+                }
+
+                function speedChartClickHandler(event){
+                    
+                     resultChartClickHandler(event)
+                }
+
+                function resultAndSpeedChartClickHandler(event){
+
+                        const activeElements = resultChart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true)
+
+                        if (activeElements.length) {
+                            const firstElement = activeElements[0];
+                            const dateTime = resultChart.data.datasets[firstElement.datasetIndex].data[firstElement.index];
+
+                            window.location.href = "/Tests/Results?collectionId=@Model.CollectionId"//"/Tests/Results?collectionId=@Model.CollectionId&testDateTime=" + dateTime.ToString();
+                        }
+                }
+
+                
 </script>
