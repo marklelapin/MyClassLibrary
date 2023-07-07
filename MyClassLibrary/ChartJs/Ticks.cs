@@ -14,5 +14,7 @@
         /// String array containing labels for ticks.
         /// </summary>
         public string[]? labels { get; set; }
+
+
     }
 }
