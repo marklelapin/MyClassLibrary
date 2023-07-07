@@ -40,7 +40,7 @@
             Controller = controller;
             Test = test;
             AverageResult = averageResult;
-            LatestResult = LatestResult;
+            LatestResult = latestResult;
             AverageTimeToComplete = averageTimeToComplete;
             LatestTimeToComplete = latestTimeToComplete;
         }

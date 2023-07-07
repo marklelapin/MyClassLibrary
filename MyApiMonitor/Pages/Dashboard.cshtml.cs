@@ -10,10 +10,12 @@ namespace MyApiMonitor.Pages
 {
     public class DashboardModel : PageModel
     {
+        private readonly IApiTestDataAccess _dataAccess;
         private readonly IChartDataProcessor _dataProcessor;
 
-        public DashboardModel(IChartDataProcessor dataProcessor)
+        public DashboardModel(IApiTestDataAccess dataAccess, IChartDataProcessor dataProcessor)
         {
+            _dataAccess = dataAccess;
             _dataProcessor = dataProcessor;
         }
 
@@ -40,15 +42,21 @@ namespace MyApiMonitor.Pages
 
             Guid availabilityCollectionId = Guid.Parse("c8ecdb94-36a9-4dbb-a5db-e6e036bbba0f");
 
-            ResultByDateTime = await _dataProcessor.ResultByDateTime(collectionId, startDate, endDate, (int)skip, (int)limit);
+            var speedAndTestData = await _dataAccess.GetAllBetweenDates(collectionId, startDate, endDate, (int)skip, (int)limit);
 
-            SpeedByDateTime = await _dataProcessor.SpeedsByDateTime(collectionId, startDate, endDate, (int)skip, (int)limit);
+            var availabilityData = await _dataAccess.GetAllBetweenDates(availabilityCollectionId, DateTime.UtcNow.AddMinutes(-15), DateTime.UtcNow, (int)skip, (int)limit);
 
-            ResultAndSpeedByTest = await _dataProcessor.ResultAndSpeedByTest(collectionId, startDate, endDate, (int)skip, (int)limit);
+            ResultByDateTime = _dataProcessor.ResultByDateTime(speedAndTestData.records);
 
-            AvailabilityByDateTime = await _dataProcessor.AvailabilityByDateTime(availabilityCollectionId, DateTime.UtcNow.AddHours(-4), DateTime.UtcNow, 0, 60);
+            SpeedByDateTime = _dataProcessor.SpeedsByDateTime(speedAndTestData.records);
+
+            ResultAndSpeedByTest = _dataProcessor.ResultAndSpeedByTest(speedAndTestData.records);
+
+            AvailabilityByDateTime = _dataProcessor.AvailabilityByDateTime(availabilityData.records);
 
             CollectionId = collectionId.ToString();
+
+
 
             ConfigureResultChart();
 
@@ -79,7 +87,7 @@ namespace MyApiMonitor.Pages
                    .AddDataset("Successes", options =>
                     {
                         options.AddValues(ResultByDateTime.Select(x => x.SuccessfulTests).ToList())
-                                .AddBorderAndBackgroundColor(MyColors.Transparent(), MyColors.TrafficGreen(0.75))
+                                .AddColors(new ColorSet(MyColors.Transparent(), MyColors.TrafficGreen(0.75), "sdfsd"))
                                 .AddOrder(1)
                                 .SpecifyAxes(null, "y");
 
@@ -88,7 +96,7 @@ namespace MyApiMonitor.Pages
                     .AddDataset("Failures", options =>
                     {
                         options.AddValues(ResultByDateTime.Select(x => x.FailedTests).ToList())
-                                .AddBorderAndBackgroundColor(MyColors.Transparent(), MyColors.TrafficOrangeRed(0.755))
+                                .AddColors(new ColorSet(MyColors.Transparent(), MyColors.TrafficOrangeRed(0.755)))
                                 .AddOrder(2)
                                 .SpecifyAxes(null, "y");
                     });
@@ -107,7 +115,7 @@ namespace MyApiMonitor.Pages
             .AddDefaultLineStyle(options =>
             {
                 options.AddLineStyle(3, null)
-                .AddBorderAndBackGroundColor(MyColors.TrafficGreen(), MyColors.TrafficGreen(0.5));
+                .AddColors(new ColorSet(MyColors.TrafficGreen(), MyColors.TrafficGreen(0.5)));
             })
             .ConfigureYAxis(options =>
             {
@@ -116,6 +124,7 @@ namespace MyApiMonitor.Pages
             .ConfigureXAxis(options =>
             {
                 options.AddTitle("Time");
+
             })
             .HideLegend()
             .AddDataset("Availability", options =>
@@ -148,7 +157,7 @@ namespace MyApiMonitor.Pages
                    {
                        options.AddValues(SpeedByDateTime.Select(x => x.MinSpeed).ToList())
                                .AddArea("+1", 1)
-                               .AddBorderAndBackgroundColor(MyColors.TrafficGreen(), MyColors.TrafficGreen(0.5))
+                               .AddColors(new ColorSet(MyColors.TrafficGreen(), MyColors.TrafficGreen(0.5)))
                                .AddOrder(1)
                                .SpecifyAxes(null, "y");
                    })
@@ -156,7 +165,7 @@ namespace MyApiMonitor.Pages
                     {
                         options.AddValues(SpeedByDateTime.Select(x => x.AvgSpeed).ToList())
                                 .AddLine(3)
-                                .AddBorderAndBackgroundColor(Color.Black, Color.Transparent)
+                                .AddColors(new ColorSet(Color.Black, Color.Transparent))
                                 .AddOrder(2)
                                 .SpecifyAxes("x", "y");
 
@@ -165,7 +174,7 @@ namespace MyApiMonitor.Pages
                    {
                        options.AddValues(SpeedByDateTime.Select(x => x.MaxSpeed).ToList())
                                .AddArea("-1", 1)
-                               .AddBorderAndBackgroundColor(MyColors.TrafficGreen(), MyColors.TrafficGreen(0.5))
+                               .AddColors(new ColorSet(MyColors.TrafficGreen(), MyColors.TrafficGreen(0.5)))
                                .AddOrder(3)
                                 .SpecifyAxes(null, "y");
                    });
@@ -178,30 +187,48 @@ namespace MyApiMonitor.Pages
 
         private void ConfigureResultAndSpeedChart()
         {
+            Dictionary<string, List<CategoryCoordinate>> chartSeries = new Dictionary<string, List<CategoryCoordinate>>();
 
-            var categoryCoordinates = ResultAndSpeedByTest.Select(x => new CategoryCoordinate(x.Test, x.Controller, x.AverageTimeToComplete)).ToList();
+            chartSeries.Add("Always Successfull"
+                            , ResultAndSpeedByTest.Where(x => x.AverageResult == 100 && x.LatestResult == true).Select(x => new CategoryCoordinate(x.Test, x.Controller, x.AverageTimeToComplete)).ToList());
+            chartSeries.Add("Latest Successfull"
+                            , ResultAndSpeedByTest.Where(x => x.AverageResult != 100 && x.LatestResult == true).Select(x => new CategoryCoordinate(x.Test, x.Controller, x.AverageTimeToComplete)).ToList());
+            chartSeries.Add("Currently Failing"
+                            , ResultAndSpeedByTest.Where(x => x.LatestResult == false).Select(x => new CategoryCoordinate(x.Test, x.Controller, x.AverageTimeToComplete)).ToList());
 
-            var bubbleData = new CategoryBubbleChartData(categoryCoordinates, 30);
+
+            var bubbleData = new CategoryBubbleChartData(chartSeries, 30);
 
 
             var builder = new ChartBuilder("bubble");
 
-            builder.AddDataset("ResultAndSpeed", options =>
+            builder.AddDataset("Always Successful", options =>
                 {
-                    options.AddCoordinates(bubbleData.coordinates);
+                    options.AddCoordinates(bubbleData.Coordinates["Always Successfull"]!)
+                    .AddColors(new ColorSet(MyColors.TrafficGreen(), MyColors.TrafficGreen(0.5)));
+                })
+                .AddDataset("Latest Successful", options =>
+                {
+                    options.AddCoordinates(bubbleData.Coordinates["Latest Successfull"])
+                    .AddColors(new ColorSet(MyColors.TrafficOrange(), MyColors.TrafficOrange(0.5)));
+                })
+                .AddDataset("Currently Failing", options =>
+                {
+                    options.AddCoordinates(bubbleData.Coordinates["Currently Failing"])
+                    .AddColors(new ColorSet(MyColors.TrafficOrangeRed(), MyColors.TrafficOrangeRed(0.5)));
                 })
                 .ConfigureYAxis(options =>
                 {
                     options.AddTitle("Controller")
-                    .AddAbsoluteScaleLimits(0, bubbleData.yLabels.Count + 1)
-                    .AddTickCategoryLabels(bubbleData.yLabels);
+                    .AddAbsoluteScaleLimits(0, bubbleData.YLabels.Count + 1)
+                    .AddTickCategoryLabels(bubbleData.YLabels);
 
                 })
                 .ConfigureXAxis(options =>
                 {
                     options.AddTitle("Test")
-                    .AddAbsoluteScaleLimits(0, bubbleData.xLabels.Count + 1)
-                    .AddTickCategoryLabels(bubbleData.xLabels);
+                    .AddAbsoluteScaleLimits(0, bubbleData.XLabels.Count + 1)
+                    .AddTickCategoryLabels(bubbleData.XLabels);
                 })
                 .HideLegend();
 

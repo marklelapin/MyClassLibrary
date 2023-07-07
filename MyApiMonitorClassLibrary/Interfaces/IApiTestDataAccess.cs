@@ -11,30 +11,30 @@ namespace MyApiMonitorClassLibrary.Interfaces
         /// <summary>
         /// Saves a testCollection to database.
         /// </summary>
-        public void Save(ApiTestCollection testCollection);
+        public Task Save(ApiTestCollection testCollection);
 
         /// <summary>
         /// Returns all tests on the database with a given testCollectionId.
         /// </summary>
-        public (List<ApiTestData> records, int total) GetAllByTestCollectionId(Guid testCollectionId, int skip = 0, int limit = 10000);
+        public Task<(List<ApiTestData> records, int total)> GetAllByTestCollectionId(Guid testCollectionId, int skip = 0, int limit = 10000);
 
 
         /// <summary>
         /// Returs all tests on the database with a given testId.
         /// </summary>
-        public (List<ApiTestData> records, int total) GetAllByTestId(Guid testId, int skip = 0, int limit = 10000);
+        public Task<(List<ApiTestData> records, int total)> GetAllByTestId(Guid testId, int skip = 0, int limit = 10000);
 
         /// <summary>
         /// Returns all test run at a specific datetime.
         /// </summary>
-        public (List<ApiTestData> records, int total) GetAllByDateTime(Guid testCollectionId, DateTime testDateTime, int skip = 0, int limit = 10000);
+        public Task<(List<ApiTestData> records, int total)> GetAllByDateTime(Guid testCollectionId, DateTime testDateTime, int skip = 0, int limit = 10000);
 
 
 
         /// <summary>
         /// Returns all tests run between specific dates.
         /// </summary>
-        public (List<ApiTestData> records, int total) GetAllBetweenDates(Guid testCollectionID, DateTime? startDate, DateTime? endDate, int skip = 0, int limit = 10000);
+        public Task<(List<ApiTestData> records, int total)> GetAllBetweenDates(Guid testCollectionID, DateTime? startDate, DateTime? endDate, int skip = 0, int limit = 10000);
 
 
 
