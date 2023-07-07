@@ -60,6 +60,12 @@ namespace MyClassLibrary.ChartJs
 
         }
 
+        public ChartBuilder AddClickEventHandler(string functionName)
+        {
+            _chart.options.onClick = $"jsfunction.{functionName}.";
+            return this;
+        }
+
 
         public ChartBuilder AddDefaultPointStyle(Action<PointBuilder> builderActions)
         {
@@ -68,7 +74,6 @@ namespace MyClassLibrary.ChartJs
             _chart.options.elements.point = pointBuilder.Build();
             return this;
         }
-
 
 
         //Axis Configuration
@@ -136,14 +141,22 @@ namespace MyClassLibrary.ChartJs
             json.Replace("\"false\"", "false");
             json.Replace("\"true\"", "true");
 
-            //This adjustments puts call back functions from the CallbackFunctionLibrary into the string.
+
+            json.Replace(json, "\".jsfunction.");
+
+            //The adjustments below put functions into the chart.js configuration. They are either name JsFunctions or call back functions from the CallbackFunctionLibrary.
             //These are invalid json when serializing above.
+            var functions = new Functions();
 
-            var callbackLibrary = new CallBackFunctionLibrary();
-
-            json = Regex.Replace(json, callbackLibrary.CallBackPattern, match =>
+            json = Regex.Replace(json, functions.JsFunctionPattern, match =>
             {
-                return callbackLibrary.GetCallBackFunction(match.ToString());
+                return functions.GetJavascriptFunction(match.ToString());
+            });
+
+
+            json = Regex.Replace(json, functions.CallBackPattern, match =>
+            {
+                return functions.GetCallBackFunction(match.ToString());
             });
 
             json = Regex.Unescape(json);

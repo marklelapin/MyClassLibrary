@@ -146,15 +146,28 @@
         public int? hitRadius { get; set; }
 
         /// <summary>
-        /// Point radius when hovered
+        /// Point radius when hovered.
         /// </summary>
         public int? hoverRadius { get; set; }
 
         /// <summary>
-        /// Borderwidth when hovered
+        /// Borderwidth when hovered.
         /// </summary>
         public int? hoverBorderWidth { get; set; }
 
+        /// <summary>
+        /// The border radius of bar chart when hovered over.
+        /// </summary>
+        public int? hoverBorderRadius { get; set; }
+        /// <summary>
+        /// Color of border when hovered.
+        /// </summary>
+        public string? hoverBorderColor { get; set; }
+
+        /// <summary>
+        /// Color of background when hovered.
+        /// </summary>
+        public string? hoverBackgroundColor { get; set; }
         /// <summary>
         /// The type of chart (when mixed chart types being used)
         /// </summary>

@@ -82,6 +82,16 @@ namespace MyClassLibrary.ChartJs
         }
 
 
+
+        public DatasetBuilder AddHoverFormat(ColorSet? colorSet, int? hoverBorderWidth = null, int? hoverBorderRadius = null)
+        {
+            _dataset.hoverBorderRadius = hoverBorderRadius;
+            _dataset.hoverBorderWidth = hoverBorderWidth;
+            _dataset.hoverBorderColor = colorSet?.borderColor;
+            _dataset.hoverBackgroundColor = colorSet?.backgroundColor;
+            return this;
+        }
+
         //public DatasetBuilder AddColorsByDataPoint(List<ColorSet> listColorSet)
         //{
         //    _dataset.borderColor = listColorSet.Select(x => x.borderColor).ToArray().ToString();

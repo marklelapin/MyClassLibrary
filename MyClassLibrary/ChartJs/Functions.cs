@@ -1,17 +1,21 @@
 ﻿namespace MyClassLibrary.ChartJs
 {
-    public class CallBackFunctionLibrary
+    public class Functions
     {
         public string CallBackPattern = "\"callbackfunction.*?.\"";
 
+        public string JsFunctionPattern = "\"jsfunction.*?.\"";
+
+        public string GetJavascriptFunction(string functionProperty)
+        {
+            return GetFunctionString(functionProperty, "\"jsfunction.");
+        }
 
         public string GetCallBackFunction(string callbackProperty)
         {
             try
             {
-                string callbackString = callbackProperty.Replace("\"callbackfunction.", "")
-                                                        .Replace(".\"", "");
-
+                string callbackString = GetFunctionString(callbackProperty, "\"callbackfunction.");
 
                 string callback = string.Empty;
 
@@ -38,7 +42,12 @@
                 return "not found";
             };
         }
-
+        /// <summary>
+        /// Dictionary of call back function that can be used in My Chart.Js.
+        /// </summary>
+        /// <remarks>
+        /// 'ConvertTickToDateTime' requires moment.js to be added to scripts.
+        /// </remarks>
         private Dictionary<string, string> CallbackFunctions = new Dictionary<string, string>()
         {
             { "UseTickLabels", $@"function(value,index,ticks) {{
@@ -47,17 +56,7 @@
                                                     default: return '';
                                                 }}
                                             }}" }
-            //,
-
-            //{ "ConvertTickToDateTime", $@"function(value,index,ticks) {{
-                                            
-            //                                    return new Date(value);;
-
-            //                                }}"
-
-            //}
-            ,
-             { "ConvertTickToDateTime", $@"function(value) {{
+            ,{ "ConvertTickToDateTime", $@"function(value) {{
                                                 
                                                
                                                 return moment(value).format(.dynamicParameter.);
@@ -66,6 +65,15 @@
 
             }
         };
+
+
+
+        private string GetFunctionString(string functionProperty, string preFix)
+        {
+            return functionProperty.Replace(preFix, "").Replace(".\"", "");
+        }
+
+
 
 
 
