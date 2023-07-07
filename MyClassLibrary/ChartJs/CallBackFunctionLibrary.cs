@@ -41,12 +41,33 @@
 
         private Dictionary<string, string> CallbackFunctions = new Dictionary<string, string>()
         {
-            {"UseTickLabels", $@"function(value,index,ticks) {{
+            { "UseTickLabels", $@"function(value,index,ticks) {{
                                             switch(value) {{
                                                     .dynamicParameter.                                                       
                                                     default: return '';
                                                 }}
                                             }}" }
+            //,
+
+            //{ "ConvertTickToDateTime", $@"function(value,index,ticks) {{
+                                            
+            //                                    return new Date(value);;
+
+            //                                }}"
+
+            //}
+            ,
+             { "ConvertTickToDateTime", $@"function(value) {{
+                                                
+                                               
+                                                return moment(value).format(.dynamicParameter.);
+
+                                            }}"
+
+            }
         };
+
+
+
     }
 }

@@ -55,6 +55,6 @@
         /// <summary>
         /// String array of category labels associated with axis.
         /// </summary>
-        public string[] labels { get; set; }
+        public string[]? labels { get; set; }
     }
 }

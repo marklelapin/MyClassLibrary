@@ -123,7 +123,8 @@ namespace MyApiMonitor.Pages
             })
             .ConfigureXAxis(options =>
             {
-                options.AddTitle("Time");
+                options.AddTitle("Time")
+                .ConvertTickToDateTime("hh:mm:ss");
 
             })
             .HideLegend()
