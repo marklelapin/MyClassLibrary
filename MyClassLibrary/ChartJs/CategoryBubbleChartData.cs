@@ -2,60 +2,92 @@
 {
     public class CategoryBubbleChartData
     {
+        private double radiusMultiplier;
 
-        public Dictionary<string, int> xLabels { get; private set; } = new Dictionary<string, int>();
+        public Dictionary<string, int> XLabels { get; private set; } = new Dictionary<string, int>();
 
-        public Dictionary<string, int> yLabels { get; private set; } = new Dictionary<string, int>();
+        public Dictionary<string, int> YLabels { get; private set; } = new Dictionary<string, int>();
 
-        public List<Coordinate> coordinates { get; private set; }
+        public Dictionary<string, List<Coordinate>> Coordinates { get; private set; } = new Dictionary<string, List<Coordinate>>();
 
-        public CategoryBubbleChartData(List<CategoryCoordinate> categoryCoordinates, double maxRadius)
+        public CategoryBubbleChartData(string title, List<CategoryCoordinate> categoryCoordinates, double maxRadius)
         {
-            CreateXLables(categoryCoordinates);
-            CreateYLables(categoryCoordinates);
-            CreateCoordinates(categoryCoordinates, maxRadius);
-
+            SetRadiusMultiplier(categoryCoordinates, maxRadius);
+            CreateLabels(categoryCoordinates);
+            CreateCoordinates(title, categoryCoordinates);
         }
 
-        private void CreateXLables(List<CategoryCoordinate> categoryCoordinates)
+        public CategoryBubbleChartData(Dictionary<string, List<CategoryCoordinate>> multipleCategoryCoordinates, double maxRadius)
         {
-            var labels = categoryCoordinates.Select(x => x.xCategory).Distinct().OrderBy(x => x).ToArray();
+            List<CategoryCoordinate> combinedCoordinates = new List<CategoryCoordinate>();
+
+            foreach (var categoryCoordinates in multipleCategoryCoordinates.Values)
+            {
+                combinedCoordinates.AddRange(categoryCoordinates);
+            }
+
+            SetRadiusMultiplier(combinedCoordinates, maxRadius);
+            CreateLabels(combinedCoordinates);
+            CreateCoordinates(multipleCategoryCoordinates);
+        }
+
+
+        private void CreateLabels(List<CategoryCoordinate> combinedCoordinates)
+        {
+            CreateXLabels(combinedCoordinates);
+            CreateYLabels(combinedCoordinates);
+        }
+
+        private void CreateXLabels(List<CategoryCoordinate> combinedCoordinates)
+        {
+            var labels = combinedCoordinates.Select(x => x.XCategory).Distinct().OrderBy(x => x).ToArray();
 
             int i = 1;
             foreach (var label in labels)
             {
-                xLabels.Add(label, i);
+                XLabels.Add(label, i);
                 i++;
             }
 
         }
-        private void CreateYLables(List<CategoryCoordinate> categoryCoordinates)
+        private void CreateYLabels(List<CategoryCoordinate> combinedCoordinates)
         {
-            var labels = categoryCoordinates.Select(x => x.yCategory).Distinct().OrderBy(x => x).ToArray();
+            var labels = combinedCoordinates.Select(x => x.YCategory).Distinct().OrderBy(x => x).ToArray();
 
             int i = 1;
             foreach (var label in labels)
             {
-                yLabels.Add(label, i);
+                YLabels.Add(label, i);
                 i++;
             }
         }
 
-        private void CreateCoordinates(List<CategoryCoordinate> categoryCoordinates, double maxRadius)
+
+
+        private void SetRadiusMultiplier(List<CategoryCoordinate> combinedCoordinates, double maxRadius)
         {
-            double maxR = categoryCoordinates.Max(x => x.r);
+            double maxR = combinedCoordinates.Max(x => x.R);
 
-            double radiusMultiplier = maxRadius / maxR;
-
-
-            var output = categoryCoordinates.Select(x => new Coordinate(xLabels[x.xCategory], yLabels[x.yCategory], x.r * radiusMultiplier)).ToList();
-
-            coordinates = output;
+            radiusMultiplier = maxRadius / maxR;
 
         }
 
 
 
+        private void CreateCoordinates(string title, List<CategoryCoordinate> categoryCoordinates)
+        {
+            var convertedCoordinates = categoryCoordinates.Select(c => new Coordinate(XLabels[c.XCategory], YLabels[c.YCategory], c.R * radiusMultiplier)).ToList();
 
+            Coordinates.Add(title, convertedCoordinates);
+
+        }
+
+        private void CreateCoordinates(Dictionary<string, List<CategoryCoordinate>> multipleCategoryCoordinates)
+        {
+            foreach (var item in multipleCategoryCoordinates)
+            {
+                CreateCoordinates(item.Key, item.Value);
+            }
+        }
     }
 }

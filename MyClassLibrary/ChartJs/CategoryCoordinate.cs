@@ -5,24 +5,30 @@
         /// <summary>
         /// Category along the x axis this should go against.
         /// </summary>
-        public string xCategory { get; set; }
+        public string XCategory { get; set; }
 
         /// <summary>
         /// The Category along the y axis this should go against.
         /// </summary>
-        public string yCategory { get; set; }
+        public string YCategory { get; set; }
 
         /// <summary>
         /// The size of the bubble
         /// </summary>
-        public double r { get; set; }
+        public double R { get; set; }
+
+        /// <summary>
+        /// The data to show in tooltips or datalabels for the specific data point.
+        /// </summary>
+        public string? Label { get; set; }
 
 
-        public CategoryCoordinate(string xCategory, string yCategory, double r = 1)
+        public CategoryCoordinate(string xCategory, string yCategory, double r = 1, string? label = null)
         {
-            this.xCategory = xCategory;
-            this.yCategory = yCategory;
-            this.r = r;
+            this.XCategory = xCategory;
+            this.YCategory = yCategory;
+            this.R = r;
+            this.Label = label;
         }
 
 

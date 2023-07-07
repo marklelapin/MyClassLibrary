@@ -1,7 +1,4 @@
-﻿using MyClassLibrary.Extensions;
-using System.Drawing;
-
-namespace MyClassLibrary.ChartJs
+﻿namespace MyClassLibrary.ChartJs
 {
     public class LineBuilder
     {
@@ -20,16 +17,10 @@ namespace MyClassLibrary.ChartJs
             return this;
         }
 
-        public LineBuilder AddBorderAndBackGroundColor(Color borderColor, Color backgroundColor)
+        public LineBuilder AddColors(ColorSet colorSet)
         {
-            _line.borderColor = borderColor.ToHex();
-            _line.backgroundColor = backgroundColor.ToHex();
-            return this;
-        }
-        public LineBuilder AddBorderAndBackGroundColor(string borderColor, string backgroundColor)
-        {
-            _line.borderColor = borderColor;
-            _line.backgroundColor = backgroundColor;
+            _line.borderColor = colorSet.borderColor;
+            _line.backgroundColor = colorSet.backgroundColor;
             return this;
         }
 

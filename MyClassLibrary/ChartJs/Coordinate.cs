@@ -18,6 +18,12 @@ namespace MyClassLibrary.ChartJs
         /// </summary>
         public double? r { get; set; }
 
+
+        /// <summary>
+        /// The lable to be shown on tooltip or specific datapoint.
+        /// </summary>
+        public string? Label { get; set; }
+
         public Coordinate(double x, double y, double? r = null)
         {
             this.x = x;

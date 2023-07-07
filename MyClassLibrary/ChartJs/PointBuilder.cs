@@ -1,7 +1,4 @@
-﻿using MyClassLibrary.Extensions;
-using System.Drawing;
-
-namespace MyClassLibrary.ChartJs
+﻿namespace MyClassLibrary.ChartJs
 {
     public class PointBuilder
     {
@@ -19,10 +16,15 @@ namespace MyClassLibrary.ChartJs
         }
 
 
-        public PointBuilder FormatPoint(Color backgroundColor, Color borderColor, int? borderWidth = null, int? hoverBorderWidth = null)
+        public PointBuilder AddColors(ColorSet colorSet)
         {
-            _point.backgroundColor = backgroundColor.ToHex();
-            _point.borderColor = borderColor.ToHex();
+            _point.backgroundColor = colorSet.backgroundColor;
+            _point.borderColor = colorSet.borderColor;
+            return this;
+        }
+
+        public PointBuilder AddWidthAndHoverWidth(int? borderWidth = null, int? hoverBorderWidth = null)
+        {
             _point.borderWidth = borderWidth;
             _point.hoverBorderWidth = hoverBorderWidth;
             return this;

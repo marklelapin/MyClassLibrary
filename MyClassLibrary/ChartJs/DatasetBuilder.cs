@@ -1,5 +1,4 @@
 ﻿using MyClassLibrary.Extensions;
-using System.Drawing;
 
 namespace MyClassLibrary.ChartJs
 {
@@ -68,19 +67,27 @@ namespace MyClassLibrary.ChartJs
             return this;
         }
 
-        public DatasetBuilder AddBorderAndBackgroundColor(Color borderColor, Color backgroundColor, bool hidden = false)
+        public DatasetBuilder HideDataset()
         {
-            AddBorderAndBackgroundColor(borderColor.ToHex(), backgroundColor.ToHex(), hidden);
+            _dataset.hidden = true;
             return this;
         }
 
-        public DatasetBuilder AddBorderAndBackgroundColor(string borderColor, string backgroundColor, bool hidden = false)
+
+        public DatasetBuilder AddColors(ColorSet colorSet)
         {
-            _dataset.borderColor = borderColor;
-            _dataset.backgroundColor = backgroundColor;
-            _dataset.hidden = hidden;
+            _dataset.borderColor = colorSet.borderColor;
+            _dataset.backgroundColor = colorSet.backgroundColor;
             return this;
         }
+
+
+        //public DatasetBuilder AddColorsByDataPoint(List<ColorSet> listColorSet)
+        //{
+        //    _dataset.borderColor = listColorSet.Select(x => x.borderColor).ToArray().ToString();
+        //    _dataset.backgroundColor = listColorSet.Select(x => x.backgroundColor).ToArray().ToString();
+        //    return this;
+        //}
 
 
         public DatasetBuilder AddLine(int borderWidth, int[]? borderDash = null)
