@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyApiMonitorClassLibrary", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyApiMonitorServiceApi", "MyApiMonitorServiceApi\MyApiMonitorServiceApi.csproj", "{C89FD206-38C4-4C62-8C39-54F25F0E2B94}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyApiMonitorFunctions", "MyApiMonitorFunctions\MyApiMonitorFunctions.csproj", "{62EFD415-00AB-4ADE-A70C-79EA543333FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyApiMonitorFunctions", "MyApiMonitorFunctions\MyApiMonitorFunctions.csproj", "{62EFD415-00AB-4ADE-A70C-79EA543333FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -5,6 +5,7 @@ using MyApiMonitorClassLibrary.Models;
 using MyClassLibrary.ChartJs;
 using MyClassLibrary.Colors;
 using System.Drawing;
+using System.Text.Json;
 
 namespace MyApiMonitor.Pages
 {
@@ -35,16 +36,16 @@ namespace MyApiMonitor.Pages
 
         private MyColors MyColors { get; set; } = new MyColors();
 
+        private Guid AvailabilityCollectionId = Guid.Parse("c8ecdb94-36a9-4dbb-a5db-e6e036bbba0f"); //TODO If developing this further this should be stored in database along with CollectionID for a particular API
+
         public async Task OnGet([FromQuery] Guid collectionId, DateTime? startDate, DateTime? endDate, int? skip, int? limit)
         {
             skip = skip ?? 0;
             limit = limit ?? 1014;
 
-            Guid availabilityCollectionId = Guid.Parse("c8ecdb94-36a9-4dbb-a5db-e6e036bbba0f");
-
             var speedAndTestData = await _dataAccess.GetAllBetweenDates(collectionId, startDate, endDate, (int)skip, (int)limit);
 
-            var availabilityData = await _dataAccess.GetAllBetweenDates(availabilityCollectionId, DateTime.UtcNow.AddMinutes(-15), DateTime.UtcNow, (int)skip, (int)limit);
+            var availabilityData = await _dataAccess.GetAllBetweenDates(AvailabilityCollectionId, DateTime.UtcNow.AddMinutes(-15), DateTime.UtcNow, (int)skip, (int)limit);
 
             ResultByDateTime = _dataProcessor.ResultByDateTime(speedAndTestData.records);
 
@@ -66,6 +67,16 @@ namespace MyApiMonitor.Pages
 
             ConfigureResultAndSpeedChart();
 
+        }
+
+
+        public async Task<IActionResult> OnGetNewAvailabilityDatapoints()
+        {
+            var newAvailabilityData = await _dataAccess.GetAllBetweenDates(AvailabilityCollectionId, DateTime.UtcNow.AddSeconds(-12), DateTime.UtcNow);
+
+            List<Coordinate> newCoordinates = newAvailabilityData.records.Select(x => new Coordinate(x.TestDateTime, (double)x.TimeToComplete!)).ToList();
+
+            return Content(JsonSerializer.Serialize(newCoordinates));
         }
 
 
@@ -106,7 +117,6 @@ namespace MyApiMonitor.Pages
 
             ResultChartConfiguration = builder.BuildJson();
         }
-
 
         private void ConfigureAvailabilityChart()
         {
@@ -189,8 +199,6 @@ namespace MyApiMonitor.Pages
 
             SpeedChartConfiguration = builder.BuildJson();
         }
-
-
 
         private void ConfigureResultAndSpeedChart()
         {

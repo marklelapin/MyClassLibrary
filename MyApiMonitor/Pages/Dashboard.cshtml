@@ -104,7 +104,31 @@
                     availabilityChart = new Chart(ctx4, @Html.Raw(Model.AvailabilityChartConfiguration))
 
                 })
+
+                setInterval(updateAvailabilityChart,5000);
+
+
+                function updateAvailabilityChart(){
+
+                    fetch('?handler=NewAvailabilityDataPoints')
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((jsonDataPoints)=>{
+                        Array.prototype.forEach.call(jsonDataPoints,function(item,i){
+
+                        availabilityChart.data.datasets[0].data.push(item); //add new data point at end
+                        availabilityChart.data.datasets[0].data.splice(0,1); // remove data point from start 
+                        
+                        })
+                    })
+                    .then(()=>availabilityChart.update())
+
+
+                }
+                    
                 
+
                 function resultChartClickHandler(event){
                     
                     const activeElements = resultChart.getElementsAtEventForMode(event,'nearest', {intersect: true}, true)
