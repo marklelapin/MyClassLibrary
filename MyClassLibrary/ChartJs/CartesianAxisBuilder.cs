@@ -61,6 +61,23 @@ namespace MyClassLibrary.ChartJs
             return this;
         }
 
+        public CartesianAxisBuilder SetAutoSkip(bool autoskip)
+        {
+            _axis.ticks.autoSkip = autoskip;
+            return this;
+        }
+
+        public CartesianAxisBuilder SetTickRotationBetween(int? minDegrees, int? maxDegrees)
+        {
+            _axis.ticks.minRotation = minDegrees;
+            _axis.ticks.maxRotation = maxDegrees;
+            return this;
+        }
+
+        public CartesianAxisBuilder SetTickRotation(int degrees)
+        {
+            return SetTickRotationBetween(degrees, degrees);
+        }
 
 
         /// <summary>
@@ -104,6 +121,11 @@ namespace MyClassLibrary.ChartJs
             return this;
         }
 
+        public CartesianAxisBuilder ConvertLabelToDateTime(string dateTimeFormat)
+        {
+            _axis.ticks.callback = $@"callbackfunction.ConvertLabelToDateTime(""{dateTimeFormat}"").";
+            return this;
+        }
 
 
 

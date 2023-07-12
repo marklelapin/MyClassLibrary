@@ -25,7 +25,7 @@ namespace MyApiMonitorFunctions
         }
 
         [FunctionName("RunAvailabilityTests")]
-        public void RunAvailabilityTests([TimerTrigger("*/10 * * * * *")] TimerInfo myTimer, ILogger log)
+        public void RunAvailabilityTests([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer, ILogger log)
         {
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri("https://myapimonitorserviceapi.azurewebsites.net/");

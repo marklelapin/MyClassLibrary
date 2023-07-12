@@ -16,5 +16,21 @@
         public string[]? labels { get; set; }
 
 
+
+        /// <summary>
+        /// Determines whether ticks are automatically skipped or not.
+        /// </summary>
+        public bool? autoSkip { get; set; }
+
+
+        /// <summary>
+        /// The minimum allowed rotation for tick labels
+        /// </summary>
+        public int? minRotation { get; set; }
+
+        /// <summary>
+        /// The Maximum allowed rotation for tick labels.
+        /// </summary>
+        public int? maxRotation { get; set; }
     }
 }

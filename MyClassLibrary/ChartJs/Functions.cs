@@ -64,6 +64,12 @@
                                             }}"
 
             }
+            ,{"ConvertLabelToDateTime", $@"function(value){{
+                                                var label = this.getLabelForValue(value)
+
+                                                return moment(label).format(.dynamicParameter.);
+                                            }}"}
+
         };
 
 

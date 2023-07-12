@@ -1,7 +1,8 @@
-﻿@page
+﻿@page "{collectionId}/{pagination:int?}"
 
 @model MyApiMonitor.Pages.DashboardModel
 @{
+ 
 }
 <head>
     
@@ -14,8 +15,33 @@
     <p>The Whaddon Show Api is a REST Api providing access to The Whaddon Show's central SQL Database. It is primarily used by the <a href="/Not yet Implemented">The Whaddon Show App</a> as part of its server side data access layer but public access is also available for GET requests. (POST,PUT and DELETE requests require Authentication through Azure AdB2C)</p>
     <h2>Performance & Monitoring</h2>
     <p>The availability and performance of the API is regularly monitored with live results summarised below.<p>
-    <a href="/Tests/Results?collectionId=@Model.CollectionId">(get all data)</a>
+    <h3>Tests between @Model.DateFrom.ToString("dd MMM HH:mm:ss") and @Model.DateTo.ToString("dd MMM HH:mm:ss")</h3>
+    
+    @Html.Raw(@Model.PaginationHtml)
+
+    <a asp-href="/Tests/Results/@Model.CollectionId/">(get all data)</a>
 <div class="container">
+   
+    <div class = "row">
+        <div class="col">
+
+        </div>
+        <div class="col">
+            
+        </div>
+    </div>       
+    <div class="row">
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="row">
             
         <div class="col-md-6">
@@ -38,7 +64,7 @@
          </div>
 
             <div class="col-md-6">
-               <h4>Current Availability</h4>
+               <h4>Current Availability (Last 10 minutes)</h4>
                <canvas id="availabilityChart"></canvas>
        </div>
     </div>
@@ -83,7 +109,7 @@
 
 </body>
    
- <script>
+<script>
                 var resultChart;
                 var speedChart;
                 var resultAndSpeedChart;
@@ -135,9 +161,13 @@
 
                     if (activeElements.length) {
                         const firstElement = activeElements[0];
-                        const dateTime = resultChart.data.datasets[firstElement.datasetIndex].data[firstElement.index];
+                        const testDateString = resultChart.data.labels[firstElement.index];
 
-            window.location.href = "/Tests/Results?collectionId=@Model.CollectionId"//"/Tests/Results?collectionId=@Model.CollectionId&testDateTime=" + dateTime.ToString();
+                        //const dateFrom = new Date(Date.parse(testDateString));
+                        //var dateTo = new Date(dateFrom)
+                        //dateTo.setSeconds(dateTo.getSeconds() + 1)
+
+            window.location.href = '/Results/@Model.CollectionId/' + testDateString + '/' + testDateString
                     }
 
                 }
@@ -153,9 +183,10 @@
 
                         if (activeElements.length) {
                             const firstElement = activeElements[0];
-                            const dateTime = resultChart.data.datasets[firstElement.datasetIndex].data[firstElement.index];
+                            const id = resultAndSpeedChart.data.datasets[firstElement.datasetIndex].data[firstElement.index].Id;
+                        
 
-                            window.location.href = "/Tests/Results?collectionId=@Model.CollectionId"//"/Tests/Results?collectionId=@Model.CollectionId&testDateTime=" + dateTime.ToString();
+                            window.location.href = '/Results/'+id+'/@Model.DateFrom.ToString("o")/@Model.DateTo.ToString("o")';
                         }
                 }
 

@@ -4,6 +4,7 @@ using MyApiMonitorClassLibrary.Interfaces;
 using MyApiMonitorClassLibrary.Models;
 using MyClassLibrary.ChartJs;
 using MyClassLibrary.Colors;
+using MyClassLibrary.Pagination;
 using System.Drawing;
 using System.Text.Json;
 
@@ -26,6 +27,11 @@ namespace MyApiMonitor.Pages
         public string AvailabilityChartConfiguration { get; set; }
         public string ResultAndSpeedChartConfiguration { get; set; }
 
+        public DateTime DateFrom { get; set; }
+        public DateTime DateTo { get; set; }
+
+        public string PaginationHtml { get; set; }
+
         private List<ChartData_ResultByDateTime> ResultByDateTime { get; set; }
 
         private List<ChartData_SpeedsByDateTime> SpeedByDateTime { get; set; }
@@ -38,14 +44,34 @@ namespace MyApiMonitor.Pages
 
         private Guid AvailabilityCollectionId = Guid.Parse("c8ecdb94-36a9-4dbb-a5db-e6e036bbba0f"); //TODO If developing this further this should be stored in database along with CollectionID for a particular API
 
-        public async Task OnGet([FromQuery] Guid collectionId, DateTime? startDate, DateTime? endDate, int? skip, int? limit)
+
+
+        public async Task OnGet(Guid collectionId, int pagination = 1)
         {
-            skip = skip ?? 0;
-            limit = limit ?? 1014;
+            CollectionId = collectionId.ToString();
+            DateTime dateFrom = DateTime.UtcNow.AddMonths(-3);
+            DateTime dateTo = DateTime.UtcNow;
+            int limit = 1014;
+            int skip = (pagination - 1) * limit;
 
-            var speedAndTestData = await _dataAccess.GetAllBetweenDates(collectionId, startDate, endDate, (int)skip, (int)limit);
 
-            var availabilityData = await _dataAccess.GetAllBetweenDates(AvailabilityCollectionId, DateTime.UtcNow.AddMinutes(-15), DateTime.UtcNow, (int)skip, (int)limit);
+            var speedAndTestData = await _dataAccess.GetAllByCollectionId(collectionId, dateFrom, dateTo, (int)skip, (int)limit);
+
+            var availabilityData = await _dataAccess.GetAllByCollectionId(AvailabilityCollectionId, DateTime.UtcNow.AddMinutes(-15), DateTime.UtcNow, 0, (int)limit);
+
+            int totalPages = (int)Math.Ceiling((double)speedAndTestData.total / (double)limit);
+
+            DateFrom = speedAndTestData.records.Select(x => x.TestDateTime).Min();
+            DateTo = speedAndTestData.records.Select(x => x.TestDateTime).Max();
+
+            var builder = new PaginationBuilder($"/Dashboard/{collectionId.ToString()}/<page>");
+            builder.AddFirst("Earliest");
+            builder.AddPrevious("Previous");
+            builder.SetMiddleTotal(2);
+            builder.AddNext("Next");
+            builder.AddLast("Latest");
+
+            PaginationHtml = builder.BuildHtml(pagination, totalPages);
 
             ResultByDateTime = _dataProcessor.ResultByDateTime(speedAndTestData.records);
 
@@ -55,7 +81,6 @@ namespace MyApiMonitor.Pages
 
             AvailabilityByDateTime = _dataProcessor.AvailabilityByDateTime(availabilityData.records);
 
-            CollectionId = collectionId.ToString();
 
 
 
@@ -72,7 +97,7 @@ namespace MyApiMonitor.Pages
 
         public async Task<IActionResult> OnGetNewAvailabilityDatapoints()
         {
-            var newAvailabilityData = await _dataAccess.GetAllBetweenDates(AvailabilityCollectionId, DateTime.UtcNow.AddSeconds(-12), DateTime.UtcNow);
+            var newAvailabilityData = await _dataAccess.GetAllByCollectionId(AvailabilityCollectionId, DateTime.UtcNow.AddSeconds(-12), DateTime.UtcNow);
 
             List<Coordinate> newCoordinates = newAvailabilityData.records.Select(x => new Coordinate(x.TestDateTime, (double)x.TimeToComplete!)).ToList();
 
@@ -84,7 +109,7 @@ namespace MyApiMonitor.Pages
         {
             var builder = new ChartBuilder("bar");
 
-            builder.AddLabels(ResultByDateTime.Select(x => x.TestDateTime.ToString("MMM-dd HH:mm")).ToArray())
+            builder.AddLabels(ResultByDateTime.Select(x => x.TestDateTime.ToString("o")).ToArray())
                    .ConfigureYAxis(options =>
                    {
                        options.Stacked("true")
@@ -92,7 +117,8 @@ namespace MyApiMonitor.Pages
                    })
                    .ConfigureXAxis(options =>
                    {
-                       options.Stacked("true");
+                       options.Stacked("true")
+                       .ConvertLabelToDateTime("MMM-DD HH:mm");
                    })
                    .HideLegend()
                    .AddClickEventHandler("resultChartClickHandler")
@@ -133,6 +159,7 @@ namespace MyApiMonitor.Pages
             .ConfigureYAxis(options =>
             {
                 options.AddTitle("Time to Complete Basic Get Request (ms)");
+                //.AddAbsoluteScaleLimits(null, 500);
             })
             .ConfigureXAxis(options =>
             {
@@ -155,7 +182,7 @@ namespace MyApiMonitor.Pages
         private void ConfigureSpeedChart()
         {
             var builder = new ChartBuilder("line");
-            builder.AddLabels(SpeedByDateTime.Select(x => x.TestDateTime.ToString("MMM-dd HH:mm")).ToArray())
+            builder.AddLabels(SpeedByDateTime.Select(x => x.TestDateTime.ToString("o")).ToArray())
 
                    .AddDefaultPointStyle(options =>
                    {
@@ -165,6 +192,10 @@ namespace MyApiMonitor.Pages
                        .AddHit(15);
                    })
                    .AddClickEventHandler("speedChartClickHandler")
+                   .ConfigureXAxis(options =>
+                   {
+                       options.ConvertLabelToDateTime("MMM-DD HH:mm");
+                   })
                    .ConfigureYAxis(options =>
                    {
                        options.AddTitle("Time To Complete (ms)");
@@ -205,11 +236,11 @@ namespace MyApiMonitor.Pages
             Dictionary<string, List<CategoryCoordinate>> chartSeries = new Dictionary<string, List<CategoryCoordinate>>();
 
             chartSeries.Add("Always Successfull"
-                            , ResultAndSpeedByTest.Where(x => x.AverageResult == 100 && x.LatestResult == true).Select(x => new CategoryCoordinate(x.Test, x.Controller, x.AverageTimeToComplete)).ToList());
+                            , ResultAndSpeedByTest.Where(x => x.AverageResult == 100 && x.LatestResult == true).Select(x => new CategoryCoordinate(x.Controller, x.Test, x.AverageTimeToComplete, $"{x.Controller}-{x.Test}", x.TestId.ToString())).ToList());
             chartSeries.Add("Latest Successfull"
-                            , ResultAndSpeedByTest.Where(x => x.AverageResult != 100 && x.LatestResult == true).Select(x => new CategoryCoordinate(x.Test, x.Controller, x.AverageTimeToComplete)).ToList());
+                            , ResultAndSpeedByTest.Where(x => x.AverageResult != 100 && x.LatestResult == true).Select(x => new CategoryCoordinate(x.Controller, x.Test, x.AverageTimeToComplete, $"{x.Controller}-{x.Test}", x.TestId.ToString())).ToList());
             chartSeries.Add("Currently Failing"
-                            , ResultAndSpeedByTest.Where(x => x.LatestResult == false).Select(x => new CategoryCoordinate(x.Test, x.Controller, x.AverageTimeToComplete)).ToList());
+                            , ResultAndSpeedByTest.Where(x => x.LatestResult == false).Select(x => new CategoryCoordinate(x.Controller, x.Test, x.AverageTimeToComplete, $"{x.Controller}-{x.Test}", x.TestId.ToString())).ToList());
 
 
             var bubbleData = new CategoryBubbleChartData(chartSeries, 30);
@@ -234,16 +265,18 @@ namespace MyApiMonitor.Pages
                 })
                 .ConfigureYAxis(options =>
                 {
-                    options.AddTitle("Controller")
+                    options.AddTitle("Test")
                     .AddAbsoluteScaleLimits(0, bubbleData.YLabels.Count + 1)
                     .AddTickCategoryLabels(bubbleData.YLabels);
 
                 })
                 .ConfigureXAxis(options =>
                 {
-                    options.AddTitle("Test")
+                    options.AddTitle("Controller")
                     .AddAbsoluteScaleLimits(0, bubbleData.XLabels.Count + 1)
-                    .AddTickCategoryLabels(bubbleData.XLabels);
+                    .AddTickCategoryLabels(bubbleData.XLabels)
+                    .SetAutoSkip(false)
+                    .SetTickRotation(90);
                 })
                 .HideLegend()
                 .AddClickEventHandler("resultAndSpeedChartClickHandler");

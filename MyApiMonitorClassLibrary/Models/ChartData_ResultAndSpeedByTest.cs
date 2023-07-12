@@ -35,7 +35,11 @@
 
 
 
-        public ChartData_ResultAndSpeedByTest(string controller, string test, double averageResult, bool latestResult, int averageTimeToComplete, int latestTimeToComplete)
+        public Guid TestId { get; set; }
+
+
+
+        public ChartData_ResultAndSpeedByTest(string controller, string test, double averageResult, bool latestResult, int averageTimeToComplete, int latestTimeToComplete, Guid testId)
         {
             Controller = controller;
             Test = test;
@@ -43,6 +47,7 @@
             LatestResult = latestResult;
             AverageTimeToComplete = averageTimeToComplete;
             LatestTimeToComplete = latestTimeToComplete;
+            TestId = testId;
         }
 
     }

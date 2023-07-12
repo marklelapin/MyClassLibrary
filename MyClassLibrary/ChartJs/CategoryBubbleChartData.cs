@@ -76,7 +76,7 @@
 
         private void CreateCoordinates(string title, List<CategoryCoordinate> categoryCoordinates)
         {
-            var convertedCoordinates = categoryCoordinates.Select(c => new Coordinate(XLabels[c.XCategory], YLabels[c.YCategory], c.R * radiusMultiplier)).ToList();
+            var convertedCoordinates = categoryCoordinates.Select(c => new Coordinate(XLabels[c.XCategory], YLabels[c.YCategory], c.R * radiusMultiplier, c.Label, c.Id)).ToList();
 
             Coordinates.Add(title, convertedCoordinates);
 

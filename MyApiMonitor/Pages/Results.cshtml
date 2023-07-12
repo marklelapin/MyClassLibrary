@@ -1,5 +1,5 @@
-﻿@page
-@model MyApiMonitor.Pages.Tests.ResultsModel
+﻿@page "{testOrCollectionId:guid}/{dateFrom:datetime?}/{dateTo:datetime?}/{skip:int?}/{limit:int?}"
+@model MyApiMonitor.Pages.Results.ResultsModel
 @{
 }
 <h1>ApiTestResults</h1>
