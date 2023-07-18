@@ -74,9 +74,16 @@ namespace MyExtensions
             return output;
         }
 
+        public static string ReplaceFirst(this string str, string search, string replacement)
+        {
+            int pos = str.IndexOf(search);
+            if (pos < 0)
+            {
+                return str;
+            }
 
-
-
+            return str.Substring(0, pos) + replacement + str.Substring(pos + search.Length);
+        }
 
     }
 }
