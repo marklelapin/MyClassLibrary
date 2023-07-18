@@ -10,11 +10,16 @@ html {
 
 html {
   position: relative;
-  min-height: 100%;
+  height: 100vh;
 }
 
 body {
-  margin-bottom: 60px;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: 30px 1fr;
+    grid-template-areas: 'sidebar header'
+                         'sidebar main';
 }
 
 img{
@@ -25,4 +30,167 @@ h2{
     padding-top:0.8em
 }
 
+.grid-container{
+    display: grid;
+}
+
+header{
+    background-color: #fff;
+    grid-area: header;
+}
+
+main{
+   display: grid;
+    background-color: #1c1f23;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr;
+    grid-area: main;
+
+    color: lightgrey;
+}
+
+.sidebar{
+    background-color: #c3c5ca;
+    grid-area: sidebar;
+}
+
+
+.dashboard-container {
+    display: grid;
+    gap: 2em;
+    grid-template-rows: 4em 1fr 1fr 4em 1fr 1fr 3fr;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    grid-template-areas:
+        'currentPerformance currentPerformance'
+        'availabilityChart availabilityChart'
+        'percentageReliability averageSpeed'
+        'controllerTesting pagination'
+        'resultChart resultChart'
+        'speedChart speedChart'
+        'resultSpeedChart resultSpeedChart'
+        'resultSpeedChart resultSpeedChart';
+    height: calc(100%-4em);
+    margin: 0.5em;
+}
+
+
+/*Current Perfomance Section*/
+
+#current-performance-title{
+    grid-area: currentPerformance;
+    align-self: center;
+}
+
+#percentage-reliability{
+    display: grid;
+    grid-area: percentageReliability;
+}
+
+#average-speed{
+    display: grid;
+    grid-area: averageSpeed;
+}
+
+#availability-chart-container{
+    grid-area: availabilityChart;
+}
+
+
+
+#result-chart-container {
+    grid-area: resultChart;
+
+}
+
+#speed-chart-container{
+    grid-area: speedChart;
+}
+
+#result-speed-chart-container{
+    grid-area: resultSpeedChart;
+}
+
+#controller-testing-title{
+    grid-area: controllerTesting;
+    align-self: center;
+}
+
+#pagination{
+    grid-area: pagination;
+    align-self: center;
+    justify-self: center;
+}
+.dashboard-box-container {
+    display: grid;
+    grid-template-rows: min-content minmax(0,1fr) min-content;
+    grid-template-columns: minmax(0,1fr);
+    grid-template-areas: 'header'
+        'content'
+        'footer';  
+}
+
+
+.dashboard-box-header{
+    grid-area: header;
+}
+
+.dashboard-box-content{
+    display: flex;
+    align-items: center;
+    grid-area: content;
+
+}
+
+.dashboard-box-content .text-center{
+    flex-grow:1;
+}
+
+
+
+
+.dashboard-box-footer{
+    display: flex;
+    grid-area: footer;
+    align-items: start;
+    justify-items: center;
+}
+
+
+
+
+@media screen and (min-width: 580px) {
+    .dashboard-container {
+        display: grid;
+        gap: 0.5em;
+        grid-template-rows: 4em 1fr 1fr 4em 4em 1.5fr 1.5fr;
+        grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+        grid-template-areas:
+            'currentPerformance currentPerformance'
+            'percentageReliability averageSpeed'
+            'availabilityChart availabilityChart'
+            'controllerTesting controllerTesting'
+            'pagination pagination'
+            'resultChart resultSpeedChart'
+            'speedChart resultSpeedChart';
+    }
+}
+
+
+
+@media screen and (min-width: 1200px){
+
+    .dashboard-container {
+        display: grid;
+        gap: 2em;
+        grid-template-rows: 4em minmax(0,1fr) minmax(0,1fr);
+        grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,2fr) 400px;
+        grid-template-areas:
+            'currentPerformance currentPerformance controllerTesting pagination'
+            'percentageReliability averageSpeed resultChart resultSpeedChart'
+            'availabilityChart availabilityChart speedChart resultSpeedChart';
+        height: calc(100%-2em);
+        margin: 1em;
+    }
+
+}
 

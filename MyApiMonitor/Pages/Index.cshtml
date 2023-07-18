@@ -7,7 +7,41 @@
      
 </head>
 <div class="text-center">
-    <h1 class="display-4">My Api Monitor</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+    <h1>The Whaddon Show Api</h1>
+
+    <p>The Whaddon Show Api is a REST Api providing access to The Whaddon Show's central SQL Database. It is primarily used by the <a href="/Not yet Implemented">The Whaddon Show App</a> as part of its server side data access layer but public access is also available for GET requests. (POST,PUT and DELETE requests require Authentication through Azure AdB2C)</p>
+    
+  
+<div class="container-sm text-center">
+   <div class="row">
+        <div class="col-md-4">
+            <h2>Performance & Monitoring</h2>
+            <img src="~/images/Dashboard.png" />
+            <p>The availability and performance of the API is regularly monitored with live results shown in the Dashboard.
+            <a asp-page="/Dashboard" asp-route-collectionId="05b0adac-6ee4-4390-a83b-092ca92b040d">See how the api is currently performing.</a>
+        </div>
+        <dvi class="col-md-4">
+            <h2>Documentation</h2>
+            <img src="~/images/Documentation.png" />
+            <p>The calls available and formats required for each of these is described in detailed documentation using OpenAPI</p>
+            <a href="https://thewhaddonshowdev.azurewebsites.net/index.html" target="_blank">Read the documentation.</a>
+        </dvi>
+        <div class="col-md-4">
+            <h2>Code</h2>
+            <img src="~/images/Code.jpg"/>
+            <p>The primary technologies used to code, authenticate and deploy the Api and its Api Monitor are c# .Net and Azure</p>
+            <p>Html, CSS and Javascript have also been used throughout.</p>
+            <a asp-page="/Code">Check out the code.</a>
+        </div>
+   </div>
+</div>
+    
+    
+     
+
+
+       
+    
   
 </div>

@@ -1,0 +1,17 @@
+﻿@using MyExtensions;
+
+@model MyApiMonitor.Models.DashboardBoxModel
+@{
+}
+
+<div class="dashboard-box-container">
+    <h6 class="dashboard-box-header text-center">
+        @Model.Header
+    </h6>
+    <div class="dashboard-box-content">  
+            @Html.Raw(Model.Content)
+    </div>
+    <div class="dashboard-box-footer small text-secondary text-center">
+        @Model.Footer
+    </div>
+</div>

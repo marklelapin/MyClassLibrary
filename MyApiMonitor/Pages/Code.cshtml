@@ -1,0 +1,52 @@
+﻿@page
+@model MyApiMonitor.Pages.CodeModel
+@{
+}
+<h1>Code</h1>
+<p>
+    This application is based on two separate projects - 'The Whaddon Show Api'' and 'My Api Monitor'. The code for both of these has been written using C# in .Net by myself.
+    The Code demonstrates solid use of Dependency Injection, Generics and the use of recognised coding techniques such as the Builder Pattern for the creation of complex classes.
+    It also makes use of centralised class libraries to avoid duplication of code across projects and solutions. Detailed descriptions of the technologies used are given below for each project: 
+</p>
+<h4>The Whaddon Show Api</h4>
+
+<p>
+   The central Whaddon Show Database is on a Azure SQL Server and The Whaddon Show Api provides data access to this Sql Server. OAUTH02 authentication via Azure AdB2C limits write access
+   but read access is freely available to the public. In addition the Azure AdB2C tenant has been setup to also allow tightly controlled daemon access for the API Monitor via the Client Credentials UserFlow.
+   The Whaddon Show App which is the prime consumer of the central database has to work offline and has multiple users contributing to the script. This means that for each type of object a number of additional tasks
+   to standard CRUD operations are required in order to keep local and server copies of the script in sync with each other.    
+   The Api uses 3 controllers for ScriptItems,Parts and Persons and these all perform the same syncing operations as part of CRUD. They therefore all utilise a generic controller service ?????? that does the
+   complicated sync operations generically and allows for easy future expansion of the api as more object types are likely to be added.
+
+   The generic controller services uses a general SQL Data Access layer with My Class Library utilising Dapper to run SQL Stored Procedures.
+
+   Need something about Caching????
+
+   Extensive use of XML comments has been made to add detail to the Swagger documentation and to give a clear sense of my class library methods at point of use.
+</p>
+<h4>MyApiMonitor</h4>
+<p>
+    My Api Monitor routinely tests the reliability of the API's output, access controls and speed both globally and for different controllers and actions. It also monitors the availablity of the API by running a simple get
+    call every 4 seconds to identify potential speed issues and to let users of the Api know of any immediate problems with the service.
+
+    This is achieved using Azure Functions to run a number of Http requests at regular intervals and to record the outcomes of these to a Mongo DB. The data is read and made publically available through the Dashboard section of this web app.
+    Both Azure Functions and this website utilise a general Mongo DB Data Access layer from My Class Library that allows for specific sort and filter configurations to be built and passed in and added as part of general CRUD operations.
+
+    The Dashboard demonstrates a confident use of CSS Grid and utilises many of the ChartJs Javascript library's more advanced features. Advanced Chart Js techniques such as the use of call back functions and 
+    
+    The bubble chart in particular shows a relatively unique way of using categories instead of number to highlight a large amount of detailed information in one graph.
+
+    Pagination and caching have also been used to make the dashboard fast and responsive to use. 
+
+</p>
+<a href="add further links">Check out the API Code</a> <a href="sfsfsdf">Check out the API Monitoring Code.</a>
+<h2>Code Improvements</h2>
+<h4>The Whaddon Show Api</h4>
+<p>
+    The Api make use of generics to standardize Api data access for all types of component being updated (as part of a wider use of generics in the Client App itself to manage syncing).
+    A potential improvement would be to extend this further within the Api to reduce the number of controllers to one.
+    The effect that this would have on data validation within the controllers needs to be considered fully before embarking on this.
+</p>
+<h4>My Api Monitor</h4>
+<p>Due to time contraints the setup and ordering of tests is currently 'hardcoded' within a TestCollectionSetup_WhaddonShowApi class.</p>
+<p>The app has the potential to monitor a wide variety of APIs and if further developed would need database storage of test setups and a basic UI for setup being developed next.</p>
