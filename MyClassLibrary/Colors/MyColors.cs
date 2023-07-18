@@ -1,30 +1,34 @@
 ﻿
 namespace MyClassLibrary.Colors
 {
-    public class MyColors
+    public static class MyColors
     {
-        public string TrafficOrange(double? transparency = 1)
+        public static string TrafficOrange(double? transparency = 1)
         {
             return $"rgba(255,102,0,{transparency})";
         }
 
-        public string TrafficGreen(double? transparency = 1)
+        public static string TrafficGreen(double? transparency = 1)
         {
             return $"rgba(102,153,0,{transparency})";
         }
 
-        public string TrafficRed(double? transparency = 1)
+        public static string TrafficRed(double? transparency = 1)
         {
             return $"rgba(255,0,0,{transparency})";
         }
 
-        public string TrafficOrangeRed(double? transparency = 1)
+        public static string TrafficOrangeRed(double? transparency = 1)
         {
             return $"rgba(255,60,0,{transparency})";
         }
 
+        public static string OffWhite(double? transparency = 1)
+        {
+            return $"rgba(220,220,220,{transparency})"; //Gainsboro
+        }
 
-        public string Transparent()
+        public static string Transparent()
         {
             return ("rgba(0,0,0,0)");
         }
