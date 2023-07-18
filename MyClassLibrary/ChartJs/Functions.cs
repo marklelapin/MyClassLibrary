@@ -69,7 +69,9 @@
 
                                                 return moment(label).format(.dynamicParameter.);
                                             }}"}
-
+            ,{"OverrideTickValues",$@"axis => {{
+                                          axis.ticks = .dynamicParameter.
+                                        }}"}
         };
 
 

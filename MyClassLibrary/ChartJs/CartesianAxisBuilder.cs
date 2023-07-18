@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using MyClassLibrary.Extensions;
+using System.Drawing;
 using System.Text.RegularExpressions;
 
 namespace MyClassLibrary.ChartJs
@@ -13,11 +14,13 @@ namespace MyClassLibrary.ChartJs
             _axis.type = type;
         }
 
-        public CartesianAxisBuilder AddTitle(string title, string align = "center", Color? color = null, Font? font = null)
+        public CartesianAxisBuilder AddTitle(string title, string? color = null, Font? font = null, string align = "center")
         {
             _axis.title = new Title(title, align, color, font);
             return this;
         }
+
+
         public CartesianAxisBuilder AddType(string type)
         {
             _axis.type = type
@@ -26,16 +29,17 @@ namespace MyClassLibrary.ChartJs
 
         public CartesianAxisBuilder AddAbsoluteScaleLimits(double? min, double? max)
         {
-            _axis.min = min.ToString();
-            _axis.max = max.ToString();
-            return this;
-        }
-        public CartesianAxisBuilder AddAbsoluteScaleLimits(string? min, string? max)
-        {
             _axis.min = min;
             _axis.max = max;
             return this;
         }
+
+        //public CartesianAxisBuilder AddAbsoluteScaleLimits(string? min, string? max)
+        //{
+        //    _axis.min = min;
+        //    _axis.max = max;
+        //    return this;
+        //}
         public CartesianAxisBuilder AddSuggestedScaleLimts(double? suggestedMin, double? suggestedMax)
         {
             _axis.suggestedMin = suggestedMin.ToString();
@@ -58,12 +62,6 @@ namespace MyClassLibrary.ChartJs
         public CartesianAxisBuilder AddLabels(List<string> labels)
         {
             _axis.labels = labels.ToArray();
-            return this;
-        }
-
-        public CartesianAxisBuilder SetAutoSkip(bool autoskip)
-        {
-            _axis.ticks.autoSkip = autoskip;
             return this;
         }
 
@@ -111,6 +109,7 @@ namespace MyClassLibrary.ChartJs
             }
 
             _axis.ticks.callback = $"callbackfunction.UseTickLabels({dp}).";
+
             return this;
         }
 
@@ -126,6 +125,46 @@ namespace MyClassLibrary.ChartJs
             _axis.ticks.callback = $@"callbackfunction.ConvertLabelToDateTime(""{dateTimeFormat}"").";
             return this;
         }
+
+
+        public CartesianAxisBuilder AutoSkipTicks(bool autoSkip, int? autoSkipPadding = null)
+        {
+            _axis.autoSkip = autoSkip;
+            _axis.autoSkipPadding = autoSkipPadding;
+            return this;
+
+        }
+
+
+        public CartesianAxisBuilder OverrideTickValues(List<double> values)
+        {
+            var valuesString = "[";
+
+            foreach (double value in values)
+            {
+                valuesString += $@"{{ value: {value}}},";
+            }
+
+            valuesString = valuesString.TrimEnd(',') + "]";
+
+
+            valuesString = _axis.afterBuildTicks = $@"callbackfunction.OverrideTickValues({valuesString}).";
+            return this;
+        }
+
+
+        public CartesianAxisBuilder TickColor(Color color)
+        {
+            _axis.ticks.color = color.ToHex();
+            return this;
+        }
+
+        public CartesianAxisBuilder TickColor(string color)
+        {
+            _axis.ticks.color = color;
+            return this;
+        }
+
 
 
 

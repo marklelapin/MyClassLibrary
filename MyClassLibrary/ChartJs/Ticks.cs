@@ -32,5 +32,11 @@
         /// The Maximum allowed rotation for tick labels.
         /// </summary>
         public int? maxRotation { get; set; }
+
+
+        /// <summary>
+        /// The font color of tick labels.
+        /// </summary>
+        public string? color { get; set; }
     }
 }

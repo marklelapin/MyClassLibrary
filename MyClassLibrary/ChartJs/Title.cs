@@ -1,7 +1,4 @@
-﻿using MyClassLibrary.Extensions;
-using System.Drawing;
-
-namespace MyClassLibrary.ChartJs
+﻿namespace MyClassLibrary.ChartJs
 {
     public class Title
     {
@@ -32,15 +29,11 @@ namespace MyClassLibrary.ChartJs
 
         public Title() { }
 
-        public Title(string text, string? align, Color? color = null, Font? font = null)
+        public Title(string text, string? align, string? color = null, Font? font = null)
         {
             this.text = text;
             this.align = align ?? "center";
-            if (color != null)
-            {
-                Color newColor = (Color)color;
-                this.color = newColor.ToHex();
-            }
+            this.color = color;
             this.font = font;
         }
 

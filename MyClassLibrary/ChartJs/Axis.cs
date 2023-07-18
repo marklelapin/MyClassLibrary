@@ -32,9 +32,9 @@
         /// </summary>
         public Grid? grid { get; set; } = new Grid();
 
-        public string? min { get; set; }
+        public double? min { get; set; }
 
-        public string? max { get; set; }
+        public double? max { get; set; }
 
         /// <summary>
         /// Adjustment used when calculating the maximum value. the axes will use this if values do not exceed the max.
@@ -67,6 +67,13 @@
         public int? weight { get; set; }
 
 
+        /// <summary>
+        /// Call back function that can be used to add or delete ticks to the axis
+        /// </summary>
+        public string? afterBuildTicks { get; set; }
+
+
+
         public Axis()
         {
 
@@ -74,17 +81,17 @@
 
         public Axis(Double min, Double max)
         {
-            this.min = min.ToString();
-            this.max = max.ToString();
-
-        }
-
-        public Axis(string min, string max)
-        {
             this.min = min;
             this.max = max;
 
         }
+
+        //public Axis(string min, string max)
+        //{
+        //    this.min = min;
+        //    this.max = max;
+
+        //}
 
     }
 }

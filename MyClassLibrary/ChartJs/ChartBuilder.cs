@@ -110,6 +110,17 @@ namespace MyClassLibrary.ChartJs
             return this;
         }
 
+        /// <summary>
+        /// If ratio is null and bl = true. It will maintain the original canvas aspect ratio.
+        /// </summary>
+        public ChartBuilder MaintainAspectRatio(bool bl, double? ratio = null)
+        {
+            _chart.options.maintainAspectRatio = bl;
+            _chart.options.aspectRatio = ratio;
+            return this;
+        }
+
+
 
 
         private CartesianAxis CreateCartesianAxis(Action<CartesianAxisBuilder> builderActions)
@@ -120,6 +131,7 @@ namespace MyClassLibrary.ChartJs
 
             return newAxis;
         }
+
 
 
 

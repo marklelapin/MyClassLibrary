@@ -56,5 +56,18 @@
         /// String array of category labels associated with axis.
         /// </summary>
         public string[]? labels { get; set; }
+
+
+
+        /// <summary>
+        /// Determines whether or not ChartJs skip labels automatically. The Default is true.
+        /// </summary>
+        public bool? autoSkip { get; set; }
+
+        /// <summary>
+        /// The padding to apply around each label when working out if it should be skipped or not.
+        /// </summary>
+        public int? autoSkipPadding { get; set; }
+
     }
 }
