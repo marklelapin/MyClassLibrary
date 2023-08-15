@@ -2,10 +2,11 @@
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
+using MyClassLibrary.Interfaces;
 
-namespace MyClassLibrary.Methods
+namespace MyClassLibrary.Email
 {
-    public class EmailClient
+    public class HotmailClient : IEmailClient
     {
         private IConfiguration _configuration;
         string host;
@@ -13,34 +14,43 @@ namespace MyClassLibrary.Methods
         string username;
         string password;
         string fromAddress;
+        string toAddress;
 
         /// <summary>
-        /// Creates an email client to send emails.
+        /// Creates an email client to send emails using hotmail.
         /// </summary>
         /// <remarks>
         /// Appsettings needs the following configuration: <br/>
         /// Email: (e.g.) <br/> 
-        /// Host: <br/>
-        /// Port: <br/>
         /// Username: <br/>
         /// Password: <br/>
+        /// FromAddress: "magcarter@hotmail.co.uk"
         /// </remarks>
 
-        public EmailClient(IConfiguration config)
+        public HotmailClient(IConfiguration config)
         {
             _configuration = config.GetRequiredSection("Email");
-            host = _configuration.GetValue<string>("Host");
-            port = _configuration.GetValue<int>("Port");
+            host = "smtp-mail.outlook.com";
+            port = 587;
             username = _configuration.GetValue<string>("Username");
             password = _configuration.GetValue<string>("Password");
             fromAddress = _configuration.GetValue<string>("FromAddress");
+            toAddress = _configuration.GetValue<string>("ToAddress");
         }
 
-        public async Task<bool> SendAsync(string from, string to, string subject, string body, string? replyTo = null)
+        public async Task<bool> SendAsync(string from, string to, string subject, string body)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(from, fromAddress));
-            message.To.Add(new MailboxAddress(to, to));
+            if (to == "default")
+            {
+                message.To.Add(new MailboxAddress(toAddress, toAddress));
+            }
+            else
+            {
+                message.To.Add(new MailboxAddress(to, to));
+            }
+
             message.Subject = subject;
             message.Body = new TextPart("plain")
             {
@@ -61,7 +71,6 @@ namespace MyClassLibrary.Methods
                     await client.AuthenticateAsync(username, password);
                     await client.SendAsync(message);
                     await client.DisconnectAsync(true);
-
                 }
 
                 return true;
