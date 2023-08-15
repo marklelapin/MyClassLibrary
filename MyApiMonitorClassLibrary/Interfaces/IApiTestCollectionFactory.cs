@@ -18,6 +18,6 @@ namespace MyApiMonitorClassLibrary.Interfaces
         /// <summary>
         /// Runs and save the result of each test collection.
         /// </summary>
-        public (bool wasSuccessfull, Exception? exception) ExecuteTestCollections(List<ApiTestCollection> testCollections);
+        public (bool wasSuccessfull, Exception? exception, int testsPassed, int testsRun) ExecuteTestCollections(List<ApiTestCollection> testCollections);
     }
 }

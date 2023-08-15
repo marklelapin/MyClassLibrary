@@ -20,23 +20,31 @@ namespace MyApiMonitorClassLibrary.Models
         }
 
 
-        public void RunTest(ApiTest test)
+        public (int testsPassed, int testsRun) RunTest(ApiTest test)
         {
-            RunTest(new List<ApiTest> { test });
+            return RunTest(new List<ApiTest> { test });
+
         }
 
-        public void RunTest(List<ApiTest> tests)
+        public (int testsPassed, int testsRun) RunTest(List<ApiTest> tests)
         {
-            HttpResponseMessage? response = null;
+
 
             tests.ForEach((test) =>
-              {
+            {
 
-                  (string responseMessage, HttpStatusCode statusCode) = GetAndTimeApiResponse(test);
+                (string responseMessage, HttpStatusCode statusCode) = GetAndTimeApiResponse(test);
 
-                  PerformTests(test, responseMessage, statusCode);
+                PerformTests(test, responseMessage, statusCode);
 
-              });
+            });
+
+            int testsPassed = tests.Where(x => x.TestResult.WasSuccessful == true).Count();
+            int testsRun = tests.Count();
+
+
+            return (testsPassed, testsRun);
+
         }
 
 
@@ -45,10 +53,13 @@ namespace MyApiMonitorClassLibrary.Models
             _dataAccess.Save(testCollection);
         }
 
-        public void RunTestAndSave(ApiTestCollection testCollection)
+        public (int testsPassed, int testRun) RunTestAndSave(ApiTestCollection testCollection)
         {
-            RunTest(testCollection.Tests);
+            (int testsPassed, int testRun) = RunTest(testCollection.Tests);
             Save(testCollection);
+
+            return (testsPassed, testRun);
+
         }
 
 

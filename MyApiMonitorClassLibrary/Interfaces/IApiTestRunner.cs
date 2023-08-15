@@ -16,7 +16,7 @@ namespace MyApiMonitorClassLibrary.Interfaces
         /// <returns>
         /// True if all tests were successful.
         /// </returns>
-        public void RunTest(List<ApiTest> tests);
+        public (int testsPassed, int testsRun) RunTest(List<ApiTest> tests);
 
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace MyApiMonitorClassLibrary.Interfaces
         /// </summary>
         /// <param name="tests"></param>
         /// <returns></returns>
-        public void RunTestAndSave(ApiTestCollection testCollection);
+        public (int testsPassed, int testsRun) RunTestAndSave(ApiTestCollection testCollection);
 
 
     }

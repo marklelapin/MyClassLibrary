@@ -39,13 +39,13 @@ namespace MyApiMonitorClassLibrary.Models
         }
 
 
-        public (bool wasSuccessfull, Exception? exception) ExecuteTestCollections(List<ApiTestCollection> testCollections)
+        public (bool wasSuccessfull, Exception? exception, int testsPassed, int testsRun) ExecuteTestCollections(List<ApiTestCollection> testCollections)
         {
             try
             {
                 testCollections.ForEach((testCollection) =>
                                 {
-                                    _runner.RunTestAndSave(testCollection);
+                                    (int testsPassed, int testRun) = _runner.RunTestAndSave(testCollection);
                                 });
             }
             catch (Exception ex)

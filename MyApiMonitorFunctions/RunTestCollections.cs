@@ -21,7 +21,7 @@ namespace MyApiMonitorFunctions
             log.LogInformation($"MyApiMonitorServiceApi ran at {DateTime.Now} with response: {response.StatusCode}");
 
 
-            // log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+
         }
 
         [FunctionName("RunAvailabilityTests")]

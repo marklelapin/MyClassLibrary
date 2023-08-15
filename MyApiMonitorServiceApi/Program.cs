@@ -50,7 +50,7 @@ app.UseHttpsRedirection();
 app.MapGet("/runtestcollections", (IApiTestCollectionFactory factory) =>
 {
 
-    (bool wasSuccessfull, Exception? exception) testOutcome;
+    (bool wasSuccessfull, Exception? exception, int testsPassed, int testsRun) testOutcome;
 
     try
     {
@@ -63,9 +63,13 @@ app.MapGet("/runtestcollections", (IApiTestCollectionFactory factory) =>
         return Results.Problem(ex.Message, null, 500);
     }
 
-    if (testOutcome.wasSuccessfull)
+    if (testOutcome.wasSuccessfull && testOutcome.testsPassed == testOutcome.testsRun)
     {
-        return Results.Ok("Test Collections Ran To Completion.");
+        return Results.Ok("All Tests Ran and Passed.");
+    }
+    else if (testOutcome.wasSuccessfull && testOutcome.testsPassed != testOutcome.testsRun)
+    {
+        return Results.Ok($"All Tests Ran but only {testOutcome.testsPassed} out of {testOutcome.testsRun} passed.");
     }
     else
     {
@@ -76,7 +80,7 @@ app.MapGet("/runtestcollections", (IApiTestCollectionFactory factory) =>
 
 app.MapGet("/runavailabilitytests", (IApiTestCollectionFactory factory) =>
 {
-    (bool wasSuccessfull, Exception? exception) testOutcome;
+    (bool wasSuccessfull, Exception? exception, int testsPassed, int testsRun) testOutcome;
 
     try
     {
