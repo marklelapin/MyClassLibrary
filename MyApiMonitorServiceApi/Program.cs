@@ -1,7 +1,9 @@
 using MyApiMonitorClassLibrary.Interfaces;
 using MyApiMonitorClassLibrary.Models;
 using MyClassLibrary.DataAccessMethods;
+using MyClassLibrary.Email;
 using MyClassLibrary.Extensions;
+using MyClassLibrary.Interfaces;
 using System.Net.Http.Headers;
 
 //create container
@@ -15,10 +17,12 @@ string token = builder.GetTokenFromAzureAdB2cClientCredentialsFlow();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddTransient<IMongoDBDataAccess, MongoDBDataAccess>();
+builder.Services.AddTransient<IMongoDBDataAccess>(sp => new MongoDBDataAccess(builder.Configuration.GetValue<string>("MongoDatabase:DatabaseName")!
+                                                                             , builder.Configuration.GetValue<string>("MongoDatabase:ConnectionString")!));
 builder.Services.AddTransient<IApiTestDataAccess, ApiTestMongoDataAccess>();
 builder.Services.AddTransient<IApiTestRunner, ApiTestRunner>();
 builder.Services.AddTransient<IApiTestCollectionFactory, ApiTestCollectionFactory>();
+builder.Services.AddTransient<IEmailClient, HotmailClient>();
 
 builder.Services.AddHttpClient("DownstreamApi", options =>
 {
@@ -47,7 +51,7 @@ app.UseSwaggerUI(options =>
 app.UseHttpsRedirection();
 
 
-app.MapGet("/runtestcollections", (IApiTestCollectionFactory factory) =>
+app.MapGet("/runtestcollections", async (IApiTestCollectionFactory factory, IEmailClient emailClient) =>
 {
 
     (bool wasSuccessfull, Exception? exception, int testsPassed, int testsRun) testOutcome;
@@ -63,17 +67,48 @@ app.MapGet("/runtestcollections", (IApiTestCollectionFactory factory) =>
         return Results.Problem(ex.Message, null, 500);
     }
 
-    if (testOutcome.wasSuccessfull && testOutcome.testsPassed == testOutcome.testsRun)
+    if (testOutcome.wasSuccessfull)
     {
-        return Results.Ok("All Tests Ran and Passed.");
-    }
-    else if (testOutcome.wasSuccessfull && testOutcome.testsPassed != testOutcome.testsRun)
-    {
-        return Results.Ok($"All Tests Ran but only {testOutcome.testsPassed} out of {testOutcome.testsRun} passed.");
+
+        string responseMessage;
+
+        if (testOutcome.testsPassed == testOutcome.testsRun)
+        {
+            responseMessage = "All Tests Ran and Passed.";
+        }
+        else
+        {
+            responseMessage = $"All Tests Ran but only {testOutcome.testsPassed} out of {testOutcome.testsRun} passed.";
+        };
+
+
+        try
+        {
+            var emailSuccess = await emailClient.SendAsync("ApiMonitor", "default", responseMessage, "");
+            if (emailSuccess == false) throw new Exception("EmailClient.SendAsync ran but reported failure.");
+        }
+        catch
+        {
+            responseMessage += " EMAIL ALERT FAILED!";
+        };
+
+        return Results.Ok(responseMessage);
     }
     else
     {
-        return Results.Problem(testOutcome.exception?.Message, null, 500);
+        try
+        {
+            var emailSuccess = await emailClient.SendAsync("ApiMonitor", "default", "Api Monitor Error", testOutcome.exception?.Message ?? "No further details.");
+            if (emailSuccess == false) throw new Exception("EmailClient.SendAsync ran but reported failure.");
+
+            return Results.Problem(testOutcome.exception?.Message, null, 500);
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Test Run Error: {testOutcome.exception?.Message ?? "none"}. \n Email Alert Error: {ex.Message}.", null, 500);
+        }
+
+
     }
 })
 .WithName("RunTestCollections");
