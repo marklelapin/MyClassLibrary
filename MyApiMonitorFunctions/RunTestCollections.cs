@@ -33,7 +33,7 @@ namespace MyApiMonitorFunctions
             getTask.Wait();
             HttpResponseMessage response = getTask.Result;
 
-            //log.LogInformation($"AvailabilityTest ran at {DateTime.Now} with response: {response.StatusCode}");
+            //don't run log for this as too frequent.
         }
 
     }
