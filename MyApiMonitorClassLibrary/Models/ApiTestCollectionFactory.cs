@@ -41,19 +41,27 @@ namespace MyApiMonitorClassLibrary.Models
 
         public (bool wasSuccessfull, Exception? exception, int testsPassed, int testsRun) ExecuteTestCollections(List<ApiTestCollection> testCollections)
         {
+            int totalTestsPassed = 0;
+            int totalTestsRun = 0;
+
             try
             {
+                int collectionTestsPassed = 0;
+                int collectionTestsRun = 0;
+
                 testCollections.ForEach((testCollection) =>
                                 {
-                                    (int testsPassed, int testRun) = _runner.RunTestAndSave(testCollection);
+                                    (collectionTestsPassed, collectionTestsRun) = _runner.RunTestAndSave(testCollection);
+                                    totalTestsPassed += collectionTestsPassed;
+                                    totalTestsRun += collectionTestsRun;
                                 });
             }
             catch (Exception ex)
             {
-                return (false, ex);
+                return (false, ex, totalTestsPassed, totalTestsRun);
             }
 
-            return (true, null);
+            return (true, null, totalTestsPassed, totalTestsRun);
         }
     }
 }
