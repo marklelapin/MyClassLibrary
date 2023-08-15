@@ -53,7 +53,7 @@ namespace MyApiMonitorClassLibrary.Models
             _dataAccess.Save(testCollection);
         }
 
-        public (int testsPassed, int testRun) RunTestAndSave(ApiTestCollection testCollection)
+        public (int testsPassed, int testsRun) RunTestAndSave(ApiTestCollection testCollection)
         {
             (int testsPassed, int testRun) = RunTest(testCollection.Tests);
             Save(testCollection);
