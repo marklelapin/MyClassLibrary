@@ -1,4 +1,5 @@
 ﻿using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 
@@ -11,6 +12,19 @@ namespace MyClassLibrary.Methods
         int port;
         string username;
         string password;
+        string fromAddress;
+
+        /// <summary>
+        /// Creates an email client to send emails.
+        /// </summary>
+        /// <remarks>
+        /// Appsettings needs the following configuration: <br/>
+        /// Email: (e.g.) <br/> 
+        /// Host: <br/>
+        /// Port: <br/>
+        /// Username: <br/>
+        /// Password: <br/>
+        /// </remarks>
 
         public EmailClient(IConfiguration config)
         {
@@ -19,12 +33,13 @@ namespace MyClassLibrary.Methods
             port = _configuration.GetValue<int>("Port");
             username = _configuration.GetValue<string>("Username");
             password = _configuration.GetValue<string>("Password");
+            fromAddress = _configuration.GetValue<string>("FromAddress");
         }
 
-        public void Send(string from, string to, string subject, string body)
+        public async Task<bool> SendAsync(string from, string to, string subject, string body, string? replyTo = null)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(from, from));
+            message.From.Add(new MailboxAddress(from, fromAddress));
             message.To.Add(new MailboxAddress(to, to));
             message.Subject = subject;
             message.Body = new TextPart("plain")
@@ -32,25 +47,33 @@ namespace MyClassLibrary.Methods
                 Text = @$"{body}"
             };
 
-            Send(message);
+            return await SendAsync(message);
+
         }
 
-        public void Send(MimeMessage message)
+        public async Task<bool> SendAsync(MimeMessage message)
         {
             try
             {
                 using (var client = new SmtpClient())
                 {
-                    client.Connect(host, port);
-                    client.Authenticate(username, password);
-                    client.Send(message);
-                    client.Disconnect(true);
+                    await client.ConnectAsync(host, port, SecureSocketOptions.StartTls);
+                    await client.AuthenticateAsync(username, password);
+                    await client.SendAsync(message);
+                    await client.DisconnectAsync(true);
+
                 }
+
+                return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                //TODO Log FailedEmail
+                return false;
             }
         }
+
+
+
+
     }
 }
