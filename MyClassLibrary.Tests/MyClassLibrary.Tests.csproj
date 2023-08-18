@@ -5,9 +5,23 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <IsPackable>false</IsPackable>
+    <IsPackable>true</IsPackable>
 
     <UserSecretsId>baf7f39f-afbe-4409-be82-ce032be82da9</UserSecretsId>
+
+    <PackageId>MarkCarter.MyClassLibrary.Tests</PackageId>
+
+    <Title>Mark Carters Class Library Tests</Title>
+
+    <Authors>Mark Carter</Authors>
+
+    <Description>My Personal Class Library for Testing</Description>
+
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,6 +49,10 @@
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 

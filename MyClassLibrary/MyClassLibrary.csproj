@@ -4,11 +4,13 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="css\mylibrary.css" />
     <None Remove="js\mylibrary.js" />
+	<None Include="README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -42,5 +44,9 @@
 
 	<PropertyGroup>
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+		<PackageId>MarkCarter.MyClassLibrary</PackageId>
+		<Title>Mark Carters Personal Class Library</Title>
+		<Authors>Mark Carter</Authors>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 </Project>
