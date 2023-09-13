@@ -10,7 +10,7 @@
   <ItemGroup>
     <None Remove="css\mylibrary.css" />
     <None Remove="js\mylibrary.js" />
-	<None Include="README.md" Pack="true" PackagePath="\"/>
+	<None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,5 +48,18 @@
 		<Title>Mark Carters Personal Class Library</Title>
 		<Authors>Mark Carter</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<Version>1.0.1</Version>
+		<PackageReleaseNotes>HttpTaskMessageExtension response message functionality removed. returns not available.</PackageReleaseNotes>
+	</PropertyGroup>
+
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <DebugType>embedded</DebugType>
 	</PropertyGroup>
 </Project>
