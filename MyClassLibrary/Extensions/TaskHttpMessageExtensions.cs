@@ -7,6 +7,7 @@ namespace MyClassLibrary.Extensions;
 public static class TaskHttpMessageExtensions
 {
 
+
 	public static (T? responseObject, HttpStatusCode statusCode) ConvertTo<T>(this Task<HttpResponseMessage> responseMessage)
 	{
 		T? responseObject;
@@ -118,11 +119,12 @@ public static class TaskHttpMessageExtensions
 		{
 			try
 			{
+
 				output = JsonSerializer.Deserialize<T>(responseBody)!;
+
 			}
 			catch (Exception ex)
 			{
-
 				throw new Exception("Output from HttpResponseMessage" + responseBody
 					+ "cannot be converted to an object of type " + typeof(T).Name + "\n"
 					+ "Output = \"" + responseBody + "\"", ex);
