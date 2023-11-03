@@ -21,37 +21,67 @@ namespace MyClassLibrary.OpenAI
 		public async Task<IActionResult> GetChatCompletionContent(string systemPrompt, string userPrompt, Action<ChatCompletionRequestOptions>? configureOptions = null)
 		{
 			var chatCompletionRequest = new ChatCompletionRequest(systemPrompt, userPrompt, configureOptions);
+			int lastStatusCode = 0;
 
-			var responseContent = await getResponseContent(chatCompletionRequest.ToJson());
-
-			if (responseContent is ObjectResult objectResult)
+			for (int i = 0; i < chatCompletionRequest.RetryAttempts; i++)
 			{
-				string chatContent = getChatContent((string)objectResult.Value);
-				return StatusCode((int)objectResult.StatusCode, chatContent);
+				var responseContent = await getResponseContent(chatCompletionRequest.ToJson(), chatCompletionRequest.Timeout);
+
+				try
+				{
+					if (responseContent is ObjectResult objectResult)
+
+						if (objectResult.StatusCode == 200)
+						{
+							string chatContent = getChatContent((string)objectResult.Value);
+							return Ok(chatContent);
+						}
+						else if (objectResult.StatusCode != 408 && objectResult.StatusCode != 503 && objectResult.StatusCode != 500) //timeout or sevice unavailable codes
+						{
+							lastStatusCode = (int)objectResult.StatusCode;
+							return StatusCode((int)objectResult.StatusCode, (string)objectResult.Value);
+						};
+				}
+				catch
+				{
+					return StatusCode(500, "Failed to read response content from OpenAI API reponse.");
+				}
+
 			}
 
-			return StatusCode(500, "Failed to read response content from OpenAI API reponse.");
-
+			return StatusCode(503, $"Aborted OpenAI request after {chatCompletionRequest.RetryAttempts} retry attempts. Status Code {lastStatusCode}");
 		}
 
-		private async Task<IActionResult> getResponseContent(string httpContentJson)
+		private async Task<IActionResult> getResponseContent(string httpContentJson, int? timeout = null)
 		{
-			try
+
+			var httpContent = new StringContent(httpContentJson, Encoding.UTF8, "application/json");
+
+			var client = _factory.CreateClient(ServiceName);
+			using (var cts = new CancellationTokenSource())
 			{
-				var httpContent = new StringContent(httpContentJson, Encoding.UTF8, "application/json");
+				if (timeout != null)
+				{
+					cts.CancelAfter((int)timeout);
+				}
+				try
+				{
+					HttpResponseMessage response = await client.PostAsync("", httpContent, cts.Token);
 
-				var client = _factory.CreateClient(ServiceName);
+					var responseContent = response.Content.ReadAsStringAsync().Result;
 
-				HttpResponseMessage response = await client.PostAsync("", httpContent);
-
-				var responseContent = response.Content.ReadAsStringAsync().Result;
-
-				return StatusCode((int)response.StatusCode, responseContent);
+					return StatusCode((int)response.StatusCode, responseContent);
+				}
+				catch (TaskCanceledException)
+				{
+					return StatusCode(408, $"Request to {ServiceName} API timed out.");
+				}
+				catch (Exception ex)
+				{
+					return StatusCode(500, $"Failed to read response content from {ServiceName} API. {ex.Message}");
+				}
 			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, $"Failed to read response content from {ServiceName} API. {ex.Message}");
-			}
+
 		}
 
 		private string getChatContent(string responseContent)

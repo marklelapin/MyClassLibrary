@@ -22,6 +22,9 @@ namespace MyClassLibrary.OpenAI
 
 		public float presence_penalty { get; set; }
 
+		public int? Timeout { get; set; } = null;
+
+		public int RetryAttempts { get; set; } = 0;
 
 		private Dictionary<string, int> ModelTokenLimits = new Dictionary<string, int>
 		{
