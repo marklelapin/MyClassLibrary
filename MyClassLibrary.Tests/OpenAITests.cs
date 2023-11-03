@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MyClassLibrary.Interfaces;
 using MyClassLibrary.OpenAI;
 using System.Reflection;
+using System.Text.Json;
 using Xunit.Sdk;
 
 namespace MyClassLibrary.Tests
@@ -65,6 +66,7 @@ namespace MyClassLibrary.Tests
 
 		}
 
+
 		public static readonly object[][] getChatCompletionContentData =
 		{
 			new object[]{"greet user","Hi my name is Jim",200},
@@ -90,6 +92,7 @@ namespace MyClassLibrary.Tests
 				Assert.Equal(expectedStatusCode, objectResult.StatusCode);
 				Assert.Equal(typeof(string), objectResult.Value.GetType());
 				Assert.True(((string)objectResult.Value).Length > 0);
+				JsonSerializer.Deserialize<object>((string)objectResult.Value);
 				//Assert.Equal("hello", ((string)objectResult.Value));
 				//Assert.NotEmpty((string)objectResult.Value);
 			}
@@ -100,6 +103,10 @@ namespace MyClassLibrary.Tests
 
 
 		}
+
+
+
+
 
 		private string GeneratedWords(int targetWordCount)
 		{
@@ -127,6 +134,7 @@ namespace MyClassLibrary.Tests
 			return randomText;
 
 		}
+
 
 
 
