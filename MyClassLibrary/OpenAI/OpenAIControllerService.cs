@@ -23,7 +23,7 @@ namespace MyClassLibrary.OpenAI
 			var chatCompletionRequest = new ChatCompletionRequest(systemPrompt, userPrompt, configureOptions);
 			int lastStatusCode = 0;
 
-			for (int i = 0; i < chatCompletionRequest.RetryAttempts; i++)
+			for (int i = 0; i <= chatCompletionRequest.RetryAttempts; i++)
 			{
 				var responseContent = await getResponseContent(chatCompletionRequest.ToJson(), chatCompletionRequest.Timeout);
 
@@ -62,7 +62,7 @@ namespace MyClassLibrary.OpenAI
 			{
 				if (timeout != null)
 				{
-					cts.CancelAfter((int)timeout);
+					cts.CancelAfter((int)timeout * 1000);
 				}
 				try
 				{

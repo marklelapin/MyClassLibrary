@@ -33,7 +33,7 @@
 		public int? RetryAttempts { get; set; } = null;
 
 		/// <summary>
-		/// The time set before the request times out.
+		/// The time in seconds before the request times out.
 		/// </summary>
 		public int? Timeout { get; set; } = null;
 

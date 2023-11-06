@@ -1,5 +1,6 @@
 ﻿using SharpToken;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MyClassLibrary.OpenAI
 {
@@ -22,8 +23,10 @@ namespace MyClassLibrary.OpenAI
 
 		public float presence_penalty { get; set; }
 
+		[JsonIgnore]
 		public int? Timeout { get; set; } = null;
 
+		[JsonIgnore]
 		public int RetryAttempts { get; set; } = 0;
 
 		private Dictionary<string, int> ModelTokenLimits = new Dictionary<string, int>
