@@ -52,9 +52,10 @@
 		<Authors>Mark Carter</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<PackageReleaseNotes>HttpTaskMessageExtension response message functionality removed. returns not available.</PackageReleaseNotes>
 		<UserSecretsId>e5d689f8-55c9-4b8c-94df-82a184818d66</UserSecretsId>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	</PropertyGroup>
 
 
