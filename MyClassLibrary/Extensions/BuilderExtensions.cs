@@ -44,9 +44,9 @@ namespace MyClassLibrary.Extensions
         ///  app.UseCookiePolicy(); (above UseRouting) <br/>
         ///    app.UseAuthorization(); (above UseAuthentication)
         /// </remarks>
-        public static void ConfigureMicrosoftIdentityWebAuthenticationAndUI(this WebApplicationBuilder builder,string identityConfigurationSection)
+        public static void ConfigureMicrosoftIdentityWebAuthenticationAndUI(this WebApplicationBuilder builder, string identityConfigurationSection)
         {
-           
+
             //configures cookie options
             builder.Services.Configure<CookiePolicyOptions>(options =>
             {
@@ -61,10 +61,10 @@ namespace MyClassLibrary.Extensions
                 .EnableTokenAcquisitionToCallDownstreamApi()
                 .AddInMemoryTokenCaches();
 
-           builder.Services.AddAuthorization(options =>
-            {
-                options.FallbackPolicy = options.DefaultPolicy;
-            });
+            builder.Services.AddAuthorization(options =>
+             {
+                 options.FallbackPolicy = options.DefaultPolicy;
+             });
 
             //Setups up UI for accessing and loging into AzureAdB2c 
             builder.Services.AddControllersWithViews()
@@ -74,20 +74,20 @@ namespace MyClassLibrary.Extensions
 
         public static void ConfigureWebAPIAuthentication_AzureAdB2C(this WebApplicationBuilder builder)
         {
-                builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApi(options =>
-                                                    {
-                            builder.Configuration.Bind("AzureAdB2C", options);
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(options =>
+                                                {
+                                                    builder.Configuration.Bind("AzureAdB2C", options);
 
-                            options.TokenValidationParameters.NameClaimType = "name";
-                        },
-                                                   options =>
-                                                   {
-                                                       builder.Configuration.Bind("AzureAdB2C", options);
-                                                   });
+                                                    options.TokenValidationParameters.NameClaimType = "name";
+                                                },
+                                               options =>
+                                               {
+                                                   builder.Configuration.Bind("AzureAdB2C", options);
+                                               });
         }
 
-        
+
 
 
 
@@ -113,8 +113,8 @@ namespace MyClassLibrary.Extensions
                 return Task.CompletedTask;
             }
         }
-    
-    
+
+
         /// <summary>
         /// Sets the fallback policy to RequireAuthenticatedUser.
         /// </summary>
@@ -131,8 +131,20 @@ namespace MyClassLibrary.Extensions
 
 
 
-
-       public static string GetTokenFromAzureAdB2cClientCredentialsFlow(this WebApplicationBuilder builder, string configurationSection = "AzureAdB2C:ClientCredentials:")
+        /// <summary>
+        /// Gets a token from AzureAdB2C using AzureAdB2C:ClientCredentials:RequestUri, AzureAdB2C:ClientCredentials:Scopes, AzureAdB2C:ClientCredentials:ClientId, AzureAdB2C:ClientCredentials:ClientSecret
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="configurationSection"></param>
+        /// <remarks>
+        /// Requires the following example configuration in appsettings/secrets.json
+        /// "RequestUri" : "https://thewhaddonentertainers.b2clogin.com/thewhaddonentertainers.onmicrosoft.com/oauth2/v2.0/token?p=B2C_1_susi"
+        ///  "Scopes": [ "daemon.read","daemon.write" ],
+        ///  "ClientId": "cientId of App",
+        ///  "ClientSecret": "client Secret of App"
+        /// </remarks>
+        /// <returns></returns>
+        public static string GetTokenFromAzureAdB2cClientCredentialsFlow(this WebApplicationBuilder builder, string configurationSection = "AzureAdB2C:ClientCredentials:")
         {
             var task = GetTokenFromAzureAdB2cClientCredentialsFlowAsync(builder, configurationSection);
             task.Wait();
@@ -140,33 +152,121 @@ namespace MyClassLibrary.Extensions
         }
 
 
-
-       public static async Task<string> GetTokenFromAzureAdB2cClientCredentialsFlowAsync(this WebApplicationBuilder builder, string configurationSection)
+        /// <summary>
+        /// Gets a token from AzureAdB2C using AzureAdB2C:ClientCredentials:RequestUri, AzureAdB2C:ClientCredentials:Scopes, AzureAdB2C:ClientCredentials:ClientId, AzureAdB2C:ClientCredentials:ClientSecret
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="configurationSection"></param>
+        /// <remarks>
+        /// Requires the following example configuration in appsettings/secrets.json
+        /// "RequestUri" : "https://thewhaddonentertainers.b2clogin.com/thewhaddonentertainers.onmicrosoft.com/oauth2/v2.0/token?p=B2C_1_susi"
+        ///  "Scopes": [ "daemon.read","daemon.write" ],
+        ///  "ClientId": "cientId of App",
+        ///  "ClientSecret": "client Secret of App"
+        /// </remarks>
+        /// <returns></returns>
+        public static async Task<string> GetTokenFromAzureAdB2cClientCredentialsFlowAsync(this WebApplicationBuilder builder, string configurationSection)
         {
-            string requestUri = builder.Configuration.GetValue<string>(configurationSection + "RequestUri");
+            try
+            {
+                string requestUri = builder.Configuration.GetValue<string>(configurationSection + "RequestUri");
+                string scope = builder.Configuration.GetValue<string>(configurationSection + "DefaultScope");
+                string clientId = builder.Configuration.GetValue<string>(configurationSection + "ClientId");
+                string clientSecret = builder.Configuration.GetValue<string>(configurationSection + "ClientSecret");
 
-            var client = new HttpClient();
+                var client = new HttpClient();
 
-            var request = new HttpRequestMessage(
-                                    HttpMethod.Post
-                                    , requestUri);
-            var collection = new List<KeyValuePair<string, string>>();
-            collection.Add(new("grant_type", "client_credentials"));
-            collection.Add(new("scope", builder.Configuration.GetValue<string>(configurationSection + "DefaultScope")));
-            collection.Add(new("client_id", builder.Configuration.GetValue<string>(configurationSection + "ClientId")));
-            collection.Add(new("client_secret", builder.Configuration.GetValue<string>(configurationSection+ "ClientSecret")));
+                var request = new HttpRequestMessage(
+                                        HttpMethod.Post
+                                        , requestUri);
 
-            var content = new FormUrlEncodedContent(collection);
-            request.Content = content;
+                var collection = new List<KeyValuePair<string, string>>();
 
-            using var response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            
-            string authenticationResponse = await response.Content.ReadAsStringAsync();
+                collection.Add(new("grant_type", "client_credentials"));
+                collection.Add(new("scope", scope));
+                collection.Add(new("client_id", clientId));
+                collection.Add(new("client_secret", clientSecret));
 
-            string token = (string)JsonObject.Parse(authenticationResponse)?["access_token"]!;
-             
-            return token ;
+                var content = new FormUrlEncodedContent(collection);
+                request.Content = content;
+
+                using var response = await client.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+
+                string authenticationResponse = await response.Content.ReadAsStringAsync();
+
+                string token = (string)JsonObject.Parse(authenticationResponse)?["access_token"]!;
+
+                return token;
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error getting token from AzureAdB2C using ClientCredentials Flow", ex);
+            }
+
+
+
+        }
+
+
+        /// <summary>
+        /// Gets a token from AzureAd using AzureAd:Instance (the requestUri), AzureAd:ClientId, AzureAd:ClientCredentials:0:ClientSecret
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="configurationSection"></param>
+        /// >param name="scope"></param>
+        /// <remarks>
+        /// Requires the following example configuration in appsettings/secrets.json
+        /// "RequestUri" : "https://login.microsoftonline.com/"
+        ///  "Scopes": [ "daemon.read","daemon.write" ],
+        ///  "ClientId": "cientId of App",
+        ///  "ClientSecret": [ { "ClientSecret": "client Secret of App" } ]
+        /// </remarks>
+        /// <returns></returns>
+        public static async Task<string> GetTokenFromAzureAdClientCredentialsAsync(this WebApplicationBuilder builder, string configurationSection)
+        {
+            try
+            {
+                string requestUri = builder.Configuration.GetValue<string>(configurationSection + "RequestUri");
+                string scope = builder.Configuration.GetValue<string>(configurationSection + "Scope");
+                string clientId = builder.Configuration.GetValue<string>(configurationSection + "ClientId");
+                string clientSecret = builder.Configuration.GetValue<string>(configurationSection + "ClientCredentials:0:ClientSecret");
+
+
+                var client = new HttpClient();
+
+                var request = new HttpRequestMessage(
+                                        HttpMethod.Post
+                                        , requestUri);
+
+                var collection = new List<KeyValuePair<string, string>>();
+
+                collection.Add(new("grant_type", "client_credentials"));
+                collection.Add(new("scope", scope));
+                collection.Add(new("client_id", clientId));
+                collection.Add(new("client_secret", clientSecret));
+
+                var content = new FormUrlEncodedContent(collection);
+                request.Content = content;
+
+                using var response = await client.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+
+                string authenticationResponse = await response.Content.ReadAsStringAsync();
+
+                string token = (string)JsonObject.Parse(authenticationResponse)?["access_token"]!;
+
+                return token;
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error getting token from AzureAd using ClientCredentials Flow", ex);
+            }
+
 
 
         }
