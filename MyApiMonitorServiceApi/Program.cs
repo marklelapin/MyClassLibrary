@@ -5,14 +5,19 @@ using MyClassLibrary.Email;
 using MyClassLibrary.Extensions;
 using MyClassLibrary.Interfaces;
 using System.Net.Http.Headers;
+using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Abstractions;
+
 
 //create container
 var builder = WebApplication.CreateBuilder(args);
 
-//TODO - Add Authentication to ApiMonitor
-
-//
-string token = builder.GetTokenFromAzureAdB2cClientCredentialsFlow();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"))
+    .EnableTokenAcquisitionToCallDownstreamApi()
+    .AddDownstreamApi("DownstreamApi",builder.Configuration.GetSection("DownstreamApi:Scopes"))
+    .AddInMemoryTokenCaches();
 
 
 // Add services to the container.
@@ -24,13 +29,20 @@ builder.Services.AddTransient<IApiTestRunner, ApiTestRunner>();
 builder.Services.AddTransient<IApiTestCollectionFactory, ApiTestCollectionFactory>();
 builder.Services.AddTransient<IEmailClient, HotmailClient>();
 
+
 builder.Services.AddHttpClient("DownstreamApi", options =>
+{
+    options.BaseAddress = new Uri(builder.Configuration.GetValue<string>("DownstreamApi:BaseUrl"));
+});
+
+string token = await builder.GetTokenFromAzureAdClientCredentialsAsync("AzureAd:");
+
+builder.Services.AddHttpClient("AuthenticatedDownstreamApi", options =>
 {
     options.BaseAddress = new Uri(builder.Configuration.GetValue<string>("DownstreamApi:BaseUrl"));
     options.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 });
-
-
+   
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -50,6 +62,8 @@ app.UseSwaggerUI(options =>
 
 app.UseHttpsRedirection();
 
+
+ 
 
 app.MapGet("/runtestcollections", async (IApiTestCollectionFactory factory, IEmailClient emailClient) =>
 {

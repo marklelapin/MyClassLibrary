@@ -1,7 +1,10 @@
-﻿using MyApiMonitorClassLibrary.Interfaces;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Abstractions;
+using MyApiMonitorClassLibrary.Interfaces;
 using MyClassLibrary.Extensions;
 using System.Diagnostics;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace MyApiMonitorClassLibrary.Models
@@ -11,14 +14,15 @@ namespace MyApiMonitorClassLibrary.Models
         private readonly IApiTestDataAccess _dataAccess;
         private readonly IHttpClientFactory _clientFactory;
         private readonly HttpClient _client;
+        private readonly HttpClient _authorisedClient;
 
         public ApiTestRunner(IApiTestDataAccess dataAccess, IHttpClientFactory clientFactory)
         {
             _dataAccess = dataAccess;
             _clientFactory = clientFactory;
             _client = _clientFactory.CreateClient("DownstreamApi");
-        }
-
+            _authorisedClient = _clientFactory.CreateClient("AuthenticatedDownstreamApi");
+        }   
 
         public (int testsPassed, int testsRun) RunTest(ApiTest test)
         {
@@ -28,7 +32,6 @@ namespace MyApiMonitorClassLibrary.Models
 
         public (int testsPassed, int testsRun) RunTest(List<ApiTest> tests)
         {
-
 
             tests.ForEach((test) =>
             {
@@ -74,14 +77,22 @@ namespace MyApiMonitorClassLibrary.Models
                 //TODO - allo fow different API's to be called. Also fix this call.
                 stopwatch.Start();
 
-                HttpRequestMessage request = new HttpRequestMessage(test.RequestMethod, test.RequestUri);
+                HttpRequestMessage request = new HttpRequestMessage(test.RequestMethod ?? HttpMethod.Get, test.RequestUri);
 
 
 
                 request.Content = new StringContent(test.RequestBody ?? "", Encoding.UTF8, "application/json");
 
-                var taskCall = _client.SendAsync(request);
-
+                Task<HttpResponseMessage> taskCall;
+                
+                if (test.RemoveAuthentication == true)
+                {
+                    taskCall = _client.SendAsync(request);
+                }
+                else
+                {
+                    taskCall = _authorisedClient.SendAsync(request);
+                };
 
 
                 taskCall.Wait();
