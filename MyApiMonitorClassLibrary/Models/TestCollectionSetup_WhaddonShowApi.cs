@@ -12,7 +12,7 @@ namespace MyApiMonitorClassLibrary.Models
 
 
 
-        private static string baseUrl = "https://thewhaddonshowdev.azurewebsites.net/api/v2/";
+        private static string baseUrl = "https://thewhaddonshowapi.azurewebsites.net/api/v2/";
 
         public ApiTestCollection GenerateTestCollection()
         {
@@ -127,8 +127,8 @@ namespace MyApiMonitorClassLibrary.Models
                         , "Part/updates/27fc9657-3c92-6758-16a6-b9f82ca696b3"
                         , @$"[
                                     {{
-                                        ""Id"":""{Guid.NewGuid()}""
-                                        ,""Created"":""{DateTimeNowToString()}"",
+                                        ""Id"":""{Guid.NewGuid()}"",
+                                        ""Created"":""{DateTimeNowToString()}"",
                                         ""CreatedBy"":""mcarter"",
                                         ""UpdatedOnServer"":null,
                                         ""IsConflicted"":false,
@@ -136,8 +136,9 @@ namespace MyApiMonitorClassLibrary.Models
                                         ""IsSample"":true,
                                         ""Name"": ""Rodney"",
                                         ""PersonId"" : null,
-                                            ""Tags"":[""Male"", ""Test""]
-                                    }} """)
+                                        ""Tags"":[""Male"", ""Test""]
+                                    }} 
+                                    ]")
             .ExpectedStatusCode(HttpStatusCode.OK)
             .Build());
 
@@ -156,7 +157,8 @@ namespace MyApiMonitorClassLibrary.Models
                                         ""Name"": ""Rodney"",
                                         ""PersonId"" : null,
                                             ""Tags"":[""Male"", ""Test""]
-                                    }} """)
+                                    }} 
+                                    ]")
             .RemoveAuthentication()
             .ExpectedStatusCode(HttpStatusCode.Unauthorized)
             .Build());
@@ -180,8 +182,8 @@ namespace MyApiMonitorClassLibrary.Models
                         , "Part/updates/postbackfromlocal/27fc9657-3c92-6758-16a6-b9f82ca696b3"
                         , @$"[
                                   {{
-                                    ""id"":""{{{{newId}}}}"",
-                                    ""created"":""{{{{created}}}}"",
+                                    ""id"":""{Guid.NewGuid()}"",
+                                    ""created"":""{DateTimeNowToString()}"",
                                     ""isConflicted"": true
                                   }}
                                 ]")
@@ -267,7 +269,7 @@ namespace MyApiMonitorClassLibrary.Models
                                         ""tags"": [
                                           ""string""
                                         ]
-                                    }} """)
+                                    }} ]")
             .ExpectedStatusCode(HttpStatusCode.OK)
             .Build());
 
@@ -295,7 +297,7 @@ namespace MyApiMonitorClassLibrary.Models
                                         ""tags"": [
                                           ""string""
                                         ]
-                                    }} """)
+                                    }} ]")
             .RemoveAuthentication()
             .ExpectedStatusCode(HttpStatusCode.Unauthorized)
             .Build());
@@ -376,7 +378,7 @@ namespace MyApiMonitorClassLibrary.Models
 
             testCollection.Tests.Add(new ApiTestBuilder("b11b07ed-3b20-4c5f-a776-d42d5efa0689", "ScriptItem - ClearConflicts Check")
             .AddRequest(HttpMethod.Get
-                        , "ScriptItem/conflicts/clear/?ids=ED789FA3-4B2B-41A0-A322-773ED7CE89FE")
+                        , "ScriptItem/conflicts/?ids=ED789FA3-4B2B-41A0-A322-773ED7CE89FE")
             .ExpectedStatusCode(HttpStatusCode.NotFound)
             .Build());
 
@@ -402,8 +404,12 @@ namespace MyApiMonitorClassLibrary.Models
                                         ],
                                         ""tags"": [
                                                     ""string""
-                                        ]
-                                        }}] """)
+                                        ],
+                                        ""Attachments"": [
+                                                ""youTubeUrl"",
+                                                ""azureBlobStorageUrl""
+]
+                                        }}] ")
             .ExpectedStatusCode(HttpStatusCode.OK)
             .Build());
 
@@ -428,8 +434,12 @@ namespace MyApiMonitorClassLibrary.Models
                                         ],
                                         ""tags"": [
                                                     ""string""
-                                        ]
-                                        }}] """)
+                                        ],
+                                        ""Attachments"": [
+                                                ""youTubeUrl"",
+                                                ""azureBlobStorageUrl""
+]
+                                        }}] ")
             .RemoveAuthentication()
             .ExpectedStatusCode(HttpStatusCode.Unauthorized)
             .Build());
