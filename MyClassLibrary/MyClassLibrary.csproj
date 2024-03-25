@@ -53,8 +53,8 @@
 		<Authors>Mark Carter</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Version>1.0.3</Version>
-		<PackageReleaseNotes>Azure Ad builder extensions added to get Client Credential tokens.</PackageReleaseNotes>
+		<Version>1.0.4</Version>
+		<PackageReleaseNotes>AuthorizationHeaderHandler added to ensure token refreshed properly.</PackageReleaseNotes>
 		<UserSecretsId>e5d689f8-55c9-4b8c-94df-82a184818d66</UserSecretsId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	</PropertyGroup>
